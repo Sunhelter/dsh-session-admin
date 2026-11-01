@@ -12,7 +12,7 @@
  * (same-origin, admitted by Connection's trust check) and the `session_admin`
  * agent tool calls the same functions in process.
  */
-import { readdir, rm } from 'node:fs/promises';
+import { readdir, rm, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 
@@ -28,6 +28,9 @@ export const inject = [
 /** Same-origin delete endpoint owned by this plugin. */
 const DELETE_PATH = '/plugins/session-admin/delete';
 
+/** Same-origin endpoint returning this plugin's session tree. */
+const TREE_PATH = '/plugins/session-admin/tree';
+
 /** Largest accepted delete request body. */
 const MAX_BODY_BYTES = 64 * 1024;
 
@@ -39,14 +42,47 @@ const SESSION_ID = /^session-[0-9a-fA-F-]{8,64}$/;
 
 /**
  * Home-relative roots this plugin reads.
- * @returns the session persistence root and the storage root.
+ * @returns the DSH home, the session persistence root, and the storage root.
  */
 function homeRoots() {
   const home = process.env.DSH_HOME ?? join(homedir(), '.dsh');
   return {
+    home,
     sessions: join(home, 'sessions'),
     storages: join(home, 'storages'),
   };
+}
+
+/**
+ * Whether a directory entry may name a tree folder: one plain path segment.
+ * @param value - candidate name.
+ * @returns true for a name that stays inside the tree root.
+ */
+function isPlainName(value) {
+  return (
+    value !== '' &&
+    value !== '.' &&
+    value !== '..' &&
+    !value.startsWith('.') &&
+    !value.includes('/') &&
+    !value.includes('\\')
+  );
+}
+
+/**
+ * Whether a tree link still resolves to a stored Session directory. Only a
+ * definite `ENOENT` counts as dangling; any other failure keeps the link so a
+ * transient error never deletes tree state.
+ * @param path - absolute link path.
+ * @returns true when the target exists or could not be checked.
+ */
+async function linkAlive(path) {
+  try {
+    await stat(path);
+    return true;
+  } catch (error) {
+    return error?.code !== 'ENOENT';
+  }
 }
 
 /**
@@ -106,6 +142,48 @@ export function apply(ctx) {
   const roots = homeRoots();
   const sessionsRoot = resolve(roots.sessions);
   const checkpointRoot = resolve(roots.storages, 'session_projcache', 'sessions');
+  const treeRoot = resolve(roots.home, 'session-admin', 'tree');
+
+  /**
+   * Read the tree: one level of real folders, each holding Session links. A
+   * dangling link is removed as it is found, so a deleted Session never leaves
+   * a dead row behind.
+   * @returns folders sorted by name plus the dangling links that were removed.
+   */
+  async function readTree() {
+    const folders = [];
+    const invalid = [];
+    let entries;
+    try {
+      entries = await readdir(treeRoot, { withFileTypes: true });
+    } catch {
+      return { folders, invalid };
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || !isPlainName(entry.name)) continue;
+      const folder = join(treeRoot, entry.name);
+      let children;
+      try {
+        children = await readdir(folder, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+      const sessions = [];
+      for (const child of children) {
+        if (!SESSION_ID.test(child.name)) continue;
+        const link = join(folder, child.name);
+        if (await linkAlive(link)) {
+          sessions.push(child.name);
+          continue;
+        }
+        invalid.push({ id: child.name, folder: entry.name });
+        await rm(link, { force: true }).catch(() => {});
+      }
+      folders.push({ name: entry.name, sessions });
+    }
+    folders.sort((left, right) => left.name.localeCompare(right.name));
+    return { folders, invalid };
+  }
 
   /**
    * Whether the runtime is currently running this Session. An attached but
@@ -252,6 +330,35 @@ export function apply(ctx) {
         },
       }),
     'session-admin: delete route',
+  );
+
+  ctx.effect(
+    () =>
+      ctx.webServer.register({
+        kind: 'exact',
+        path: TREE_PATH,
+        handler: async (req, res) => {
+          if (req.method !== 'GET') {
+            res.writeHead(405, { allow: 'GET' });
+            res.end();
+            return;
+          }
+          if (rejectUntrusted(ctx, req, res)) return;
+          try {
+            const tree = await readTree();
+            if (tree.invalid.length > 0) {
+              ctx.logger?.info?.(`session-admin: removed ${tree.invalid.length} dangling link(s)`);
+            }
+            sendJson(res, 200, { ok: true, ...tree });
+          } catch (error) {
+            sendJson(res, 500, {
+              ok: false,
+              error: error instanceof Error ? error.message : '读取会话树失败',
+            });
+          }
+        },
+      }),
+    'session-admin: tree route',
   );
 
   ctx.effect(

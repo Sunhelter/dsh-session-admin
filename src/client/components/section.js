@@ -1,22 +1,25 @@
 /**
- * Session management page: browse the live client catalog, select, delete.
- * Mounted by the `settings.section` seat.
+ * Session management page: browse the live client catalog grouped by native
+ * workspaces, select, delete, open. Mounted by the `settings.section` seat.
  */
 import React, { h } from '../react.js';
 import { postDelete } from '../api.js';
-import { formatTime, orderedUnique } from '../format.js';
+import { orderedUnique } from '../format.js';
 import { CSS } from '../styles.js';
 import { markVanished, useVanished } from '../stores/vanished.js';
+import { SessionTree } from './session-tree.js';
 import { SidebarSwitch } from './pref-switch.js';
 
 /**
- * @param props - slot props: locale seat, session catalog, workspace snapshot.
+ * @param props - slot props: locale seat, session catalog, workspace snapshot,
+ *   plus `openSession(id)` for navigation.
  * @returns the settings section element.
  */
 export function SessionAdminSection(props) {
 	const t = props.t;
 	const catalog = props.useSessions((state) => state);
-	const archivedIds = props.useWorkspaces((state) => state.archivedSessionIds);
+	const workspaces = props.useWorkspaces((state) => state);
+	const archivedIds = workspaces.archivedSessionIds;
 	const goneIds = useVanished();
 
 	const [query, setQuery] = React.useState('');
@@ -24,36 +27,72 @@ export function SessionAdminSection(props) {
 	const [confirming, setConfirming] = React.useState(null);
 	const [busy, setBusy] = React.useState(false);
 	const [notice, setNotice] = React.useState(null);
+	const [collapsed, setCollapsed] = React.useState([]);
+	const [dialog, setDialog] = React.useState(null);
 
 	const archived = React.useMemo(() => new Set(archivedIds), [archivedIds]);
 	const gone = React.useMemo(() => new Set(goneIds), [goneIds]);
 
+	/** The Session the conversation view retains: the one blank row the tree keeps. */
+	const currentId = React.useMemo(() => {
+		for (const id of catalog.ids) {
+			const row = catalog.byId[id];
+			if (row !== undefined && (row.retainedBy?.mainView ?? 0) > 0) return id;
+		}
+		return undefined;
+	}, [catalog]);
+
+	/** Catalog rows worth showing, newest first; blank sessions hidden like the shipped tree. */
 	const rows = React.useMemo(() => {
 		const list = [];
 		for (const id of catalog.ids) {
 			const row = catalog.byId[id];
 			if (row === undefined) continue;
 			if (archived.has(id) || gone.has(id)) continue;
+			if (row.blank === true && id !== currentId) continue;
 			list.push(row);
 		}
 		list.sort((left, right) => right.updatedAt - left.updatedAt);
 		return list;
-	}, [catalog, archived, gone]);
+	}, [catalog, archived, gone, currentId]);
 
 	const needle = query.trim().toLowerCase();
-	const visible = React.useMemo(() => {
-		if (needle === '') return rows;
-		return rows.filter((row) => {
+	const matches = React.useCallback(
+		(row) => {
+			if (needle === '') return true;
 			const title = row.title ?? '';
 			const cwd = row.cwd ?? '';
 			return title.toLowerCase().includes(needle) || cwd.toLowerCase().includes(needle);
-		});
-	}, [rows, needle]);
+		},
+		[needle],
+	);
 
-	const selectable = React.useMemo(() => visible.filter((row) => !row.running), [visible]);
+	/** Groups in display order: native workspaces, then unaccounted rows. */
+	const groups = React.useMemo(() => {
+		const byId = new Map();
+		for (const row of rows) if (matches(row)) byId.set(row.id, row);
+		const accounted = new Set();
+		const list = workspaces.items.map((workspace) => {
+			const sessions = workspace.sessionIds
+				.map((id) => {
+					accounted.add(id);
+					return byId.get(id);
+				})
+				.filter((row) => row !== undefined);
+			const label = workspace.title !== undefined && workspace.title !== '' ? workspace.title : workspace.path;
+			return { key: workspace.workspaceId, label, sessions };
+		});
+		const rest = rows.filter((row) => byId.has(row.id) && !accounted.has(row.id));
+		if (rest.length > 0) list.push({ key: '', label: t('groupUngrouped'), sessions: rest });
+		return needle === '' ? list : list.filter((group) => group.sessions.length > 0);
+	}, [rows, matches, needle, t, workspaces.items]);
+
+	const visibleRows = React.useMemo(() => groups.flatMap((group) => group.sessions), [groups]);
+	const selectable = React.useMemo(() => visibleRows.filter((row) => !row.running), [visibleRows]);
 	const visibleIds = React.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
 	const selectedIds = selected.filter((id) => visibleIds.has(id));
 	const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
+	const expandedKeys = groups.filter((group) => !collapsed.includes(group.key)).map((group) => group.key);
 
 	const toggle = (id) => {
 		setSelected((previous) => (previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]));
@@ -65,6 +104,15 @@ export function SessionAdminSection(props) {
 			return;
 		}
 		setSelected((previous) => orderedUnique([...previous, ...selectable.map((row) => row.id)]));
+	};
+
+	const toggleGroup = (key) => {
+		setCollapsed((previous) => (previous.includes(key) ? previous.filter((value) => value !== key) : [...previous, key]));
+	};
+
+	const openSession = (id) => {
+		if (typeof props.openSession !== 'function') return;
+		props.openSession(id);
 	};
 
 	const runDelete = async (ids) => {
@@ -88,6 +136,44 @@ export function SessionAdminSection(props) {
 			kind: result.deleted.length === 0 ? 'error' : 'ok',
 			text: `${t('noticeDeleted', { count: result.deleted.length })} ${t('noticeSkipped', { count: result.skipped.length, reasons })}`,
 		});
+	};
+
+	/** Remote failures surface as `{ ok: false, error }` instead of throwing. */
+	const failureText = (result) => {
+		if (result === undefined || result === null || result.ok !== false) return null;
+		const error = result.error;
+		if (error === undefined || error === null) return t('noticeFailed', { message: 'unknown' });
+		return t('noticeFailed', { message: error.message ?? String(error) });
+	};
+
+	const startSession = (group) => {
+		if (typeof props.startSession !== 'function' || group.key === '') return;
+		props.startSession(group.key);
+	};
+
+	const renameWorkspace = async (dialogState) => {
+		const title = dialogState.value.trim();
+		if (title === '' || typeof props.renameWorkspace !== 'function') return;
+		setDialog(null);
+		setNotice(null);
+		try {
+			const message = failureText(await props.renameWorkspace(dialogState.workspaceId, title));
+			if (message !== null) setNotice({ kind: 'error', text: message });
+		} catch (error) {
+			setNotice({ kind: 'error', text: t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }) });
+		}
+	};
+
+	const deleteWorkspace = async (dialogState) => {
+		if (typeof props.deleteWorkspace !== 'function') return;
+		setDialog(null);
+		setNotice(null);
+		try {
+			const message = failureText(await props.deleteWorkspace(dialogState.workspaceId));
+			if (message !== null) setNotice({ kind: 'error', text: message });
+		} catch (error) {
+			setNotice({ kind: 'error', text: t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }) });
+		}
 	};
 
 	const header = h(
@@ -126,6 +212,12 @@ export function SessionAdminSection(props) {
 		),
 	);
 
+	const confirmingTitle = (() => {
+		if (confirming === null || confirming.length !== 1) return '';
+		const row = catalog.byId[confirming[0]];
+		return row !== undefined && row.title !== undefined && row.title !== '' ? row.title : t('unnamed');
+	})();
+
 	const confirmBar =
 		confirming === null
 			? null
@@ -135,8 +227,18 @@ export function SessionAdminSection(props) {
 					h(
 						'div',
 						{ className: 'sa-confirm-text' },
-						h('div', null, t('confirmTitle', { count: confirming.length })),
-						h('div', { className: 'sa-confirm-body' }, t('confirmBody')),
+						h(
+							'div',
+							null,
+							confirming.length === 1
+								? t('confirmOneTitle', { title: confirmingTitle })
+								: t('confirmTitle', { count: confirming.length }),
+						),
+						h(
+							'div',
+							{ className: 'sa-confirm-body' },
+							confirming.length === 1 ? t('confirmOneBody') : t('confirmBody'),
+						),
 					),
 					h(
 						'button',
@@ -150,6 +252,59 @@ export function SessionAdminSection(props) {
 					),
 				);
 
+	const workspaceDialog =
+		dialog === null
+			? null
+			: h(
+					'div',
+					{ className: 'sa-mask', onClick: () => setDialog(null) },
+					h(
+						'div',
+						{
+							className: 'sa-dialog',
+							role: 'dialog',
+							'aria-modal': 'true',
+							onClick: (event) => event.stopPropagation(),
+						},
+						h(
+							'div',
+							{ className: 'sa-dialog-title' },
+							dialog.kind === 'rename' ? t('renameWorkspaceTitle') : t('deleteWorkspaceTitle'),
+						),
+						dialog.kind === 'rename'
+							? h('input', {
+									className: 'sa-search',
+									type: 'text',
+									autoFocus: true,
+									value: dialog.value,
+									'aria-label': t('renameWorkspaceTitle'),
+									onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
+									onKeyDown: (event) => {
+										if (event.key === 'Enter') void renameWorkspace(dialog);
+										if (event.key === 'Escape') setDialog(null);
+									},
+								})
+							: h('p', { className: 'sa-dialog-body' }, t('deleteWorkspaceBody', { name: dialog.label })),
+						h(
+							'div',
+							{ className: 'sa-dialog-actions' },
+							h('button', { className: 'sa-btn', type: 'button', onClick: () => setDialog(null) }, t('cancel')),
+							h(
+								'button',
+								{
+									className: dialog.kind === 'rename' ? 'sa-btn sa-btn-primary' : 'sa-btn sa-btn-danger-solid',
+									type: 'button',
+									onClick: () => {
+										if (dialog.kind === 'rename') void renameWorkspace(dialog);
+										else void deleteWorkspace(dialog);
+									},
+								},
+								dialog.kind === 'rename' ? t('save') : t('confirmDelete'),
+							),
+						),
+					),
+				);
+
 	const noticeLine =
 		notice === null
 			? null
@@ -158,42 +313,25 @@ export function SessionAdminSection(props) {
 	let body;
 	if (rows.length === 0) {
 		body = h('div', { className: 'sa-empty' }, t('empty'));
-	} else if (visible.length === 0) {
+	} else if (visibleRows.length === 0) {
 		body = h('div', { className: 'sa-empty' }, t('noMatch'));
 	} else {
-		body = h(
-			'div',
-			{ className: 'sa-list' },
-			visible.map((row) => {
-				const title = row.title !== undefined && row.title.trim() !== '' ? row.title : t('unnamed');
-				const where = row.cwd === undefined || row.cwd === '' ? t('noProject') : row.cwd;
-				const checked = selectedIds.includes(row.id);
-				return h(
-					'label',
-					{ className: 'sa-row', key: row.id },
-					h('input', {
-						className: 'sa-check',
-						type: 'checkbox',
-						checked: checked,
-						disabled: row.running || busy,
-						onChange: () => toggle(row.id),
-					}),
-					h(
-						'div',
-						{ className: 'sa-main' },
-						h(
-							'div',
-							{ className: 'sa-title' },
-							h('span', { className: 'sa-title-text' }, title),
-							row.running ? h('span', { className: 'sa-tag sa-tag-running' }, t('running')) : null,
-							row.blank === true ? h('span', { className: 'sa-tag' }, t('blank')) : null,
-							row.origin === 'subagent' ? h('span', { className: 'sa-tag' }, t('subagent')) : null,
-						),
-						h('div', { className: 'sa-meta' }, `${where} · ${formatTime(row.updatedAt)}`),
-					),
-				);
-			}),
-		);
+		body = h(SessionTree, {
+			variant: 'panel',
+			groups,
+			expanded: expandedKeys,
+			selection: selectedIds,
+			busy,
+			onOpen: openSession,
+			onToggle: toggleGroup,
+			onSelectionChange: toggle,
+			onDelete: (row) => setConfirming([row.id]),
+			onNewSession: startSession,
+			onRenameWorkspace: (group) =>
+				setDialog({ kind: 'rename', workspaceId: group.key, label: group.label, value: group.label }),
+			onDeleteWorkspace: (group) => setDialog({ kind: 'delete', workspaceId: group.key, label: group.label }),
+			t,
+		});
 	}
 
 	return h(
@@ -206,6 +344,7 @@ export function SessionAdminSection(props) {
 		confirmBar,
 		noticeLine,
 		body,
+		workspaceDialog,
 		h('p', { className: 'sa-hint' }, t('hint')),
 	);
 }

@@ -8,11 +8,14 @@ Tested against DSH `0.2.1-rc.5` with the `web` profile.
 
 | Surface | What you get |
 |---|---|
-| Settings → **Sessions** | Every stored, unarchived Session with its title, working directory and update time. Search, select rows, select all, then delete in bulk behind one confirmation. Running Sessions are not selectable. |
+| Settings → **Sessions** | A tree grouped by the native Workspaces, plus an **Unsorted** group for Sessions outside any Workspace. Rows look like the shipped sidebar tree: hover for the row actions, relative update time on the right. Search, select rows, select all, then delete in bulk behind one confirmation. Running Sessions are not selectable. |
+| Workspace row actions | **`...`** renames or deletes a Workspace (deleting keeps its Sessions and moves them to Unsorted), **`+`** starts a new Session in that Workspace. |
 | Session row **`...` menu** | A red **Delete session** row that confirms one Session and deletes it. |
 | Agent tool `session_admin` | `action: "list"` returns id, title, directory, creation time, size and running state; `action: "delete"` removes the given ids. Lets you clean up by asking the agent instead of clicking. |
 
-All three callers share one Host-side operation.
+All callers share one Host-side operation.
+
+Empty Sessions (a Session created but never used) are hidden unless it is the one currently open, matching the shipped sidebar. A deleted Session also leaves the native sidebar only after the Host restarts; see below.
 
 ## Install
 
@@ -42,7 +45,7 @@ The plugin scans that root for the requested ids and removes both. DSH exposes n
 
 - **It is permanent.** There is no trash and no undo. The confirmation dialogs exist for that reason.
 - **A Session whose turn is running is skipped**, and reported back with a reason. While a turn runs, its writer owns the log.
-- **The sidebar keeps showing a deleted row until the Host restarts.** The Workspace registry builds its session index at startup and caches membership in memory; it does not re-read the persistence root. The settings page drops deleted rows immediately, but the sidebar row, its hover card and any open reference stay stale until a restart. The durable `workspace.json` still lists the id; the next startup filters it out and the next Workspace mutation prunes it.
+- **The native sidebar keeps showing a deleted row until the Host restarts.** The Workspace registry builds its session index at startup and caches membership in memory; it does not re-read the persistence root. The settings page drops deleted rows immediately, but the sidebar row, its hover card and any open reference stay stale until a restart. The durable `workspace.json` still lists the id; the next startup filters it out and the next Workspace mutation prunes it.
 - **A Session that exists only in memory cannot be deleted.** If a Session's files were removed by something else while the Host kept the object alive, the Host still lists it; the plugin reports "no session files on disk" for it, and only a restart clears it.
 
 ## Security
@@ -62,14 +65,14 @@ It still inherits the deployment's own exposure: a DSH instance that anyone on t
 | File | Role |
 |---|---|
 | `index.js` | Host half: delete route, session scanning, the `session_admin` agent tool. |
-| `src/client/` | Browser-half source: `index.js` entry, `apply.js` seat registrations, `i18n.js`, `styles.js`, `api.js`, `format.js`, `stores/`, `components/`. |
+| `src/client/` | Browser-half source: `index.js` entry, `apply.js` seat registrations, `i18n.js`, `styles.js`, `api.js`, `format.js`, `stores/`, `components/` (the tree lives in `components/session-tree.js`). |
 | `client.js` | **Generated** bundle of `src/client/` — the file the Host serves. Never edit it by hand. |
 | `build.mjs` | esbuild wrapper that emits `client.js` (`npm run build`, or `npm run watch`). |
 | `cordis.patch.yml` | Bundle patch that inserts the Host row. |
 | `locale/en.json`, `locale/zh.json` | Plugin-manager display metadata (title, description). |
 | `icon.svg` | Plugin artwork. |
 
-The browser half uses only the public client surfaces — no DSH client package is imported at runtime, and React comes from the loader's shared module table (declared as an `external` in `build.mjs`) instead of being bundled. Menu styling follows the shipped menu primitives (row metrics, icon weight, danger tokens) so the extra row looks native.
+The browser half uses only the public client surfaces. React, the icons, `Menu`, `Tooltip` and `relativeTime` come from the loader's shared module table — `@deepseek-ai/dsh-client-ui-primitives`, declared as an `external` in `build.mjs` — instead of being bundled or installed as a dependency, so the tree uses the same controls and metrics as the shipped sidebar.
 
 ### Editing the browser half
 
@@ -85,7 +88,8 @@ npm run watch     # rebuild on change while editing
 
 ## Notes
 
-- Session titles come from the persisted projection cache; a Session that never got a title shows as *Untitled* and is tagged *Empty* when it has no content.
+- Session titles come from the persisted projection cache; a Session that never got a title shows as *Untitled*.
+- A Session with no turns yet is hidden until it becomes the open Session, the same rule the shipped sidebar applies.
 - Archived Sessions are hidden from the settings list; restore one in the sidebar to manage it.
 - The settings section uses the settings shell's default gear icon, because section icons are hardcoded by section id in the shell and plugins cannot supply one.
 

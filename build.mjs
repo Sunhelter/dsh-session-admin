@@ -51,7 +51,7 @@ const options = {
 	format: 'cjs',
 	platform: 'browser',
 	target: 'es2022',
-	external: ['react'],
+	external: ['react', '@deepseek-ai/dsh-client-ui-primitives'],
 	legalComments: 'none',
 	logLevel: 'warning',
 	write: false,

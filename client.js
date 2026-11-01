@@ -30,6 +30,11 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
+// src/client/react.js
+var React = require("react");
+var react_default = React;
+var h = React.createElement;
+
 // src/client/i18n.js
 var NS = "sessionAdmin";
 var zh = {
@@ -60,6 +65,26 @@ var zh = {
   noticeSkipped: "\u8DF3\u8FC7 {count} \u4E2A\uFF1A{reasons}",
   noticeFailed: "\u5220\u9664\u5931\u8D25\uFF1A{message}",
   hint: "\u5220\u9664\u53EA\u6E05\u7406\u4F1A\u8BDD\u6587\u4EF6\u4E0E\u6295\u5F71\u7F13\u5B58\uFF1B\u4FA7\u680F\u7531 Host \u542F\u52A8\u65F6\u5EFA\u7ACB\u7684\u7D22\u5F15\u9A71\u52A8\uFF0C\u91CD\u542F dsharness.service \u540E\u624D\u4F1A\u5F7B\u5E95\u6D88\u5931\u3002",
+  groupUngrouped: "\u672A\u5F52\u6863",
+  folderEmpty: "\uFF08\u7A7A\uFF09",
+  treeFailed: "\u8BFB\u53D6\u4F1A\u8BDD\u6811\u5931\u8D25\uFF1A{message}",
+  retry: "\u91CD\u8BD5",
+  newSession: "\u65B0\u5EFA\u4F1A\u8BDD",
+  newSessionIn: "\u5728 {name} \u4E2D\u65B0\u5EFA\u4F1A\u8BDD",
+  workspaceActions: "{name} \u7684\u5DE5\u4F5C\u533A\u64CD\u4F5C",
+  sessionActions: "{title} \u7684\u4F1A\u8BDD\u64CD\u4F5C",
+  renameWorkspace: "\u91CD\u547D\u540D\u5DE5\u4F5C\u533A",
+  deleteWorkspace: "\u5220\u9664\u5DE5\u4F5C\u533A",
+  renameWorkspaceTitle: "\u91CD\u547D\u540D\u5DE5\u4F5C\u533A",
+  deleteWorkspaceTitle: "\u5220\u9664\u5DE5\u4F5C\u533A",
+  deleteWorkspaceBody: "\u5220\u9664\u5DE5\u4F5C\u533A\u300C{name}\u300D\uFF1F\u5DE5\u4F5C\u533A\u91CC\u7684\u4F1A\u8BDD\u4E0D\u4F1A\u5220\u9664\uFF0C\u4F1A\u56DE\u5230\u300C\u672A\u5F52\u6863\u300D\u3002",
+  save: "\u4FDD\u5B58",
+  "time.now": "\u521A\u521A",
+  "time.minutes": "{n}\u5206\u949F",
+  "time.hours": "{n}\u5C0F\u65F6",
+  "time.days": "{n}\u5929",
+  "time.months": "{n}\u4E2A\u6708",
+  "time.years": "{n}\u5E74",
   shell: "\u66FF\u6362\u539F\u751F\u4FA7\u8FB9\u680F",
   shellDesc: "\u7528\u672C\u63D2\u4EF6\u81EA\u5EFA\u7684\u4F1A\u8BDD\u4FA7\u8FB9\u680F\u66FF\u6362\u539F\u751F\u5DE6\u4FA7\u680F\u3002"
 };
@@ -91,14 +116,29 @@ var en = {
   noticeSkipped: "Skipped {count}: {reasons}",
   noticeFailed: "Delete failed: {message}",
   hint: "Deleting removes session files and the projection checkpoint; the sidebar is driven by an index built at host startup, so it clears only after restarting dsharness.service.",
+  groupUngrouped: "Unsorted",
+  folderEmpty: "(empty)",
+  treeFailed: "Failed to read the session tree: {message}",
+  retry: "Retry",
+  newSession: "New session",
+  newSessionIn: "New session in {name}",
+  workspaceActions: "Workspace actions for {name}",
+  sessionActions: "Session actions for {title}",
+  renameWorkspace: "Rename workspace",
+  deleteWorkspace: "Delete workspace",
+  renameWorkspaceTitle: "Rename workspace",
+  deleteWorkspaceTitle: "Delete workspace",
+  deleteWorkspaceBody: "Delete the workspace \u201C{name}\u201D? Its sessions are kept and fall back to Unsorted.",
+  save: "Save",
+  "time.now": "now",
+  "time.minutes": "{n}min",
+  "time.hours": "{n}h",
+  "time.days": "{n}d",
+  "time.months": "{n}mo",
+  "time.years": "{n}y",
   shell: "Replace the native sidebar",
   shellDesc: "Use this plugin\u2019s own session sidebar in place of the stock one."
 };
-
-// src/client/react.js
-var React = require("react");
-var react_default = React;
-var h = React.createElement;
 
 // src/client/api.js
 var DELETE_URL = "/plugins/session-admin/delete";
@@ -123,11 +163,11 @@ async function postDelete(ids) {
 }
 
 // src/client/format.js
-function formatTime(value) {
-  if (!Number.isFinite(value)) return "";
-  const date = new Date(value);
-  const pad = (part) => String(part).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
+function relativeLabel(updatedAt, now, t) {
+  const { unit, n } = (0, import_dsh_client_ui_primitives.relativeTime)(updatedAt, now);
+  if (unit === "now") return t("time.now");
+  return t(`time.${unit}`, { n });
 }
 function orderedUnique(values) {
   const seen = /* @__PURE__ */ new Set();
@@ -166,17 +206,41 @@ var CSS = `
 .sa-btn-danger-solid { border-color: transparent; background: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-bg-base); }
 .sa-btn-danger-solid:hover:not(:disabled) { background: var(--dsw-alias-state-error-primary); opacity: 0.9; }
 .sa-count { font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
-.sa-list { border: 0.5px solid var(--dsw-alias-border-l1); border-radius: 8px; overflow: hidden; }
-.sa-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-top: 0.5px solid var(--dsw-alias-border-l1); }
-.sa-row:first-child { border-top: none; }
-.sa-row:hover { background: var(--dsw-alias-bg-layer-1); }
-.sa-check { margin: 2px 0 0; flex: none; }
-.sa-main { flex: 1; min-width: 0; }
-.sa-title { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; min-width: 0; }
-.sa-title-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.sa-meta { margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-secondary); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.sa-tag { flex: none; font-size: 11px; line-height: 16px; padding: 0 6px; border-radius: 4px; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-secondary); }
-.sa-tag-running { color: var(--dsw-alias-state-warn-primary); }
+.sa-tree { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; }
+.sa-block { display: flex; flex-direction: column; }
+.sa-group { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px; border-radius: var(--dsw-radius-md); cursor: pointer; user-select: none; color: var(--dsw-alias-label-primary); }
+.sa-group:hover, .sa-group.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-slot { width: 16px; height: 20px; flex: none; display: inline-flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-tertiary); }
+.sa-group .sa-chevron { display: none; }
+.sa-group:hover .sa-chevron { display: inline-flex; }
+.sa-group:hover .sa-folder { display: none; }
+.sa-arrow { transition: transform 0.15s var(--ds-ease-in-out); }
+.sa-arrow-open { transform: rotate(90deg); }
+.sa-title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; line-height: 20px; }
+.sa-row-actions { flex: none; display: none; align-items: center; gap: 12px; }
+.sa-group:hover .sa-row-actions, .sa-group.sa-menu-open .sa-row-actions, .sa-session:hover .sa-row-actions, .sa-session.sa-menu-open .sa-row-actions { display: inline-flex; }
+.sa-icon-btn { width: 16px; height: 16px; padding: 0; border: none; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-tertiary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.sa-icon-btn:hover { color: var(--dsw-alias-label-primary); }
+.sa-rows { display: flex; flex-direction: column; }
+.sa-session { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px 0 10px; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-primary); }
+.sa-session:hover, .sa-session.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-session.sa-selected { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-check { flex: none; width: 14px; height: 14px; margin: 0; accent-color: var(--dsw-alias-state-business-primary); cursor: pointer; }
+.sa-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.sa-open:disabled { cursor: default; opacity: 0.6; }
+.sa-open .sa-title { flex: 0 1 auto; }
+.sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
+.sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
+.sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
+.sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
+.sa-tree-sidebar { padding: 0; gap: 0; }
+.sa-tree-sidebar .sa-session-sidebar { width: 100%; padding: 0 8px 0 10px; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.sa-tree-sidebar .sa-session-sidebar:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-tree-sidebar .sa-session-sidebar:disabled { cursor: default; opacity: 0.6; }
+.sa-tree-sidebar .sa-time { font-size: 10px; }
+@media (prefers-reduced-motion: reduce) { .sa-arrow { transition: none; } }
+.sa-btn-primary { border-color: transparent; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-bg-base); }
+.sa-btn-primary:hover:not(:disabled) { background: var(--dsw-alias-state-business-primary); opacity: 0.9; }
 .sa-empty { padding: 24px 12px; text-align: center; font-size: 13px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
 .sa-confirm { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 8px; border: 0.5px solid var(--dsw-alias-state-error-primary); font-size: 13px; line-height: 18px; }
 .sa-confirm-text { flex: 1 1 220px; min-width: 0; }
@@ -245,6 +309,251 @@ function useVanished() {
   return store.useValue();
 }
 
+// src/client/components/session-tree.js
+var import_dsh_client_ui_primitives2 = require("@deepseek-ai/dsh-client-ui-primitives");
+function statusDot(row, t) {
+  if (row.running !== true) return null;
+  return h("span", { className: "sa-dot", title: t("running"), "aria-label": t("running") });
+}
+function SessionMenu(props) {
+  const { row, t, open, onOpenChange, onDelete } = props;
+  const title = row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
+  return h(
+    import_dsh_client_ui_primitives2.Menu,
+    {
+      open,
+      onClose: () => onOpenChange(false),
+      portal: true,
+      closeOnPointerLeave: true,
+      items: [
+        {
+          id: "delete",
+          label: t("deleteSession"),
+          icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null),
+          danger: true
+        }
+      ],
+      onSelect: (id) => {
+        onOpenChange(false);
+        if (id === "delete") onDelete(row);
+      },
+      anchor: h(
+        "button",
+        {
+          className: "sa-icon-btn",
+          type: "button",
+          "aria-label": t("sessionActions", { title }),
+          onClick: (event) => {
+            event.stopPropagation();
+            onOpenChange(!open);
+          }
+        },
+        h(import_dsh_client_ui_primitives2.IconEllipsisOutlineRegular, null)
+      )
+    }
+  );
+}
+function SessionRow(props) {
+  const { variant, row, now, selected, busy, t, onOpen, onSelect, onDelete } = props;
+  const title = row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
+  const [menuOpen, setMenuOpen] = react_default.useState(false);
+  if (variant === "sidebar") {
+    return h(
+      "button",
+      {
+        className: "sa-session sa-session-sidebar",
+        type: "button",
+        title,
+        disabled: busy,
+        onClick: () => onOpen(row.id)
+      },
+      h("span", { className: "sa-title" }, title),
+      statusDot(row, t),
+      h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t))
+    );
+  }
+  const className = ["sa-session", selected ? "sa-selected" : "", menuOpen ? "sa-menu-open" : ""].filter((part) => part !== "").join(" ");
+  return h(
+    "div",
+    { className, role: "treeitem", "aria-selected": selected },
+    h("input", {
+      className: "sa-check",
+      type: "checkbox",
+      checked: selected,
+      disabled: row.running || busy,
+      title: row.running ? t("runningHint") : title,
+      "aria-label": title,
+      onClick: (event) => event.stopPropagation(),
+      onChange: () => onSelect(row.id)
+    }),
+    h(
+      "button",
+      { className: "sa-open", type: "button", disabled: busy, title, onClick: () => onOpen(row.id) },
+      h("span", { className: "sa-title" }, title),
+      statusDot(row, t)
+    ),
+    h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)),
+    h(
+      "span",
+      { className: "sa-row-actions" },
+      h(SessionMenu, {
+        row,
+        t,
+        open: menuOpen,
+        onOpenChange: setMenuOpen,
+        onDelete: (target) => {
+          if (typeof onDelete === "function") onDelete(target);
+        }
+      })
+    )
+  );
+}
+function Group(props) {
+  const { group, now, expanded, selection, busy, variant, t } = props;
+  const [menuOpen, setMenuOpen] = react_default.useState(false);
+  const sessions = Array.isArray(group.sessions) ? group.sessions : [];
+  const toggle = () => {
+    if (typeof props.onToggle === "function") props.onToggle(group.key);
+  };
+  const menu = () => h(
+    import_dsh_client_ui_primitives2.Menu,
+    {
+      open: menuOpen,
+      onClose: () => setMenuOpen(false),
+      portal: true,
+      closeOnPointerLeave: true,
+      items: [
+        { id: "rename", label: t("renameWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) },
+        { id: "delete", label: t("deleteWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true }
+      ],
+      onSelect: (id) => {
+        setMenuOpen(false);
+        if (id === "rename" && typeof props.onRenameWorkspace === "function") props.onRenameWorkspace(group);
+        if (id === "delete" && typeof props.onDeleteWorkspace === "function") props.onDeleteWorkspace(group);
+      },
+      anchor: h(
+        "button",
+        {
+          className: "sa-icon-btn",
+          type: "button",
+          "aria-label": t("workspaceActions", { name: group.label }),
+          onClick: (event) => {
+            event.stopPropagation();
+            setMenuOpen((open) => !open);
+          }
+        },
+        h(import_dsh_client_ui_primitives2.IconEllipsisOutlineRegular, null)
+      )
+    }
+  );
+  const head = h(
+    "div",
+    {
+      className: ["sa-group", menuOpen ? "sa-menu-open" : ""].filter((part) => part !== "").join(" "),
+      role: "treeitem",
+      "aria-expanded": expanded,
+      onClick: toggle
+    },
+    h(
+      "span",
+      { className: "sa-slot sa-folder" },
+      expanded ? h(import_dsh_client_ui_primitives2.IconFolderOpenRegular, null) : h(import_dsh_client_ui_primitives2.IconFolderCloseRegular, null)
+    ),
+    h(
+      "span",
+      { className: "sa-slot sa-chevron" },
+      h(import_dsh_client_ui_primitives2.IconTriangleRightFillRegular, { className: expanded ? "sa-arrow sa-arrow-open" : "sa-arrow" })
+    ),
+    h("span", { className: "sa-title" }, group.label),
+    group.key === "" ? null : h(
+      "span",
+      { className: "sa-row-actions" },
+      menu(),
+      h(
+        import_dsh_client_ui_primitives2.Tooltip,
+        { label: t("newSession"), side: "bottom", align: "end", delayMs: 500, portal: true },
+        h(
+          "button",
+          {
+            className: "sa-icon-btn",
+            type: "button",
+            "aria-label": t("newSessionIn", { name: group.label }),
+            onClick: (event) => {
+              event.stopPropagation();
+              if (typeof props.onNewSession === "function") props.onNewSession(group);
+            }
+          },
+          h(import_dsh_client_ui_primitives2.IconNewChatOutlineRegular, null)
+        )
+      )
+    )
+  );
+  let body = null;
+  if (expanded) {
+    if (sessions.length === 0) body = h("div", { className: "sa-empty-group" }, t("folderEmpty"));
+    else
+      body = h(
+        "div",
+        { className: "sa-rows" },
+        sessions.map(
+          (row) => h(SessionRow, {
+            key: row.id,
+            variant,
+            row,
+            now,
+            selected: selection.includes(row.id),
+            busy,
+            t,
+            onOpen: props.onOpen,
+            onSelect: props.onSelect,
+            onDelete: props.onDelete
+          })
+        )
+      );
+  }
+  return h("div", { className: "sa-block", key: group.key }, head, body);
+}
+function SessionTree(props) {
+  const t = props.t;
+  const variant = props.variant === "sidebar" ? "sidebar" : "panel";
+  const groups = Array.isArray(props.groups) ? props.groups : [];
+  const expanded = Array.isArray(props.expanded) ? props.expanded : [];
+  const selection = Array.isArray(props.selection) ? props.selection : [];
+  const busy = props.busy === true;
+  const now = Date.now();
+  const open = (id) => {
+    if (busy) return;
+    if (typeof props.onOpen === "function") props.onOpen(id);
+  };
+  const select = (id) => {
+    if (busy) return;
+    if (typeof props.onSelectionChange === "function") props.onSelectionChange(id);
+  };
+  return h(
+    "div",
+    { className: variant === "sidebar" ? "sa-tree sa-tree-sidebar" : "sa-tree", role: "tree" },
+    groups.map(
+      (group) => h(Group, {
+        key: group.key,
+        group,
+        now,
+        expanded: expanded.includes(group.key),
+        selection,
+        busy,
+        variant,
+        t,
+        onToggle: props.onToggle,
+        onOpen: open,
+        onSelect: select,
+        onDelete: props.onDelete,
+        onNewSession: props.onNewSession,
+        onRenameWorkspace: props.onRenameWorkspace,
+        onDeleteWorkspace: props.onDeleteWorkspace
+      })
+    )
+  );
+}
+
 // src/client/stores/shell.js
 var SHELL_KEY = "session-admin.shell-override";
 function readStored() {
@@ -295,39 +604,69 @@ function SidebarSwitch(props) {
 function SessionAdminSection(props) {
   const t = props.t;
   const catalog = props.useSessions((state) => state);
-  const archivedIds = props.useWorkspaces((state) => state.archivedSessionIds);
+  const workspaces = props.useWorkspaces((state) => state);
+  const archivedIds = workspaces.archivedSessionIds;
   const goneIds = useVanished();
   const [query, setQuery] = react_default.useState("");
   const [selected, setSelected] = react_default.useState([]);
   const [confirming, setConfirming] = react_default.useState(null);
   const [busy, setBusy] = react_default.useState(false);
   const [notice, setNotice] = react_default.useState(null);
+  const [collapsed, setCollapsed] = react_default.useState([]);
+  const [dialog, setDialog] = react_default.useState(null);
   const archived = react_default.useMemo(() => new Set(archivedIds), [archivedIds]);
   const gone = react_default.useMemo(() => new Set(goneIds), [goneIds]);
+  const currentId = react_default.useMemo(() => {
+    for (const id of catalog.ids) {
+      const row = catalog.byId[id];
+      if (row !== void 0 && (row.retainedBy?.mainView ?? 0) > 0) return id;
+    }
+    return void 0;
+  }, [catalog]);
   const rows = react_default.useMemo(() => {
     const list = [];
     for (const id of catalog.ids) {
       const row = catalog.byId[id];
       if (row === void 0) continue;
       if (archived.has(id) || gone.has(id)) continue;
+      if (row.blank === true && id !== currentId) continue;
       list.push(row);
     }
     list.sort((left, right) => right.updatedAt - left.updatedAt);
     return list;
-  }, [catalog, archived, gone]);
+  }, [catalog, archived, gone, currentId]);
   const needle = query.trim().toLowerCase();
-  const visible = react_default.useMemo(() => {
-    if (needle === "") return rows;
-    return rows.filter((row) => {
+  const matches = react_default.useCallback(
+    (row) => {
+      if (needle === "") return true;
       const title = row.title ?? "";
       const cwd = row.cwd ?? "";
       return title.toLowerCase().includes(needle) || cwd.toLowerCase().includes(needle);
+    },
+    [needle]
+  );
+  const groups = react_default.useMemo(() => {
+    const byId = /* @__PURE__ */ new Map();
+    for (const row of rows) if (matches(row)) byId.set(row.id, row);
+    const accounted = /* @__PURE__ */ new Set();
+    const list = workspaces.items.map((workspace) => {
+      const sessions = workspace.sessionIds.map((id) => {
+        accounted.add(id);
+        return byId.get(id);
+      }).filter((row) => row !== void 0);
+      const label = workspace.title !== void 0 && workspace.title !== "" ? workspace.title : workspace.path;
+      return { key: workspace.workspaceId, label, sessions };
     });
-  }, [rows, needle]);
-  const selectable = react_default.useMemo(() => visible.filter((row) => !row.running), [visible]);
+    const rest = rows.filter((row) => byId.has(row.id) && !accounted.has(row.id));
+    if (rest.length > 0) list.push({ key: "", label: t("groupUngrouped"), sessions: rest });
+    return needle === "" ? list : list.filter((group) => group.sessions.length > 0);
+  }, [rows, matches, needle, t, workspaces.items]);
+  const visibleRows = react_default.useMemo(() => groups.flatMap((group) => group.sessions), [groups]);
+  const selectable = react_default.useMemo(() => visibleRows.filter((row) => !row.running), [visibleRows]);
   const visibleIds = react_default.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
   const selectedIds = selected.filter((id) => visibleIds.has(id));
   const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
+  const expandedKeys = groups.filter((group) => !collapsed.includes(group.key)).map((group) => group.key);
   const toggle = (id) => {
     setSelected((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
   };
@@ -337,6 +676,13 @@ function SessionAdminSection(props) {
       return;
     }
     setSelected((previous) => orderedUnique([...previous, ...selectable.map((row) => row.id)]));
+  };
+  const toggleGroup = (key) => {
+    setCollapsed((previous) => previous.includes(key) ? previous.filter((value) => value !== key) : [...previous, key]);
+  };
+  const openSession = (id) => {
+    if (typeof props.openSession !== "function") return;
+    props.openSession(id);
   };
   const runDelete = async (ids) => {
     setBusy(true);
@@ -359,6 +705,39 @@ function SessionAdminSection(props) {
       kind: result.deleted.length === 0 ? "error" : "ok",
       text: `${t("noticeDeleted", { count: result.deleted.length })} ${t("noticeSkipped", { count: result.skipped.length, reasons })}`
     });
+  };
+  const failureText = (result) => {
+    if (result === void 0 || result === null || result.ok !== false) return null;
+    const error = result.error;
+    if (error === void 0 || error === null) return t("noticeFailed", { message: "unknown" });
+    return t("noticeFailed", { message: error.message ?? String(error) });
+  };
+  const startSession = (group) => {
+    if (typeof props.startSession !== "function" || group.key === "") return;
+    props.startSession(group.key);
+  };
+  const renameWorkspace = async (dialogState) => {
+    const title = dialogState.value.trim();
+    if (title === "" || typeof props.renameWorkspace !== "function") return;
+    setDialog(null);
+    setNotice(null);
+    try {
+      const message = failureText(await props.renameWorkspace(dialogState.workspaceId, title));
+      if (message !== null) setNotice({ kind: "error", text: message });
+    } catch (error) {
+      setNotice({ kind: "error", text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }) });
+    }
+  };
+  const deleteWorkspace = async (dialogState) => {
+    if (typeof props.deleteWorkspace !== "function") return;
+    setDialog(null);
+    setNotice(null);
+    try {
+      const message = failureText(await props.deleteWorkspace(dialogState.workspaceId));
+      if (message !== null) setNotice({ kind: "error", text: message });
+    } catch (error) {
+      setNotice({ kind: "error", text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }) });
+    }
   };
   const header = h(
     "div",
@@ -394,14 +773,27 @@ function SessionAdminSection(props) {
       t("delete")
     )
   );
+  const confirmingTitle = (() => {
+    if (confirming === null || confirming.length !== 1) return "";
+    const row = catalog.byId[confirming[0]];
+    return row !== void 0 && row.title !== void 0 && row.title !== "" ? row.title : t("unnamed");
+  })();
   const confirmBar = confirming === null ? null : h(
     "div",
     { className: "sa-confirm", role: "alert" },
     h(
       "div",
       { className: "sa-confirm-text" },
-      h("div", null, t("confirmTitle", { count: confirming.length })),
-      h("div", { className: "sa-confirm-body" }, t("confirmBody"))
+      h(
+        "div",
+        null,
+        confirming.length === 1 ? t("confirmOneTitle", { title: confirmingTitle }) : t("confirmTitle", { count: confirming.length })
+      ),
+      h(
+        "div",
+        { className: "sa-confirm-body" },
+        confirming.length === 1 ? t("confirmOneBody") : t("confirmBody")
+      )
     ),
     h(
       "button",
@@ -414,46 +806,75 @@ function SessionAdminSection(props) {
       t("confirmDelete")
     )
   );
+  const workspaceDialog = dialog === null ? null : h(
+    "div",
+    { className: "sa-mask", onClick: () => setDialog(null) },
+    h(
+      "div",
+      {
+        className: "sa-dialog",
+        role: "dialog",
+        "aria-modal": "true",
+        onClick: (event) => event.stopPropagation()
+      },
+      h(
+        "div",
+        { className: "sa-dialog-title" },
+        dialog.kind === "rename" ? t("renameWorkspaceTitle") : t("deleteWorkspaceTitle")
+      ),
+      dialog.kind === "rename" ? h("input", {
+        className: "sa-search",
+        type: "text",
+        autoFocus: true,
+        value: dialog.value,
+        "aria-label": t("renameWorkspaceTitle"),
+        onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
+        onKeyDown: (event) => {
+          if (event.key === "Enter") void renameWorkspace(dialog);
+          if (event.key === "Escape") setDialog(null);
+        }
+      }) : h("p", { className: "sa-dialog-body" }, t("deleteWorkspaceBody", { name: dialog.label })),
+      h(
+        "div",
+        { className: "sa-dialog-actions" },
+        h("button", { className: "sa-btn", type: "button", onClick: () => setDialog(null) }, t("cancel")),
+        h(
+          "button",
+          {
+            className: dialog.kind === "rename" ? "sa-btn sa-btn-primary" : "sa-btn sa-btn-danger-solid",
+            type: "button",
+            onClick: () => {
+              if (dialog.kind === "rename") void renameWorkspace(dialog);
+              else void deleteWorkspace(dialog);
+            }
+          },
+          dialog.kind === "rename" ? t("save") : t("confirmDelete")
+        )
+      )
+    )
+  );
   const noticeLine = notice === null ? null : h("p", { className: notice.kind === "error" ? "sa-notice sa-notice-error" : "sa-notice sa-notice-ok" }, notice.text);
   let body;
   if (rows.length === 0) {
     body = h("div", { className: "sa-empty" }, t("empty"));
-  } else if (visible.length === 0) {
+  } else if (visibleRows.length === 0) {
     body = h("div", { className: "sa-empty" }, t("noMatch"));
   } else {
-    body = h(
-      "div",
-      { className: "sa-list" },
-      visible.map((row) => {
-        const title = row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
-        const where = row.cwd === void 0 || row.cwd === "" ? t("noProject") : row.cwd;
-        const checked = selectedIds.includes(row.id);
-        return h(
-          "label",
-          { className: "sa-row", key: row.id },
-          h("input", {
-            className: "sa-check",
-            type: "checkbox",
-            checked,
-            disabled: row.running || busy,
-            onChange: () => toggle(row.id)
-          }),
-          h(
-            "div",
-            { className: "sa-main" },
-            h(
-              "div",
-              { className: "sa-title" },
-              h("span", { className: "sa-title-text" }, title),
-              row.running ? h("span", { className: "sa-tag sa-tag-running" }, t("running")) : null,
-              row.blank === true ? h("span", { className: "sa-tag" }, t("blank")) : null,
-              row.origin === "subagent" ? h("span", { className: "sa-tag" }, t("subagent")) : null
-            ),
-            h("div", { className: "sa-meta" }, `${where} \xB7 ${formatTime(row.updatedAt)}`)
-          )
-        );
-      })
-    );
+    body = h(SessionTree, {
+      variant: "panel",
+      groups,
+      expanded: expandedKeys,
+      selection: selectedIds,
+      busy,
+      onOpen: openSession,
+      onToggle: toggleGroup,
+      onSelectionChange: toggle,
+      onDelete: (row) => setConfirming([row.id]),
+      onNewSession: startSession,
+      onRenameWorkspace: (group) => setDialog({ kind: "rename", workspaceId: group.key, label: group.label, value: group.label }),
+      onDeleteWorkspace: (group) => setDialog({ kind: "delete", workspaceId: group.key, label: group.label }),
+      t
+    });
   }
   return h(
     "div",
@@ -465,6 +886,7 @@ function SessionAdminSection(props) {
     confirmBar,
     noticeLine,
     body,
+    workspaceDialog,
     h("p", { className: "sa-hint" }, t("hint"))
   );
 }
@@ -593,6 +1015,28 @@ function SessionAdminOverlay(props) {
 function apply(ctx) {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), "session-admin: dictionaries");
   const t = ctx.locale.bind(NS);
+  const openSession = (id) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null) return;
+    void Promise.resolve(workspace.openSession(id)).catch(() => {
+    });
+  };
+  const startSession = (workspaceId) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null) return;
+    void Promise.resolve(workspace.startSession(workspaceId, { clearPreviousDraft: false })).catch(() => {
+    });
+  };
+  const renameWorkspace = (workspaceId, title) => {
+    const workspaces = ctx.get("workspaces");
+    if (workspaces === void 0 || workspaces === null) return Promise.resolve();
+    return workspaces.rename(workspaceId, title);
+  };
+  const deleteWorkspace = (workspaceId) => {
+    const workspaces = ctx.get("workspaces");
+    if (workspaces === void 0 || workspaces === null) return Promise.resolve();
+    return workspaces.delete(workspaceId);
+  };
   ctx.slots.inject(
     "settings.section",
     () => ctx.slots.register(
@@ -603,7 +1047,7 @@ function apply(ctx) {
         label: () => t("nav"),
         locale: NS
       },
-      SessionAdminSection
+      (slotProps) => h(SessionAdminSection, { ...slotProps, openSession, startSession, renameWorkspace, deleteWorkspace })
     )
   );
   ctx.slots.inject(

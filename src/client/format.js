@@ -1,13 +1,17 @@
+import { relativeTime } from '@deepseek-ai/dsh-client-ui-primitives';
+
 /**
- * Format one epoch-millisecond value for a row.
- * @param value - timestamp in milliseconds.
- * @returns a short local date-time.
+ * Compact relative time for a row's trailing cell, matching the shipped tree
+ * ("刚刚" / "5分钟" / "2小时").
+ * @param updatedAt - session timestamp in milliseconds.
+ * @param now - reference time in milliseconds.
+ * @param t - locale bind.
+ * @returns the localized label.
  */
-export function formatTime(value) {
-	if (!Number.isFinite(value)) return '';
-	const date = new Date(value);
-	const pad = (part) => String(part).padStart(2, '0');
-	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+export function relativeLabel(updatedAt, now, t) {
+	const { unit, n } = relativeTime(updatedAt, now);
+	if (unit === 'now') return t('time.now');
+	return t(`time.${unit}`, { n });
 }
 
 /**
