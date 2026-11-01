@@ -62,12 +62,26 @@ It still inherits the deployment's own exposure: a DSH instance that anyone on t
 | File | Role |
 |---|---|
 | `index.js` | Host half: delete route, session scanning, the `session_admin` agent tool. |
-| `client.js` | Browser half: the settings section, the row-menu entry and the shared confirm/notice overlay. |
+| `src/client/` | Browser-half source: `index.js` entry, `apply.js` seat registrations, `i18n.js`, `styles.js`, `api.js`, `format.js`, `stores/`, `components/`. |
+| `client.js` | **Generated** bundle of `src/client/` — the file the Host serves. Never edit it by hand. |
+| `build.mjs` | esbuild wrapper that emits `client.js` (`npm run build`, or `npm run watch`). |
 | `cordis.patch.yml` | Bundle patch that inserts the Host row. |
 | `locale/en.json`, `locale/zh.json` | Plugin-manager display metadata (title, description). |
 | `icon.svg` | Plugin artwork. |
 
-The browser half uses only the public client surfaces — no DSH client package is imported at runtime. Menu styling follows the shipped menu primitives (row metrics, icon weight, danger tokens) so the extra row looks native.
+The browser half uses only the public client surfaces — no DSH client package is imported at runtime, and React comes from the loader's shared module table (declared as an `external` in `build.mjs`) instead of being bundled. Menu styling follows the shipped menu primitives (row metrics, icon weight, danger tokens) so the extra row looks native.
+
+### Editing the browser half
+
+The client module system accepts one bundle per package — `dsh.client` has no multi-entry form — so the source is a directory and a build step produces the served file:
+
+```
+npm install
+npm run build     # one shot: src/client/ -> client.js
+npm run watch     # rebuild on change while editing
+```
+
+`dsh-client-hmr` watches `client.js`, so a rebuild hot-swaps the browser half without restarting the Harness; only a `dsh.client` metadata change (or a new package) needs `systemctl restart dsharness`.
 
 ## Notes
 

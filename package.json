@@ -1,8 +1,12 @@
 {
   "name": "@local/dsh-session-admin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch"
+  },
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
@@ -32,5 +36,8 @@
       ]
     }
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.25.10"
+  }
 }
