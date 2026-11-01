@@ -61,6 +61,9 @@ export const CSS = `
 .sa-pinned-row { padding-left: 10px; }
 .sa-pin { color: var(--dsw-alias-label-secondary); }
 .sa-group.sa-drop-target, .sa-pinned-entry.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
+.sa-btn-active { background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-state-business-primary); }
+.sa-tag { flex: none; padding: 0 6px; border-radius: var(--dsw-radius-sm, 4px); font-size: 10px; line-height: 16px; color: var(--dsw-alias-label-tertiary); background: var(--dsw-alias-interactive-bg-hover); }
+.sa-session.sa-archived .sa-title { color: var(--dsw-alias-label-tertiary); }
 .sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
 .sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
 .sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }

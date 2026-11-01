@@ -8,7 +8,7 @@ Tested against DSH `0.2.1-rc.5` with the `web` profile.
 
 | Surface | What you get |
 |---|---|
-| Settings → **Sessions** | A tree of folders grouped by Workspace, plus your own folders and an **Unsorted** group. Rows look like the shipped sidebar tree: hover for the row actions, relative update time on the right. Drag a Session into another folder, drag folder headers to reorder, pin Sessions and folders to the top. Search, select rows, select all, then delete in bulk behind one confirmation. Running Sessions are not selectable. |
+| Settings → **Sessions** | A tree of folders grouped by Workspace, plus your own folders and an **Unsorted** group. Rows look like the shipped sidebar tree: hover for the row actions, relative update time on the right. Drag a Session into another folder, drag folder headers to reorder, pin Sessions and folders to the top. Search, select rows, select all, then delete in bulk behind one confirmation. A row's `…` menu pins, archives (or restores) and deletes; **Show archived** in the toolbar reveals archived rows, which cannot be opened until unarchived. With rows selected, **Archive** and **Unarchive** act in bulk, skipping rows already in the other state (running Sessions are left out with a note). Running Sessions are not selectable. |
 | Folder row actions | **`...`** renames or deletes the folder, and pins or unpins it; the **`+`** on a Workspace folder starts a new Session there (on your own folder it starts a plain new Session). |
 | Session row **`...` menu** | Pin or unpin the Session, or a red **Delete session** row that confirms one Session and deletes it. |
 | Agent tool `session_admin` | `action: "list"` returns id, title, directory, creation time, size and running state; `action: "delete"` removes the given ids. Lets you clean up by asking the agent instead of clicking. |
@@ -112,8 +112,8 @@ npm run watch     # rebuild on change while editing
 
 - Session titles come from the persisted projection cache; a Session that never got a title shows as *Untitled*.
 - A Session with no turns yet is hidden until it becomes the open Session, the same rule the shipped sidebar applies.
-- Archived Sessions are hidden from the settings list; restore one in the sidebar to manage it.
-- The settings section uses the settings shell's default gear icon, because section icons are hardcoded by section id in the shell and plugins cannot supply one.
+- Archived Sessions are hidden unless **Show archived** is on. Archiving a Session that still has work in progress asks to stop that work first (the shipped behaviour); an archived row cannot be opened until you unarchive it.
+- Section icons are hardcoded by section id in the settings shell and plugins cannot supply one, so the plugin swaps the gear on its own nav row for a tree mark: it marks the row whose label matches its localized section name and draws the glyph as a CSS mask (`src/client/nav-icon.js`). The shell itself is untouched, and the mark and stylesheet go away with the plugin.
 
 ## License
 

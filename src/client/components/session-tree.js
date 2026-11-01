@@ -10,6 +10,7 @@
  */
 import React, { h } from '../react.js';
 import {
+	IconArchiveOutlineRegular,
 	IconEditOutlineRegular,
 	IconEllipsisOutlineRegular,
 	IconFolderCloseRegular,
@@ -18,6 +19,7 @@ import {
 	IconPinOutlineRegular,
 	IconTrashOutlineRegular,
 	IconTriangleRightFillRegular,
+	IconUnarchiveOutlineRegular,
 	Menu,
 	Tooltip,
 } from '@deepseek-ai/dsh-client-ui-primitives';
@@ -45,12 +47,13 @@ function rowTitle(row, t) {
 }
 
 /**
- * One Session's row menu: pin, delete, or the reverse when already pinned.
- * @param props - `{ row, pinned, t, open, onOpenChange, onDelete, onPin, onUnpin }`.
+ * One Session's row menu: pin, archive (or restore), delete.
+ * @param props - `{ row, pinned, archived, t, open, onOpenChange, onDelete,
+ *   onPin, onUnpin, onArchive, onUnarchive }`.
  * @returns the anchor and its menu.
  */
 function SessionMenu(props) {
-	const { row, pinned, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
+	const { row, pinned, archived, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
 	const title = rowTitle(row, t);
 	const items = [
 		{
@@ -58,6 +61,9 @@ function SessionMenu(props) {
 			label: pinned ? t('unpin') : t('pin'),
 			icon: h(IconPinOutlineRegular, null),
 		},
+		archived
+			? { id: 'archive', label: t('unarchive'), icon: h(IconUnarchiveOutlineRegular, null) }
+			: { id: 'archive', label: t('archive'), icon: h(IconArchiveOutlineRegular, null) },
 		{ id: 'delete', label: t('deleteSession'), icon: h(IconTrashOutlineRegular, null), danger: true },
 	];
 	return h(
@@ -71,6 +77,10 @@ function SessionMenu(props) {
 			onSelect: (id) => {
 				onOpenChange(false);
 				if (id === 'pin' && typeof onPin === 'function') onPin(row.id);
+				if (id === 'archive') {
+					const handler = archived ? props.onUnarchive : props.onArchive;
+					if (typeof handler === 'function') handler(row.id);
+				}
 				if (id === 'delete' && typeof onDelete === 'function') onDelete(row);
 			},
 			anchor: h(
@@ -92,12 +102,13 @@ function SessionMenu(props) {
 
 /**
  * One Session row.
- * @param props - `{ variant, row, now, pinned, selected, busy, t, onOpen,
- *   onSelect, onDelete, onPin, onUnpin, onDragStart }`.
+ * @param props - `{ variant, row, now, pinned, archived, selected, busy, t,
+ *   onOpen, onSelect, onDelete, onPin, onUnpin, onArchive, onUnarchive,
+ *   onDragStart }`.
  * @returns the row element.
  */
 function SessionRow(props) {
-	const { variant, row, now, pinned, selected, busy, t, onOpen, onSelect, onDelete } = props;
+	const { variant, row, now, pinned, archived, selected, busy, t, onOpen, onSelect, onDelete } = props;
 	const title = rowTitle(row, t);
 	const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -113,6 +124,7 @@ function SessionRow(props) {
 			},
 			pinned === true ? h('span', { className: 'sa-slot sa-pin' }, h(IconPinOutlineRegular, null)) : null,
 			h('span', { className: 'sa-title' }, title),
+			archived === true ? h('span', { className: 'sa-tag' }, t('archivedTag')) : null,
 			statusDot(row, t),
 			h('span', { className: 'sa-time' }, relativeLabel(row.updatedAt, now, t)),
 		);
@@ -121,6 +133,7 @@ function SessionRow(props) {
 	const className = [
 		'sa-session',
 		pinned === true ? 'sa-pinned-row' : '',
+		archived === true ? 'sa-archived' : '',
 		selected ? 'sa-selected' : '',
 		menuOpen ? 'sa-menu-open' : '',
 		props.dropBefore === true ? 'sa-drop-before' : '',
@@ -153,8 +166,15 @@ function SessionRow(props) {
 		}),
 		h(
 			'button',
-			{ className: 'sa-open', type: 'button', disabled: busy, title, onClick: () => onOpen(row.id) },
+			{
+				className: 'sa-open',
+				type: 'button',
+				disabled: busy || archived === true,
+				title: archived === true ? t('archivedHint') : title,
+				onClick: () => onOpen(row.id),
+			},
 			h('span', { className: 'sa-title' }, title),
+			archived === true ? h('span', { className: 'sa-tag' }, t('archivedTag')) : null,
 			statusDot(row, t),
 		),
 		h('span', { className: 'sa-time' }, relativeLabel(row.updatedAt, now, t)),
@@ -164,6 +184,9 @@ function SessionRow(props) {
 			h(SessionMenu, {
 				row,
 				pinned: pinned === true,
+				archived: archived === true,
+				onArchive: props.onArchive,
+				onUnarchive: props.onUnarchive,
 				t,
 				open: menuOpen,
 				onOpenChange: setMenuOpen,
@@ -355,6 +378,7 @@ function Group(props) {
 						row,
 						now,
 						pinned: false,
+						archived: props.archived instanceof Set && props.archived.has(row.id),
 						selected: selection.includes(row.id),
 						busy,
 						t,
@@ -363,6 +387,8 @@ function Group(props) {
 						onSelect: props.onSelect,
 						onDelete: props.onDelete,
 						onPin: props.onPin,
+						onArchive: props.onArchive,
+						onUnarchive: props.onUnarchive,
 						onDragStart: props.onSessionDragStart,
 					}),
 				),
@@ -403,6 +429,9 @@ function PinnedEntry(props) {
 			onDeleteFolder: props.onDeleteFolder,
 			onPin: props.onPin,
 			onUnpin: props.onUnpin,
+			archived: props.archived,
+			onArchive: props.onArchive,
+			onUnarchive: props.onUnarchive,
 			onDragStart: (group) => props.onPinnedDragStart(group.key),
 			onDragOver: props.onDragOver,
 			onDrop: (group) => props.onPinnedDrop(group.key),
@@ -440,6 +469,7 @@ function PinnedEntry(props) {
 			row,
 			now: props.now,
 			pinned: true,
+			archived: props.archived instanceof Set && props.archived.has(row.id),
 			selected: props.selection.includes(row.id),
 			busy: props.busy,
 			t,
@@ -448,6 +478,8 @@ function PinnedEntry(props) {
 			onDelete: props.onDelete,
 			onPin: props.onPin,
 			onUnpin: props.onUnpin,
+			onArchive: props.onArchive,
+			onUnarchive: props.onUnarchive,
 			onDragStart: () => props.onPinnedDragStart(entry.row.id),
 		}),
 	);
@@ -468,6 +500,7 @@ export function SessionTree(props) {
 	const pinned = Array.isArray(props.pinned) ? props.pinned : [];
 	const expanded = Array.isArray(props.expanded) ? props.expanded : [];
 	const selection = Array.isArray(props.selection) ? props.selection : [];
+	const archived = props.archived instanceof Set ? props.archived : new Set();
 	const busy = props.busy === true;
 	const now = Date.now();
 	const open = (id) => {
@@ -559,6 +592,7 @@ export function SessionTree(props) {
 							busy,
 							dropTarget,
 							dragKind: drag === null ? null : drag.kind,
+							archived,
 							onToggle: props.onToggle,
 							onOpen: open,
 							onSelect: select,
@@ -570,6 +604,8 @@ export function SessionTree(props) {
 							onDeleteFolder: props.onDeleteFolder,
 							onPin: props.onPin,
 							onUnpin: props.onUnpin,
+							onArchive: props.onArchive,
+							onUnarchive: props.onUnarchive,
 							onDragOver: setDropTarget,
 							onPinnedDragStart: (key) => setDrag({ kind: 'pinned', key }),
 							onPinnedDrop: pinnedDrop,
@@ -591,6 +627,7 @@ export function SessionTree(props) {
 				t,
 				dropTarget,
 				dragKind: drag === null ? null : drag.kind,
+				archived,
 				onToggle: props.onToggle,
 				onOpen: open,
 				onSelect: select,

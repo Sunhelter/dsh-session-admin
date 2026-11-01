@@ -50,6 +50,7 @@ export function SessionAdminSection(props) {
 	const [notice, setNotice] = React.useState(null);
 	const [collapsed, setCollapsed] = React.useState([]);
 	const [dialog, setDialog] = React.useState(null);
+	const [showArchived, setShowArchived] = React.useState(false);
 
 	React.useEffect(() => {
 		if (!treeState.loaded && !treeState.loading) void refreshLayout();
@@ -73,13 +74,14 @@ export function SessionAdminSection(props) {
 		for (const id of catalog.ids) {
 			const row = catalog.byId[id];
 			if (row === undefined) continue;
-			if (archived.has(id) || gone.has(id)) continue;
+			if (gone.has(id)) continue;
+			if (archived.has(id) && !showArchived) continue;
 			if (row.blank === true && id !== currentId) continue;
 			list.push(row);
 		}
 		list.sort((left, right) => right.updatedAt - left.updatedAt);
 		return list;
-	}, [catalog, archived, gone, currentId]);
+	}, [catalog, archived, gone, currentId, showArchived]);
 
 	const warning = React.useMemo(() => {
 		if (treeState.error !== '') return t('treeFailed', { message: treeState.error });
@@ -215,6 +217,8 @@ export function SessionAdminSection(props) {
 	const visibleIds = React.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
 	const selectedIds = selected.filter((id) => visibleIds.has(id));
 	const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
+	const archivableIds = selectedIds.filter((id) => !archived.has(id) && !gone.has(id));
+	const unarchivableIds = selectedIds.filter((id) => archived.has(id) && !gone.has(id));
 	const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsed.includes(key));
 
 	const toggle = (id) => {
@@ -307,6 +311,113 @@ export function SessionAdminSection(props) {
 		persist(placeSession(base, id, key, before, defaultKey(id), order));
 	};
 
+	/** A running Session refuses archiving until its work is stopped on purpose. */
+	const activeRefusal = (error) => {
+		if (!(error instanceof Error) || error.name !== 'WorkspaceArchiveError') return false;
+		return error.rpcError?.code === 'workspace/session-active';
+	};
+
+	/**
+	 * Archive one Session, or stop its running work first when confirmed.
+	 * @param id - Session id.
+	 * @param stopActivity - stop the running turn before archiving.
+	 */
+	const archiveRow = async (id, stopActivity) => {
+		if (typeof props.archiveSession !== 'function') return;
+		setBusy(true);
+		setNotice(null);
+		try {
+			await props.archiveSession(id, stopActivity === true ? { stopActivity: true } : undefined);
+			setDialog(null);
+			setNotice({ kind: 'ok', text: t('noticeArchived') });
+		} catch (error) {
+			if (stopActivity !== true && activeRefusal(error)) {
+				const row = catalog.byId[id];
+				const title = row !== undefined && row.title !== undefined && row.title !== '' ? row.title : t('unnamed');
+				setDialog({ kind: 'archive', sessionId: id, label: title });
+			} else {
+				setNotice({
+					kind: 'error',
+					text: t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }),
+				});
+			}
+		} finally {
+			setBusy(false);
+		}
+	};
+
+	const unarchiveRow = async (id) => {
+		if (typeof props.unarchiveSession !== 'function') return;
+		setNotice(null);
+		try {
+			await props.unarchiveSession(id);
+			setNotice({ kind: 'ok', text: t('noticeUnarchived') });
+		} catch (error) {
+			setNotice({
+				kind: 'error',
+				text: t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }),
+			});
+		}
+	};
+
+	/** Archive every selected Session that is not archived yet; running ones stay put. */
+	const bulkArchive = async () => {
+		if (archivableIds.length === 0) {
+			setNotice({ kind: 'error', text: t('bulkNone') });
+			return;
+		}
+		setBusy(true);
+		setNotice(null);
+		let done = 0;
+		let refused = 0;
+		for (const id of archivableIds) {
+			try {
+				await props.archiveSession(id);
+				done += 1;
+			} catch (error) {
+				if (activeRefusal(error)) {
+					refused += 1;
+					continue;
+				}
+				setNotice({
+					kind: 'error',
+					text: t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }),
+				});
+				setBusy(false);
+				return;
+			}
+		}
+		setBusy(false);
+		setSelected([]);
+		const parts = [t('noticeArchivedCount', { count: done })];
+		if (refused > 0) parts.push(t('bulkRunningRefused', { count: refused }));
+		setNotice({ kind: refused > 0 ? 'error' : 'ok', text: parts.join(' ') });
+	};
+
+	/** Restore every selected Session that is archived; others are skipped. */
+	const bulkUnarchive = async () => {
+		if (unarchivableIds.length === 0) return;
+		setBusy(true);
+		setNotice(null);
+		let done = 0;
+		for (const id of unarchivableIds) {
+			try {
+				await props.unarchiveSession(id);
+				done += 1;
+			} catch (error) {
+				setNotice({
+					kind: 'error',
+					text: t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }),
+				});
+				setBusy(false);
+				return;
+			}
+		}
+		setBusy(false);
+		setSelected([]);
+		setNotice({ kind: 'ok', text: t('noticeUnarchivedCount', { count: done }) });
+	};
+
 	const moveFolder = (moved, before) => {
 		const next = reorderFolders(base, moved, before);
 		persist(next);
@@ -349,6 +460,11 @@ export function SessionAdminSection(props) {
 		}
 		if (dialog.kind === 'deleteWorkspace') {
 			void deleteWorkspace(dialog);
+			return;
+		}
+		if (dialog.kind === 'archive') {
+			setDialog(null);
+			void archiveRow(dialog.sessionId, true);
 			return;
 		}
 		setDialog(null);
@@ -404,10 +520,40 @@ export function SessionAdminSection(props) {
 		),
 		h(
 			'button',
+			{
+				className: showArchived ? 'sa-btn sa-btn-active' : 'sa-btn',
+				type: 'button',
+				'aria-pressed': showArchived,
+				onClick: () => setShowArchived((value) => !value),
+			},
+			t('showArchived'),
+		),
+		h(
+			'button',
 			{ className: 'sa-btn', type: 'button', onClick: toggleAll, disabled: selectable.length === 0 || busy },
 			allSelected ? t('clear') : t('selectAll'),
 		),
 		h('span', { className: 'sa-count' }, t('selectedCount', { count: selectedIds.length })),
+		h(
+			'button',
+			{
+				className: 'sa-btn',
+				type: 'button',
+				disabled: archivableIds.length === 0 || busy,
+				onClick: () => void bulkArchive(),
+			},
+			t('archive'),
+		),
+		h(
+			'button',
+			{
+				className: 'sa-btn',
+				type: 'button',
+				disabled: unarchivableIds.length === 0 || busy,
+				onClick: () => void bulkUnarchive(),
+			},
+			t('unarchive'),
+		),
 		h(
 			'button',
 			{
@@ -466,6 +612,7 @@ export function SessionAdminSection(props) {
 		if (dialog.kind === 'deleteWorkspace') return t('deleteWorkspaceTitle');
 		if (dialog.kind === 'newFolder') return t('newFolderTitle');
 		if (dialog.kind === 'renameFolder') return t('renameFolderTitle');
+		if (dialog.kind === 'archive') return t('archiveConfirmTitle');
 		return t('deleteFolderTitle');
 	})();
 
@@ -476,6 +623,9 @@ export function SessionAdminSection(props) {
 		}
 		if (dialog.kind === 'deleteFolder') {
 			return h('p', { className: 'sa-dialog-body' }, t('deleteFolderBody', { name: dialog.name }));
+		}
+		if (dialog.kind === 'archive') {
+			return h('p', { className: 'sa-dialog-body' }, t('archiveConfirmBody', { title: dialog.label }));
 		}
 		const label = dialog.kind === 'renameFolder' || dialog.kind === 'newFolder' ? t('folderName') : t('renameWorkspaceTitle');
 		return h('input', {
@@ -497,6 +647,7 @@ export function SessionAdminSection(props) {
 		if (dialog === null) return t('confirmDelete');
 		if (dialog.kind === 'renameWorkspace' || dialog.kind === 'renameFolder') return t('save');
 		if (dialog.kind === 'newFolder') return t('create');
+		if (dialog.kind === 'archive') return t('archiveConfirmAction');
 		return t('confirmDelete');
 	})();
 
@@ -572,7 +723,10 @@ export function SessionAdminSection(props) {
 			onOpen: openSession,
 			onToggle: toggleGroup,
 			onSelectionChange: toggle,
+			archived,
 			onDelete: (row) => setConfirming([row.id]),
+			onArchive: (id) => void archiveRow(id, false),
+			onUnarchive: (id) => void unarchiveRow(id),
 			onNewSession: startSession,
 			onRenameWorkspace: (group) => {
 				const parsed = parseKey(group.key);

@@ -7,6 +7,7 @@ import { NS, en, zh } from './i18n.js';
 import { SessionAdminSection } from './components/section.js';
 import { SessionDeleteMenuItem } from './components/menu-item.js';
 import { SessionAdminOverlay } from './components/overlay.js';
+import { installSettingsNavIcon } from './nav-icon.js';
 
 /**
  * Register the plugin's client surfaces on one browser context.
@@ -15,8 +16,21 @@ import { SessionAdminOverlay } from './components/overlay.js';
 export function apply(ctx) {
 	ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'session-admin: dictionaries');
 	const t = ctx.locale.bind(NS);
+	installSettingsNavIcon(ctx, () => t('nav'));
 
 	/** Navigate to one Session; the workspace service may load after this plugin. */
+	const archiveSession = (id, options) => {
+		const workspace = ctx.get('uiWorkspace');
+		if (workspace === undefined || workspace === null) return Promise.resolve();
+		return Promise.resolve(workspace.archiveSession(id, options));
+	};
+
+	const unarchiveSession = (id) => {
+		const workspace = ctx.get('uiWorkspace');
+		if (workspace === undefined || workspace === null) return Promise.resolve();
+		return Promise.resolve(workspace.unarchiveSession(id));
+	};
+
 	const openSession = (id) => {
 		const workspace = ctx.get('uiWorkspace');
 		if (workspace === undefined || workspace === null) return;
@@ -72,6 +86,8 @@ export function apply(ctx) {
 					startSession,
 					renameWorkspace,
 					deleteWorkspace,
+					archiveSession,
+					unarchiveSession,
 					syncWorkspaceOrder,
 				}),
 		),

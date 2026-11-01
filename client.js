@@ -92,6 +92,20 @@ var zh = {
   folderActions: "{name} \u7684\u6587\u4EF6\u5939\u64CD\u4F5C",
   pin: "\u7F6E\u9876",
   unpin: "\u53D6\u6D88\u7F6E\u9876",
+  archive: "\u5F52\u6863",
+  unarchive: "\u53D6\u6D88\u5F52\u6863",
+  archivedTag: "\u5DF2\u5F52\u6863",
+  archivedHint: "\u5DF2\u5F52\u6863\u7684\u4F1A\u8BDD\u53D6\u6D88\u5F52\u6863\u540E\u624D\u80FD\u6253\u5F00",
+  showArchived: "\u663E\u793A\u5DF2\u5F52\u6863",
+  archiveConfirmTitle: "\u505C\u6B62\u5E76\u5F52\u6863\u6B64\u4F1A\u8BDD\uFF1F",
+  archiveConfirmBody: "\u300C{title}\u300D\u8FD8\u6709\u6B63\u5728\u8FDB\u884C\u7684\u5DE5\u4F5C\u3002\u5F52\u6863\u4F1A\u5148\u505C\u6B62\u8FD9\u4E9B\u5DE5\u4F5C\uFF1B\u4E4B\u540E\u6253\u5F00\u300C\u663E\u793A\u5DF2\u5F52\u6863\u300D\u518D\u53D6\u6D88\u5F52\u6863\u5373\u53EF\u6062\u590D\uFF0C\u88AB\u505C\u6B62\u7684\u5DE5\u4F5C\u4E0D\u4F1A\u81EA\u52A8\u7EE7\u7EED\u3002",
+  archiveConfirmAction: "\u505C\u6B62\u5E76\u5F52\u6863",
+  noticeArchived: "\u5DF2\u5F52\u6863\u3002",
+  noticeUnarchived: "\u5DF2\u53D6\u6D88\u5F52\u6863\u3002",
+  noticeArchivedCount: "\u5DF2\u5F52\u6863 {count} \u4E2A\u4F1A\u8BDD\u3002",
+  noticeUnarchivedCount: "\u5DF2\u53D6\u6D88\u5F52\u6863 {count} \u4E2A\u4F1A\u8BDD\u3002",
+  bulkRunningRefused: "\u5176\u4E2D {count} \u4E2A\u8FD8\u5728\u8FD0\u884C\uFF0C\u672A\u5F52\u6863\u3002",
+  bulkNone: "\u6240\u9009\u7684\u4F1A\u8BDD\u91CC\u6CA1\u6709\u53EF\u5F52\u6863\u7684\u3002",
   "time.now": "\u521A\u521A",
   "time.minutes": "{n}\u5206\u949F",
   "time.hours": "{n}\u5C0F\u65F6",
@@ -156,6 +170,20 @@ var en = {
   folderActions: "Folder actions for {name}",
   pin: "Pin",
   unpin: "Unpin",
+  archive: "Archive",
+  unarchive: "Unarchive",
+  archivedTag: "Archived",
+  archivedHint: "Unarchive this Session before opening it",
+  showArchived: "Show archived",
+  archiveConfirmTitle: "Stop and archive this Session?",
+  archiveConfirmBody: '"{title}" has work in progress. Archiving stops that work first; turn on "Show archived" and unarchive to restore it afterwards. The stopped work does not resume by itself.',
+  archiveConfirmAction: "Stop and archive",
+  noticeArchived: "Archived.",
+  noticeUnarchived: "Unarchived.",
+  noticeArchivedCount: "Archived {count} Sessions.",
+  noticeUnarchivedCount: "Unarchived {count} Sessions.",
+  bulkRunningRefused: "{count} are still running and were left out.",
+  bulkNone: "None of the selected Sessions can be archived.",
   "time.now": "now",
   "time.minutes": "{n}min",
   "time.hours": "{n}h",
@@ -452,6 +480,9 @@ var CSS = `
 .sa-pinned-row { padding-left: 10px; }
 .sa-pin { color: var(--dsw-alias-label-secondary); }
 .sa-group.sa-drop-target, .sa-pinned-entry.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
+.sa-btn-active { background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-state-business-primary); }
+.sa-tag { flex: none; padding: 0 6px; border-radius: var(--dsw-radius-sm, 4px); font-size: 10px; line-height: 16px; color: var(--dsw-alias-label-tertiary); background: var(--dsw-alias-interactive-bg-hover); }
+.sa-session.sa-archived .sa-title { color: var(--dsw-alias-label-tertiary); }
 .sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
 .sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
 .sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
@@ -594,7 +625,7 @@ function rowTitle(row, t) {
   return row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
 }
 function SessionMenu(props) {
-  const { row, pinned, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
+  const { row, pinned, archived, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
   const title = rowTitle(row, t);
   const items = [
     {
@@ -602,6 +633,7 @@ function SessionMenu(props) {
       label: pinned ? t("unpin") : t("pin"),
       icon: h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)
     },
+    archived ? { id: "archive", label: t("unarchive"), icon: h(import_dsh_client_ui_primitives2.IconUnarchiveOutlineRegular, null) } : { id: "archive", label: t("archive"), icon: h(import_dsh_client_ui_primitives2.IconArchiveOutlineRegular, null) },
     { id: "delete", label: t("deleteSession"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true }
   ];
   return h(
@@ -615,6 +647,10 @@ function SessionMenu(props) {
       onSelect: (id) => {
         onOpenChange(false);
         if (id === "pin" && typeof onPin === "function") onPin(row.id);
+        if (id === "archive") {
+          const handler = archived ? props.onUnarchive : props.onArchive;
+          if (typeof handler === "function") handler(row.id);
+        }
         if (id === "delete" && typeof onDelete === "function") onDelete(row);
       },
       anchor: h(
@@ -634,7 +670,7 @@ function SessionMenu(props) {
   );
 }
 function SessionRow(props) {
-  const { variant, row, now, pinned, selected, busy, t, onOpen, onSelect, onDelete } = props;
+  const { variant, row, now, pinned, archived, selected, busy, t, onOpen, onSelect, onDelete } = props;
   const title = rowTitle(row, t);
   const [menuOpen, setMenuOpen] = react_default.useState(false);
   if (variant === "sidebar") {
@@ -649,6 +685,7 @@ function SessionRow(props) {
       },
       pinned === true ? h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)) : null,
       h("span", { className: "sa-title" }, title),
+      archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
       statusDot(row, t),
       h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t))
     );
@@ -656,6 +693,7 @@ function SessionRow(props) {
   const className = [
     "sa-session",
     pinned === true ? "sa-pinned-row" : "",
+    archived === true ? "sa-archived" : "",
     selected ? "sa-selected" : "",
     menuOpen ? "sa-menu-open" : "",
     props.dropBefore === true ? "sa-drop-before" : ""
@@ -685,8 +723,15 @@ function SessionRow(props) {
     }),
     h(
       "button",
-      { className: "sa-open", type: "button", disabled: busy, title, onClick: () => onOpen(row.id) },
+      {
+        className: "sa-open",
+        type: "button",
+        disabled: busy || archived === true,
+        title: archived === true ? t("archivedHint") : title,
+        onClick: () => onOpen(row.id)
+      },
       h("span", { className: "sa-title" }, title),
+      archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
       statusDot(row, t)
     ),
     h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)),
@@ -696,6 +741,9 @@ function SessionRow(props) {
       h(SessionMenu, {
         row,
         pinned: pinned === true,
+        archived: archived === true,
+        onArchive: props.onArchive,
+        onUnarchive: props.onUnarchive,
         t,
         open: menuOpen,
         onOpenChange: setMenuOpen,
@@ -867,6 +915,7 @@ function Group(props) {
             row,
             now,
             pinned: false,
+            archived: props.archived instanceof Set && props.archived.has(row.id),
             selected: selection.includes(row.id),
             busy,
             t,
@@ -875,6 +924,8 @@ function Group(props) {
             onSelect: props.onSelect,
             onDelete: props.onDelete,
             onPin: props.onPin,
+            onArchive: props.onArchive,
+            onUnarchive: props.onUnarchive,
             onDragStart: props.onSessionDragStart
           })
         )
@@ -908,6 +959,9 @@ function PinnedEntry(props) {
       onDeleteFolder: props.onDeleteFolder,
       onPin: props.onPin,
       onUnpin: props.onUnpin,
+      archived: props.archived,
+      onArchive: props.onArchive,
+      onUnarchive: props.onUnarchive,
       onDragStart: (group) => props.onPinnedDragStart(group.key),
       onDragOver: props.onDragOver,
       onDrop: (group) => props.onPinnedDrop(group.key),
@@ -943,6 +997,7 @@ function PinnedEntry(props) {
       row,
       now: props.now,
       pinned: true,
+      archived: props.archived instanceof Set && props.archived.has(row.id),
       selected: props.selection.includes(row.id),
       busy: props.busy,
       t,
@@ -951,6 +1006,8 @@ function PinnedEntry(props) {
       onDelete: props.onDelete,
       onPin: props.onPin,
       onUnpin: props.onUnpin,
+      onArchive: props.onArchive,
+      onUnarchive: props.onUnarchive,
       onDragStart: () => props.onPinnedDragStart(entry.row.id)
     })
   );
@@ -962,6 +1019,7 @@ function SessionTree(props) {
   const pinned = Array.isArray(props.pinned) ? props.pinned : [];
   const expanded = Array.isArray(props.expanded) ? props.expanded : [];
   const selection = Array.isArray(props.selection) ? props.selection : [];
+  const archived = props.archived instanceof Set ? props.archived : /* @__PURE__ */ new Set();
   const busy = props.busy === true;
   const now = Date.now();
   const open = (id) => {
@@ -1035,6 +1093,7 @@ function SessionTree(props) {
           busy,
           dropTarget,
           dragKind: drag === null ? null : drag.kind,
+          archived,
           onToggle: props.onToggle,
           onOpen: open,
           onSelect: select,
@@ -1046,6 +1105,8 @@ function SessionTree(props) {
           onDeleteFolder: props.onDeleteFolder,
           onPin: props.onPin,
           onUnpin: props.onUnpin,
+          onArchive: props.onArchive,
+          onUnarchive: props.onUnarchive,
           onDragOver: setDropTarget,
           onPinnedDragStart: (key) => setDrag({ kind: "pinned", key }),
           onPinnedDrop: pinnedDrop,
@@ -1067,6 +1128,7 @@ function SessionTree(props) {
         t,
         dropTarget,
         dragKind: drag === null ? null : drag.kind,
+        archived,
         onToggle: props.onToggle,
         onOpen: open,
         onSelect: select,
@@ -1153,6 +1215,7 @@ function SessionAdminSection(props) {
   const [notice, setNotice] = react_default.useState(null);
   const [collapsed, setCollapsed] = react_default.useState([]);
   const [dialog, setDialog] = react_default.useState(null);
+  const [showArchived, setShowArchived] = react_default.useState(false);
   react_default.useEffect(() => {
     if (!treeState.loaded && !treeState.loading) void refreshLayout();
   }, [treeState.loaded, treeState.loading]);
@@ -1170,13 +1233,14 @@ function SessionAdminSection(props) {
     for (const id of catalog.ids) {
       const row = catalog.byId[id];
       if (row === void 0) continue;
-      if (archived.has(id) || gone.has(id)) continue;
+      if (gone.has(id)) continue;
+      if (archived.has(id) && !showArchived) continue;
       if (row.blank === true && id !== currentId) continue;
       list.push(row);
     }
     list.sort((left, right) => right.updatedAt - left.updatedAt);
     return list;
-  }, [catalog, archived, gone, currentId]);
+  }, [catalog, archived, gone, currentId, showArchived]);
   const warning = react_default.useMemo(() => {
     if (treeState.error !== "") return t("treeFailed", { message: treeState.error });
     return null;
@@ -1291,6 +1355,8 @@ function SessionAdminSection(props) {
   const visibleIds = react_default.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
   const selectedIds = selected.filter((id) => visibleIds.has(id));
   const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
+  const archivableIds = selectedIds.filter((id) => !archived.has(id) && !gone.has(id));
+  const unarchivableIds = selectedIds.filter((id) => archived.has(id) && !gone.has(id));
   const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsed.includes(key));
   const toggle = (id) => {
     setSelected((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
@@ -1363,6 +1429,100 @@ function SessionAdminSection(props) {
     const order = group === void 0 ? [] : group.sessions.map((row) => row.id);
     persist(placeSession(base, id, key, before, defaultKey(id), order));
   };
+  const activeRefusal = (error) => {
+    if (!(error instanceof Error) || error.name !== "WorkspaceArchiveError") return false;
+    return error.rpcError?.code === "workspace/session-active";
+  };
+  const archiveRow = async (id, stopActivity) => {
+    if (typeof props.archiveSession !== "function") return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      await props.archiveSession(id, stopActivity === true ? { stopActivity: true } : void 0);
+      setDialog(null);
+      setNotice({ kind: "ok", text: t("noticeArchived") });
+    } catch (error) {
+      if (stopActivity !== true && activeRefusal(error)) {
+        const row = catalog.byId[id];
+        const title = row !== void 0 && row.title !== void 0 && row.title !== "" ? row.title : t("unnamed");
+        setDialog({ kind: "archive", sessionId: id, label: title });
+      } else {
+        setNotice({
+          kind: "error",
+          text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) })
+        });
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+  const unarchiveRow = async (id) => {
+    if (typeof props.unarchiveSession !== "function") return;
+    setNotice(null);
+    try {
+      await props.unarchiveSession(id);
+      setNotice({ kind: "ok", text: t("noticeUnarchived") });
+    } catch (error) {
+      setNotice({
+        kind: "error",
+        text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) })
+      });
+    }
+  };
+  const bulkArchive = async () => {
+    if (archivableIds.length === 0) {
+      setNotice({ kind: "error", text: t("bulkNone") });
+      return;
+    }
+    setBusy(true);
+    setNotice(null);
+    let done = 0;
+    let refused = 0;
+    for (const id of archivableIds) {
+      try {
+        await props.archiveSession(id);
+        done += 1;
+      } catch (error) {
+        if (activeRefusal(error)) {
+          refused += 1;
+          continue;
+        }
+        setNotice({
+          kind: "error",
+          text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) })
+        });
+        setBusy(false);
+        return;
+      }
+    }
+    setBusy(false);
+    setSelected([]);
+    const parts = [t("noticeArchivedCount", { count: done })];
+    if (refused > 0) parts.push(t("bulkRunningRefused", { count: refused }));
+    setNotice({ kind: refused > 0 ? "error" : "ok", text: parts.join(" ") });
+  };
+  const bulkUnarchive = async () => {
+    if (unarchivableIds.length === 0) return;
+    setBusy(true);
+    setNotice(null);
+    let done = 0;
+    for (const id of unarchivableIds) {
+      try {
+        await props.unarchiveSession(id);
+        done += 1;
+      } catch (error) {
+        setNotice({
+          kind: "error",
+          text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) })
+        });
+        setBusy(false);
+        return;
+      }
+    }
+    setBusy(false);
+    setSelected([]);
+    setNotice({ kind: "ok", text: t("noticeUnarchivedCount", { count: done }) });
+  };
   const moveFolder = (moved, before) => {
     const next = reorderFolders(base, moved, before);
     persist(next);
@@ -1401,6 +1561,11 @@ function SessionAdminSection(props) {
     }
     if (dialog.kind === "deleteWorkspace") {
       void deleteWorkspace(dialog);
+      return;
+    }
+    if (dialog.kind === "archive") {
+      setDialog(null);
+      void archiveRow(dialog.sessionId, true);
       return;
     }
     setDialog(null);
@@ -1454,10 +1619,40 @@ function SessionAdminSection(props) {
     ),
     h(
       "button",
+      {
+        className: showArchived ? "sa-btn sa-btn-active" : "sa-btn",
+        type: "button",
+        "aria-pressed": showArchived,
+        onClick: () => setShowArchived((value) => !value)
+      },
+      t("showArchived")
+    ),
+    h(
+      "button",
       { className: "sa-btn", type: "button", onClick: toggleAll, disabled: selectable.length === 0 || busy },
       allSelected ? t("clear") : t("selectAll")
     ),
     h("span", { className: "sa-count" }, t("selectedCount", { count: selectedIds.length })),
+    h(
+      "button",
+      {
+        className: "sa-btn",
+        type: "button",
+        disabled: archivableIds.length === 0 || busy,
+        onClick: () => void bulkArchive()
+      },
+      t("archive")
+    ),
+    h(
+      "button",
+      {
+        className: "sa-btn",
+        type: "button",
+        disabled: unarchivableIds.length === 0 || busy,
+        onClick: () => void bulkUnarchive()
+      },
+      t("unarchive")
+    ),
     h(
       "button",
       {
@@ -1508,6 +1703,7 @@ function SessionAdminSection(props) {
     if (dialog.kind === "deleteWorkspace") return t("deleteWorkspaceTitle");
     if (dialog.kind === "newFolder") return t("newFolderTitle");
     if (dialog.kind === "renameFolder") return t("renameFolderTitle");
+    if (dialog.kind === "archive") return t("archiveConfirmTitle");
     return t("deleteFolderTitle");
   })();
   const dialogBody = (() => {
@@ -1517,6 +1713,9 @@ function SessionAdminSection(props) {
     }
     if (dialog.kind === "deleteFolder") {
       return h("p", { className: "sa-dialog-body" }, t("deleteFolderBody", { name: dialog.name }));
+    }
+    if (dialog.kind === "archive") {
+      return h("p", { className: "sa-dialog-body" }, t("archiveConfirmBody", { title: dialog.label }));
     }
     const label = dialog.kind === "renameFolder" || dialog.kind === "newFolder" ? t("folderName") : t("renameWorkspaceTitle");
     return h("input", {
@@ -1537,6 +1736,7 @@ function SessionAdminSection(props) {
     if (dialog === null) return t("confirmDelete");
     if (dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder") return t("save");
     if (dialog.kind === "newFolder") return t("create");
+    if (dialog.kind === "archive") return t("archiveConfirmAction");
     return t("confirmDelete");
   })();
   const dialogView = dialog === null ? null : h(
@@ -1596,7 +1796,10 @@ function SessionAdminSection(props) {
       onOpen: openSession,
       onToggle: toggleGroup,
       onSelectionChange: toggle,
+      archived,
       onDelete: (row) => setConfirming([row.id]),
+      onArchive: (id) => void archiveRow(id, false),
+      onUnarchive: (id) => void unarchiveRow(id),
       onNewSession: startSession,
       onRenameWorkspace: (group) => {
         const parsed = parseKey(group.key);
@@ -1754,10 +1957,103 @@ function SessionAdminOverlay(props) {
   );
 }
 
+// src/client/nav-icon.js
+var NAV_ICON_MARKER = "data-session-admin-nav-icon";
+var NAV_ROW_SELECTOR = '[role="dialog"] nav button';
+function markSvg() {
+  const leaf = 'rx="1"';
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="#000">',
+    '<rect x="2" y="3" width="1.5" height="10" rx="0.75"/>',
+    '<rect x="3" y="5.25" width="6" height="1.5" rx="0.75"/>',
+    '<rect x="3" y="9.25" width="8.5" height="1.5" rx="0.75"/>',
+    '<rect x="8.5" y="3.5" width="5.5" height="4.5" ' + leaf + "/>",
+    '<rect x="11" y="7.5" width="3" height="3.5" ' + leaf + "/>",
+    "</svg>"
+  ].join("");
+}
+function maskUrl() {
+  return "data:image/svg+xml," + encodeURIComponent(markSvg());
+}
+function isOwnNavRow(rowText, wantedLabel) {
+  const wanted = String(wantedLabel ?? "").trim();
+  if (wanted.length === 0) return false;
+  return String(rowText ?? "").trim() === wanted;
+}
+function navIconCss(url) {
+  return [
+    `[${NAV_ICON_MARKER}] > svg { display: none; }`,
+    `[${NAV_ICON_MARKER}]::before {`,
+    `  content: '';`,
+    `  flex: none;`,
+    `  width: 16px;`,
+    `  height: 16px;`,
+    `  background-color: currentColor;`,
+    `  -webkit-mask-image: url("${url}");`,
+    `  mask-image: url("${url}");`,
+    `  -webkit-mask-repeat: no-repeat;`,
+    `  mask-repeat: no-repeat;`,
+    `  -webkit-mask-position: center;`,
+    `  mask-position: center;`,
+    `  -webkit-mask-size: 16px 16px;`,
+    `  mask-size: 16px 16px;`,
+    `}`
+  ].join("\n");
+}
+function installSettingsNavIcon(ctx, resolveLabel) {
+  if (typeof document === "undefined") return;
+  ctx.effect(
+    () => {
+      const tag = document.createElement("style");
+      tag.dataset.plugin = "session-admin";
+      tag.dataset.pluginCss = "session-admin/settings-nav-icon";
+      tag.textContent = navIconCss(maskUrl());
+      document.head.appendChild(tag);
+      let disposed = false;
+      let scheduled = false;
+      const sync = () => {
+        scheduled = false;
+        if (disposed) return;
+        const wanted = resolveLabel();
+        for (const row of document.querySelectorAll(NAV_ROW_SELECTOR)) {
+          if (isOwnNavRow(row.textContent, wanted)) row.setAttribute(NAV_ICON_MARKER, "");
+          else row.removeAttribute(NAV_ICON_MARKER);
+        }
+      };
+      const schedule = () => {
+        if (scheduled || disposed) return;
+        scheduled = true;
+        queueMicrotask(sync);
+      };
+      sync();
+      const observer = new MutationObserver(schedule);
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+      return () => {
+        disposed = true;
+        observer.disconnect();
+        for (const row of document.querySelectorAll(`[${NAV_ICON_MARKER}]`)) row.removeAttribute(NAV_ICON_MARKER);
+        tag.remove();
+      };
+    },
+    "session-admin: settings nav icon"
+  );
+}
+
 // src/client/apply.js
 function apply(ctx) {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), "session-admin: dictionaries");
   const t = ctx.locale.bind(NS);
+  installSettingsNavIcon(ctx, () => t("nav"));
+  const archiveSession = (id, options) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null) return Promise.resolve();
+    return Promise.resolve(workspace.archiveSession(id, options));
+  };
+  const unarchiveSession = (id) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null) return Promise.resolve();
+    return Promise.resolve(workspace.unarchiveSession(id));
+  };
   const openSession = (id) => {
     const workspace = ctx.get("uiWorkspace");
     if (workspace === void 0 || workspace === null) return;
@@ -1801,6 +2097,8 @@ function apply(ctx) {
         startSession,
         renameWorkspace,
         deleteWorkspace,
+        archiveSession,
+        unarchiveSession,
         syncWorkspaceOrder
       })
     )
