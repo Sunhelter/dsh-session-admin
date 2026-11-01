@@ -12,7 +12,7 @@
  * (same-origin, admitted by Connection's trust check) and the `session_admin`
  * agent tool calls the same functions in process.
  */
-import { readdir, rm, stat } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 
@@ -28,17 +28,30 @@ export const inject = [
 /** Same-origin delete endpoint owned by this plugin. */
 const DELETE_PATH = '/plugins/session-admin/delete';
 
-/** Same-origin endpoint returning this plugin's session tree. */
+/** Same-origin endpoint returning this plugin's session tree layout. */
 const TREE_PATH = '/plugins/session-admin/tree';
+
+/** Same-origin endpoint replacing the stored session tree layout. */
+const LAYOUT_PATH = '/plugins/session-admin/layout';
 
 /** Largest accepted delete request body. */
 const MAX_BODY_BYTES = 64 * 1024;
+
+/** Largest accepted layout request body. */
+const MAX_LAYOUT_BYTES = 256 * 1024;
 
 /** Largest number of Sessions one request may delete. */
 const MAX_DELETE_COUNT = 500;
 
 /** Session ids are the `session-<uuid>` strings the store mints. */
 const SESSION_ID = /^session-[0-9a-fA-F-]{8,64}$/;
+
+/** Workspace ids the layout may reference. */
+const WORKSPACE_ID = /^[A-Za-z0-9._-]{1,128}$/;
+
+/** Folder key prefixes shared with the client (`src/client/layout.js`). */
+const WORKSPACE_PREFIX = '工作区:';
+const CUSTOM_PREFIX = '自定义:';
 
 /**
  * Home-relative roots this plugin reads.
@@ -70,19 +83,93 @@ function isPlainName(value) {
 }
 
 /**
- * Whether a tree link still resolves to a stored Session directory. Only a
- * definite `ENOENT` counts as dangling; any other failure keeps the link so a
- * transient error never deletes tree state.
- * @param path - absolute link path.
- * @returns true when the target exists or could not be checked.
+ * Split a folder key into its kind and value.
+ * @param key - `工作区:<id>` or `自定义:<name>`.
+ * @returns `{ kind, value }`, or null for anything else.
  */
-async function linkAlive(path) {
-  try {
-    await stat(path);
-    return true;
-  } catch (error) {
-    return error?.code !== 'ENOENT';
+function parseFolderKey(key) {
+  if (typeof key !== 'string') return null;
+  if (key.startsWith(WORKSPACE_PREFIX)) {
+    const value = key.slice(WORKSPACE_PREFIX.length);
+    return WORKSPACE_ID.test(value) ? { kind: 'workspace', value } : null;
   }
+  if (key.startsWith(CUSTOM_PREFIX)) {
+    const value = key.slice(CUSTOM_PREFIX.length);
+    return isPlainName(value) ? { kind: 'custom', value } : null;
+  }
+  return null;
+}
+
+/**
+ * @returns a fresh, empty tree layout.
+ */
+function emptyLayout() {
+  return { version: 1, order: [], folders: [], placement: {}, pinned: [], sessions: {} };
+}
+
+/**
+ * Validate and canonicalize a layout received from the browser. Throws instead
+ * of dropping entries: a rejected write keeps the stored file intact.
+ * @param raw - parsed JSON.
+ * @returns the normalized layout.
+ */
+function normalizeLayout(raw) {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('布局格式不正确');
+  if (raw.version !== undefined && raw.version !== 1) throw new Error('布局版本不受支持');
+  const folders = [];
+  for (const name of Array.isArray(raw.folders) ? raw.folders : []) {
+    if (!isPlainName(name) || folders.includes(name)) throw new Error(`文件夹名无效：${String(name)}`);
+    folders.push(name);
+  }
+  const order = [];
+  for (const key of Array.isArray(raw.order) ? raw.order : []) {
+    const parsed = parseFolderKey(key);
+    if (parsed === null) throw new Error(`文件夹键无效：${String(key)}`);
+    if (parsed.kind === 'custom' && !folders.includes(parsed.value)) throw new Error(`未知的自定义文件夹：${parsed.value}`);
+    if (!order.includes(key)) order.push(key);
+  }
+  for (const name of folders) {
+    const key = CUSTOM_PREFIX + name;
+    if (!order.includes(key)) order.push(key);
+  }
+  const placement = {};
+  const rawPlacement = raw.placement ?? {};
+  if (rawPlacement === null || typeof rawPlacement !== 'object' || Array.isArray(rawPlacement)) {
+    throw new Error('placement 格式不正确');
+  }
+  for (const [id, key] of Object.entries(rawPlacement)) {
+    if (!SESSION_ID.test(id)) throw new Error(`会话 id 无效：${id}`);
+    const parsed = parseFolderKey(key);
+    if (parsed === null) throw new Error(`placement 里的文件夹键无效：${String(key)}`);
+    if (parsed.kind === 'custom' && !folders.includes(parsed.value)) throw new Error(`未知的自定义文件夹：${parsed.value}`);
+    placement[id] = key;
+  }
+  const pinned = [];
+  for (const entry of Array.isArray(raw.pinned) ? raw.pinned : []) {
+    if (typeof entry !== 'string') throw new Error('pinned 里有无效项');
+    if (!SESSION_ID.test(entry) && parseFolderKey(entry) === null) throw new Error(`pinned 里有无效项：${entry}`);
+    if (!pinned.includes(entry)) pinned.push(entry);
+  }
+  const sessions = {};
+  const rawSessions = raw.sessions ?? {};
+  if (rawSessions === null || typeof rawSessions !== 'object' || Array.isArray(rawSessions)) {
+    throw new Error('sessions 格式不正确');
+  }
+  for (const [key, ids] of Object.entries(rawSessions)) {
+    const parsed = parseFolderKey(key);
+    if (parsed === null) throw new Error(`sessions 里的文件夹键无效：${String(key)}`);
+    if (parsed.kind === 'custom' && !folders.includes(parsed.value)) {
+      throw new Error(`未知的自定义文件夹：${parsed.value}`);
+    }
+    const list = [];
+    for (const id of Array.isArray(ids) ? ids : []) {
+      if (!SESSION_ID.test(id)) throw new Error(`sessions 里的会话 id 无效：${String(id)}`);
+      if (list.includes(id)) continue;
+      list.push(id);
+    }
+    if (list.length > 0) sessions[key] = list;
+  }
+  return { version: 1, order, folders, placement, pinned, sessions };
 }
 
 /**
@@ -99,14 +186,15 @@ function sendJson(res, status, value) {
 /**
  * Read a bounded JSON request body.
  * @param req - the incoming request.
+ * @param maxBytes - largest accepted body.
  * @returns the parsed body, or `{}` for an empty body.
  */
-async function readJsonBody(req) {
+async function readJsonBody(req, maxBytes = MAX_BODY_BYTES) {
   const chunks = [];
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > MAX_BODY_BYTES) throw new Error('请求体过大');
+    if (size > maxBytes) throw new Error('请求体过大');
     chunks.push(chunk);
   }
   const text = Buffer.concat(chunks).toString('utf8').trim();
@@ -143,46 +231,71 @@ export function apply(ctx) {
   const sessionsRoot = resolve(roots.sessions);
   const checkpointRoot = resolve(roots.storages, 'session_projcache', 'sessions');
   const treeRoot = resolve(roots.home, 'session-admin', 'tree');
+  const layoutFile = join(treeRoot, 'layout.json');
 
   /**
-   * Read the tree: one level of real folders, each holding Session links. A
-   * dangling link is removed as it is found, so a deleted Session never leaves
-   * a dead row behind.
-   * @returns folders sorted by name plus the dangling links that were removed.
+   * Read the stored layout. A missing file is an empty layout; a corrupt file
+   * throws, so the next write never silently drops the user's tree.
+   * @returns the normalized layout.
    */
-  async function readTree() {
-    const folders = [];
-    const invalid = [];
-    let entries;
+  async function readLayout() {
+    let text;
     try {
-      entries = await readdir(treeRoot, { withFileTypes: true });
+      text = await readFile(layoutFile, 'utf8');
+    } catch (error) {
+      if (error?.code === 'ENOENT') return emptyLayout();
+      throw error;
+    }
+    if (text.trim() === '') return emptyLayout();
+    let raw;
+    try {
+      raw = JSON.parse(text);
     } catch {
-      return { folders, invalid };
+      throw new Error('布局文件不是合法 JSON，未做任何修改');
     }
-    for (const entry of entries) {
-      if (!entry.isDirectory() || !isPlainName(entry.name)) continue;
-      const folder = join(treeRoot, entry.name);
-      let children;
-      try {
-        children = await readdir(folder, { withFileTypes: true });
-      } catch {
-        continue;
+    return normalizeLayout(raw);
+  }
+
+  /**
+   * Replace the stored layout atomically: a temp file plus a rename, so a
+   * failed write keeps the previous file.
+   * @param layout - normalized layout.
+   */
+  async function writeLayout(layout) {
+    await mkdir(treeRoot, { recursive: true });
+    const temp = join(treeRoot, `.layout.${process.pid}.${Date.now()}.tmp`);
+    await writeFile(temp, `${JSON.stringify(layout, null, 2)}\n`, 'utf8');
+    await rename(temp, layoutFile);
+  }
+
+  /**
+   * Drop deleted Sessions from the stored layout. Failures are swallowed on
+   * purpose: the Session is already gone, and a stale id is harmless.
+   * @param ids - deleted session ids.
+   */
+  async function pruneLayout(ids) {
+    if (ids.length === 0) return;
+    try {
+      const layout = await readLayout();
+      const placement = {};
+      for (const [id, key] of Object.entries(layout.placement)) {
+        if (!ids.includes(id)) placement[id] = key;
       }
-      const sessions = [];
-      for (const child of children) {
-        if (!SESSION_ID.test(child.name)) continue;
-        const link = join(folder, child.name);
-        if (await linkAlive(link)) {
-          sessions.push(child.name);
-          continue;
-        }
-        invalid.push({ id: child.name, folder: entry.name });
-        await rm(link, { force: true }).catch(() => {});
+      const pinned = layout.pinned.filter((entry) => !ids.includes(entry));
+      const sessions = {};
+      for (const [key, list] of Object.entries(layout.sessions)) {
+        const kept = list.filter((id) => !ids.includes(id));
+        if (kept.length > 0) sessions[key] = kept;
       }
-      folders.push({ name: entry.name, sessions });
+      const untouched =
+        Object.keys(placement).length === Object.keys(layout.placement).length &&
+        pinned.length === layout.pinned.length &&
+        Object.keys(sessions).length === Object.keys(layout.sessions).length;
+      if (untouched) return;
+      await writeLayout({ ...layout, placement, pinned, sessions });
+    } catch {
+      // The tree layout is a convenience cache, not session state.
     }
-    folders.sort((left, right) => left.name.localeCompare(right.name));
-    return { folders, invalid };
   }
 
   /**
@@ -317,6 +430,7 @@ export function apply(ctx) {
           }
           try {
             const result = await deleteSessions(ids);
+            await pruneLayout(result.deleted);
             ctx.logger?.info?.(
               `session-admin: deleted ${result.deleted.length}, skipped ${result.skipped.length}`,
             );
@@ -345,11 +459,7 @@ export function apply(ctx) {
           }
           if (rejectUntrusted(ctx, req, res)) return;
           try {
-            const tree = await readTree();
-            if (tree.invalid.length > 0) {
-              ctx.logger?.info?.(`session-admin: removed ${tree.invalid.length} dangling link(s)`);
-            }
-            sendJson(res, 200, { ok: true, ...tree });
+            sendJson(res, 200, { ok: true, layout: await readLayout() });
           } catch (error) {
             sendJson(res, 500, {
               ok: false,
@@ -359,6 +469,47 @@ export function apply(ctx) {
         },
       }),
     'session-admin: tree route',
+  );
+
+  ctx.effect(
+    () =>
+      ctx.webServer.register({
+        kind: 'exact',
+        path: LAYOUT_PATH,
+        handler: async (req, res) => {
+          if (req.method !== 'POST') {
+            res.writeHead(405, { allow: 'POST' });
+            res.end();
+            return;
+          }
+          if (rejectUntrusted(ctx, req, res)) return;
+          let body;
+          try {
+            body = await readJsonBody(req, MAX_LAYOUT_BYTES);
+          } catch (error) {
+            sendJson(res, 400, {
+              ok: false,
+              error: error instanceof Error ? error.message : '请求体无法解析',
+            });
+            return;
+          }
+          if (body === null || typeof body !== 'object' || body.layout === undefined) {
+            sendJson(res, 400, { ok: false, error: '缺少布局内容' });
+            return;
+          }
+          try {
+            const layout = normalizeLayout(body.layout);
+            await writeLayout(layout);
+            sendJson(res, 200, { ok: true, layout });
+          } catch (error) {
+            sendJson(res, 400, {
+              ok: false,
+              error: error instanceof Error ? error.message : '保存会话树失败',
+            });
+          }
+        },
+      }),
+    'session-admin: layout route',
   );
 
   ctx.effect(

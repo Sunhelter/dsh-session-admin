@@ -40,7 +40,7 @@ var NS = "sessionAdmin";
 var zh = {
   nav: "\u4F1A\u8BDD\u7BA1\u7406",
   title: "\u4F1A\u8BDD\u7BA1\u7406",
-  desc: "\u5217\u51FA\u5DF2\u4FDD\u5B58\u7684\u4F1A\u8BDD\uFF08\u4E0D\u542B\u5F52\u6863\uFF09\uFF0C\u52FE\u9009\u540E\u6279\u91CF\u5220\u9664\u3002\u5220\u9664\u4F1A\u79FB\u9664\u4F1A\u8BDD\u6587\u4EF6\uFF0C\u4E0D\u53EF\u6062\u590D\uFF1B\u6B63\u5728\u8FD0\u884C\u7684\u4F1A\u8BDD\u4F1A\u88AB\u8DF3\u8FC7\u3002",
+  desc: "\u5217\u51FA\u5DF2\u4FDD\u5B58\u7684\u4F1A\u8BDD\uFF08\u4E0D\u542B\u5F52\u6863\uFF09\u3002\u62D6\u52A8\u4F1A\u8BDD\u6216\u6587\u4EF6\u5939\u8C03\u6574\u4F4D\u7F6E\uFF0C\u7F6E\u9876\u7684\u6761\u76EE\u6392\u5728\u6700\u524D\uFF1B\u52FE\u9009\u540E\u53EF\u6279\u91CF\u5220\u9664\uFF0C\u5220\u9664\u4F1A\u79FB\u9664\u4F1A\u8BDD\u6587\u4EF6\uFF0C\u4E0D\u53EF\u6062\u590D\uFF0C\u6B63\u5728\u8FD0\u884C\u7684\u4F1A\u8BDD\u4F1A\u88AB\u8DF3\u8FC7\u3002",
   search: "\u641C\u7D22\u6807\u9898\u6216\u76EE\u5F55",
   selectAll: "\u5168\u9009",
   clear: "\u6E05\u7A7A",
@@ -79,6 +79,19 @@ var zh = {
   deleteWorkspaceTitle: "\u5220\u9664\u5DE5\u4F5C\u533A",
   deleteWorkspaceBody: "\u5220\u9664\u5DE5\u4F5C\u533A\u300C{name}\u300D\uFF1F\u5DE5\u4F5C\u533A\u91CC\u7684\u4F1A\u8BDD\u4E0D\u4F1A\u5220\u9664\uFF0C\u4F1A\u56DE\u5230\u300C\u672A\u5F52\u6863\u300D\u3002",
   save: "\u4FDD\u5B58",
+  folderName: "\u6587\u4EF6\u5939\u540D",
+  newFolder: "\u65B0\u5EFA\u6587\u4EF6\u5939",
+  newFolderTitle: "\u65B0\u5EFA\u6587\u4EF6\u5939",
+  create: "\u521B\u5EFA",
+  renameFolder: "\u91CD\u547D\u540D\u6587\u4EF6\u5939",
+  renameFolderTitle: "\u91CD\u547D\u540D\u6587\u4EF6\u5939",
+  deleteFolder: "\u5220\u9664\u6587\u4EF6\u5939",
+  deleteFolderTitle: "\u5220\u9664\u6587\u4EF6\u5939",
+  deleteFolderBody: "\u5220\u9664\u6587\u4EF6\u5939\u300C{name}\u300D\uFF1F\u91CC\u9762\u7684\u4F1A\u8BDD\u4F1A\u56DE\u5230\u5404\u81EA\u7684\u5DE5\u4F5C\u533A\u3002",
+  folderExists: "\u5DF2\u7ECF\u6709\u540C\u540D\u6587\u4EF6\u5939\u300C{name}\u300D\u3002",
+  folderActions: "{name} \u7684\u6587\u4EF6\u5939\u64CD\u4F5C",
+  pin: "\u7F6E\u9876",
+  unpin: "\u53D6\u6D88\u7F6E\u9876",
   "time.now": "\u521A\u521A",
   "time.minutes": "{n}\u5206\u949F",
   "time.hours": "{n}\u5C0F\u65F6",
@@ -91,7 +104,7 @@ var zh = {
 var en = {
   nav: "Sessions",
   title: "Session management",
-  desc: "List stored Sessions (archived ones excluded) and delete them in bulk. Deleting removes the session files and cannot be undone; a running Session is skipped.",
+  desc: "List stored Sessions (archived ones excluded). Drag Sessions or folders to reposition them, pin entries to the top, and delete in bulk. Deleting removes the session files and cannot be undone; a running Session is skipped.",
   search: "Search title or directory",
   selectAll: "Select all",
   clear: "Clear",
@@ -130,6 +143,19 @@ var en = {
   deleteWorkspaceTitle: "Delete workspace",
   deleteWorkspaceBody: "Delete the workspace \u201C{name}\u201D? Its sessions are kept and fall back to Unsorted.",
   save: "Save",
+  folderName: "Folder name",
+  newFolder: "New folder",
+  newFolderTitle: "New folder",
+  create: "Create",
+  renameFolder: "Rename folder",
+  renameFolderTitle: "Rename folder",
+  deleteFolder: "Delete folder",
+  deleteFolderTitle: "Delete folder",
+  deleteFolderBody: "Delete the folder \u201C{name}\u201D? Its sessions move back to their workspaces.",
+  folderExists: "A folder named \u201C{name}\u201D already exists.",
+  folderActions: "Folder actions for {name}",
+  pin: "Pin",
+  unpin: "Unpin",
   "time.now": "now",
   "time.minutes": "{n}min",
   "time.hours": "{n}h",
@@ -140,8 +166,197 @@ var en = {
   shellDesc: "Use this plugin\u2019s own session sidebar in place of the stock one."
 };
 
+// src/client/layout.js
+var WORKSPACE_PREFIX = "\u5DE5\u4F5C\u533A:";
+var CUSTOM_PREFIX = "\u81EA\u5B9A\u4E49:";
+var SESSION_ID = /^session-[0-9a-fA-F-]{8,64}$/;
+function emptyLayout() {
+  return { version: 1, order: [], folders: [], placement: {}, pinned: [], sessions: {} };
+}
+function workspaceKey(id) {
+  return WORKSPACE_PREFIX + id;
+}
+function customKey(name) {
+  return CUSTOM_PREFIX + name;
+}
+function parseKey(key) {
+  if (typeof key !== "string") return null;
+  if (key.startsWith(WORKSPACE_PREFIX)) {
+    const value = key.slice(WORKSPACE_PREFIX.length);
+    return value === "" ? null : { kind: "workspace", value };
+  }
+  if (key.startsWith(CUSTOM_PREFIX)) {
+    const value = key.slice(CUSTOM_PREFIX.length);
+    return value === "" ? null : { kind: "custom", value };
+  }
+  return null;
+}
+function isSessionId(value) {
+  return typeof value === "string" && SESSION_ID.test(value);
+}
+function normalizeLayout(raw) {
+  const source = raw !== null && typeof raw === "object" ? raw : {};
+  const folders = [];
+  for (const name of Array.isArray(source.folders) ? source.folders : []) {
+    if (typeof name !== "string" || name === "" || folders.includes(name)) continue;
+    folders.push(name);
+  }
+  const order = [];
+  for (const key of Array.isArray(source.order) ? source.order : []) {
+    const parsed = parseKey(key);
+    if (parsed === null || order.includes(key)) continue;
+    if (parsed.kind === "custom" && !folders.includes(parsed.value)) continue;
+    order.push(key);
+  }
+  for (const name of folders) {
+    if (!order.includes(customKey(name))) order.push(customKey(name));
+  }
+  const placement = {};
+  const rawPlacement = source.placement !== null && typeof source.placement === "object" ? source.placement : {};
+  for (const [id, key] of Object.entries(rawPlacement)) {
+    if (!isSessionId(id)) continue;
+    const parsed = parseKey(key);
+    if (parsed === null) continue;
+    if (parsed.kind === "custom" && !folders.includes(parsed.value)) continue;
+    placement[id] = key;
+  }
+  const pinned = [];
+  for (const entry of Array.isArray(source.pinned) ? source.pinned : []) {
+    const valid = isSessionId(entry) || parseKey(entry) !== null;
+    if (!valid || pinned.includes(entry)) continue;
+    pinned.push(entry);
+  }
+  const sessions = {};
+  const rawSessions = source.sessions !== null && typeof source.sessions === "object" ? source.sessions : {};
+  for (const [key, ids] of Object.entries(rawSessions)) {
+    const parsed = parseKey(key);
+    if (parsed === null) continue;
+    if (parsed.kind === "custom" && !folders.includes(parsed.value)) continue;
+    const list = [];
+    for (const id of Array.isArray(ids) ? ids : []) {
+      if (!isSessionId(id) || list.includes(id)) continue;
+      list.push(id);
+    }
+    if (list.length > 0) sessions[key] = list;
+  }
+  return { version: 1, order, folders, placement, pinned, sessions };
+}
+function reorder(list, moved, before) {
+  const from = list.indexOf(moved);
+  if (from < 0) return list;
+  const rest = list.filter((key) => key !== moved);
+  if (before === void 0 || before === moved) return rest.length === list.length ? rest : [...rest, moved];
+  const into = rest.indexOf(before);
+  if (into < 0) return list;
+  return [...rest.slice(0, into), moved, ...rest.slice(into)];
+}
+function workspaceOrder(layout) {
+  const ids = [];
+  for (const key of layout.order) {
+    const parsed = parseKey(key);
+    if (parsed !== null && parsed.kind === "workspace" && !ids.includes(parsed.value)) ids.push(parsed.value);
+  }
+  return ids;
+}
+function addFolder(layout, name) {
+  if (name === "" || layout.folders.includes(name)) return layout;
+  return {
+    ...layout,
+    folders: [...layout.folders, name],
+    order: [...layout.order, customKey(name)]
+  };
+}
+function renameFolder(layout, from, to) {
+  if (from === to || to === "" || layout.folders.includes(to) || !layout.folders.includes(from)) return layout;
+  const swap = (key) => key === customKey(from) ? customKey(to) : key;
+  const placement = {};
+  for (const [id, key] of Object.entries(layout.placement)) placement[id] = swap(key);
+  const sessions = {};
+  for (const [key, ids] of Object.entries(layout.sessions)) sessions[swap(key)] = ids;
+  return {
+    ...layout,
+    folders: layout.folders.map((name) => name === from ? to : name),
+    order: layout.order.map(swap),
+    placement,
+    pinned: layout.pinned.map(swap),
+    sessions
+  };
+}
+function removeFolder(layout, name) {
+  if (!layout.folders.includes(name)) return layout;
+  const key = customKey(name);
+  const placement = {};
+  for (const [id, value] of Object.entries(layout.placement)) if (value !== key) placement[id] = value;
+  const sessions = { ...layout.sessions };
+  delete sessions[key];
+  return {
+    ...layout,
+    folders: layout.folders.filter((value) => value !== name),
+    order: layout.order.filter((value) => value !== key),
+    placement,
+    pinned: layout.pinned.filter((value) => value !== key),
+    sessions
+  };
+}
+function pinItem(layout, key) {
+  if (layout.pinned.includes(key)) return layout;
+  return { ...layout, pinned: [key, ...layout.pinned] };
+}
+function unpinItem(layout, key) {
+  if (!layout.pinned.includes(key)) return layout;
+  return { ...layout, pinned: layout.pinned.filter((value) => value !== key) };
+}
+function placeSession(layout, id, key, before, fallback, order) {
+  const sessions = {};
+  for (const [folder, ids] of Object.entries(layout.sessions)) sessions[folder] = ids.filter((value) => value !== id);
+  const seed = Array.isArray(order) ? order : sessions[key] ?? [];
+  const list = seed.filter((value) => value !== id);
+  const into = before === void 0 ? list.length : list.indexOf(before);
+  const next = into < 0 ? [...list, id] : [...list.slice(0, into), id, ...list.slice(into)];
+  sessions[key] = next;
+  const placement = { ...layout.placement };
+  if (key === "" || key === fallback) delete placement[id];
+  else placement[id] = key;
+  return { ...layout, placement, sessions };
+}
+function reorderPinned(layout, moved, before) {
+  if (!layout.pinned.includes(moved)) return layout;
+  return { ...layout, pinned: reorder(layout.pinned, moved, before) };
+}
+function reorderFolders(layout, moved, before) {
+  if (!layout.order.includes(moved)) return layout;
+  return { ...layout, order: reorder(layout.order, moved, before) };
+}
+
 // src/client/api.js
 var DELETE_URL = "/plugins/session-admin/delete";
+var TREE_URL = "/plugins/session-admin/tree";
+var LAYOUT_URL = "/plugins/session-admin/layout";
+async function getTree() {
+  try {
+    const response = await fetch(TREE_URL, { credentials: "same-origin" });
+    const data = await response.json().catch(() => ({ ok: false, error: `HTTP ${response.status}` }));
+    if (data.ok !== true) return { ok: false, error: data.error ?? `HTTP ${response.status}` };
+    return { ok: true, layout: normalizeLayout(data.layout) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+async function postLayout(layout) {
+  try {
+    const response = await fetch(LAYOUT_URL, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ layout })
+    });
+    const data = await response.json().catch(() => ({ ok: false, error: `HTTP ${response.status}` }));
+    if (data.ok !== true) return { ok: false, error: data.error ?? `HTTP ${response.status}` };
+    return { ok: true, layout: normalizeLayout(data.layout) };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
 async function postDelete(ids) {
   try {
     const response = await fetch(DELETE_URL, {
@@ -232,6 +447,13 @@ var CSS = `
 .sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
 .sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
 .sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
+.sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
+.sa-pinned-entry { display: flex; flex-direction: column; }
+.sa-pinned-row { padding-left: 10px; }
+.sa-pin { color: var(--dsw-alias-label-secondary); }
+.sa-group.sa-drop-target, .sa-pinned-entry.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
+.sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
+.sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
 .sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
 .sa-tree-sidebar { padding: 0; gap: 0; }
 .sa-tree-sidebar .sa-session-sidebar { width: 100%; padding: 0 8px 0 10px; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }
@@ -309,15 +531,79 @@ function useVanished() {
   return store.useValue();
 }
 
+// src/client/stores/tree.js
+var INITIAL = { loaded: false, loading: false, saving: false, error: "", layout: emptyLayout() };
+var store2 = createStore(INITIAL);
+var inflight = null;
+var writes = Promise.resolve();
+function adoptWorkspaces(layout, workspaceIds) {
+  const known = new Set(workspaceIds);
+  const order = layout.order.filter((key) => {
+    if (!key.startsWith("\u5DE5\u4F5C\u533A:")) return true;
+    return known.has(key.slice("\u5DE5\u4F5C\u533A:".length));
+  });
+  for (const id of workspaceIds) {
+    const key = `\u5DE5\u4F5C\u533A:${id}`;
+    if (!order.includes(key)) order.push(key);
+  }
+  return order.length === layout.order.length && order.every((key, index) => key === layout.order[index]) ? layout : { ...layout, order };
+}
+function refreshLayout() {
+  if (inflight !== null) return inflight;
+  store2.set({ ...store2.get(), loading: true, error: "" });
+  inflight = getTree().then((result) => {
+    if (result.ok !== true) {
+      store2.set({ ...store2.get(), loading: false, error: result.error });
+      return store2.get();
+    }
+    store2.set({ loaded: true, loading: false, error: "", layout: result.layout });
+    return store2.get();
+  }).finally(() => {
+    inflight = null;
+  });
+  return inflight;
+}
+function saveLayout(next) {
+  const previous = store2.get();
+  const layout = normalizeLayout(next);
+  store2.set({ ...previous, saving: true, error: "", layout });
+  writes = writes.then(async () => {
+    const result = await postLayout(store2.get().layout);
+    const current = store2.get();
+    if (result.ok !== true) {
+      const fallback = current.layout === layout ? previous.layout : current.layout;
+      store2.set({ ...current, saving: false, error: result.error, layout: fallback });
+      return store2.get();
+    }
+    store2.set({ ...current, loaded: true, saving: false, error: "", layout: result.layout });
+    return store2.get();
+  });
+  return writes;
+}
+function useTree() {
+  return store2.useValue();
+}
+
 // src/client/components/session-tree.js
 var import_dsh_client_ui_primitives2 = require("@deepseek-ai/dsh-client-ui-primitives");
 function statusDot(row, t) {
   if (row.running !== true) return null;
   return h("span", { className: "sa-dot", title: t("running"), "aria-label": t("running") });
 }
+function rowTitle(row, t) {
+  return row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
+}
 function SessionMenu(props) {
-  const { row, t, open, onOpenChange, onDelete } = props;
-  const title = row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
+  const { row, pinned, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
+  const title = rowTitle(row, t);
+  const items = [
+    {
+      id: "pin",
+      label: pinned ? t("unpin") : t("pin"),
+      icon: h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)
+    },
+    { id: "delete", label: t("deleteSession"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true }
+  ];
   return h(
     import_dsh_client_ui_primitives2.Menu,
     {
@@ -325,17 +611,11 @@ function SessionMenu(props) {
       onClose: () => onOpenChange(false),
       portal: true,
       closeOnPointerLeave: true,
-      items: [
-        {
-          id: "delete",
-          label: t("deleteSession"),
-          icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null),
-          danger: true
-        }
-      ],
+      items,
       onSelect: (id) => {
         onOpenChange(false);
-        if (id === "delete") onDelete(row);
+        if (id === "pin" && typeof onPin === "function") onPin(row.id);
+        if (id === "delete" && typeof onDelete === "function") onDelete(row);
       },
       anchor: h(
         "button",
@@ -354,8 +634,8 @@ function SessionMenu(props) {
   );
 }
 function SessionRow(props) {
-  const { variant, row, now, selected, busy, t, onOpen, onSelect, onDelete } = props;
-  const title = row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
+  const { variant, row, now, pinned, selected, busy, t, onOpen, onSelect, onDelete } = props;
+  const title = rowTitle(row, t);
   const [menuOpen, setMenuOpen] = react_default.useState(false);
   if (variant === "sidebar") {
     return h(
@@ -367,15 +647,32 @@ function SessionRow(props) {
         disabled: busy,
         onClick: () => onOpen(row.id)
       },
+      pinned === true ? h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)) : null,
       h("span", { className: "sa-title" }, title),
       statusDot(row, t),
       h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t))
     );
   }
-  const className = ["sa-session", selected ? "sa-selected" : "", menuOpen ? "sa-menu-open" : ""].filter((part) => part !== "").join(" ");
+  const className = [
+    "sa-session",
+    pinned === true ? "sa-pinned-row" : "",
+    selected ? "sa-selected" : "",
+    menuOpen ? "sa-menu-open" : "",
+    props.dropBefore === true ? "sa-drop-before" : ""
+  ].filter((part) => part !== "").join(" ");
   return h(
     "div",
-    { className, role: "treeitem", "aria-selected": selected },
+    {
+      className,
+      role: "treeitem",
+      "aria-selected": selected,
+      "data-session-id": row.id,
+      draggable: busy !== true,
+      onDragStart: (event) => {
+        event.stopPropagation();
+        if (typeof props.onDragStart === "function") props.onDragStart(row);
+      }
+    },
     h("input", {
       className: "sa-check",
       type: "checkbox",
@@ -398,23 +695,39 @@ function SessionRow(props) {
       { className: "sa-row-actions" },
       h(SessionMenu, {
         row,
+        pinned: pinned === true,
         t,
         open: menuOpen,
         onOpenChange: setMenuOpen,
         onDelete: (target) => {
           if (typeof onDelete === "function") onDelete(target);
+        },
+        onPin: (target) => {
+          const handler = pinned === true ? props.onUnpin : props.onPin;
+          if (typeof handler === "function") handler(target);
         }
       })
     )
   );
 }
 function Group(props) {
-  const { group, now, expanded, selection, busy, variant, t } = props;
+  const { group, kind, pinned, now, expanded, selection, busy, variant, t } = props;
   const [menuOpen, setMenuOpen] = react_default.useState(false);
   const sessions = Array.isArray(group.sessions) ? group.sessions : [];
+  const ungrouped = kind === "ungrouped";
   const toggle = () => {
     if (typeof props.onToggle === "function") props.onToggle(group.key);
   };
+  const menuItems = [];
+  if (kind === "workspace") {
+    menuItems.push({ id: "rename", label: t("renameWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) });
+    menuItems.push({ id: "delete", label: t("deleteWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true });
+  }
+  if (kind === "custom") {
+    menuItems.push({ id: "rename", label: t("renameFolder"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) });
+    menuItems.push({ id: "delete", label: t("deleteFolder"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true });
+  }
+  menuItems.push({ id: "pin", label: pinned === true ? t("unpin") : t("pin"), icon: h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null) });
   const menu = () => h(
     import_dsh_client_ui_primitives2.Menu,
     {
@@ -422,21 +735,28 @@ function Group(props) {
       onClose: () => setMenuOpen(false),
       portal: true,
       closeOnPointerLeave: true,
-      items: [
-        { id: "rename", label: t("renameWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) },
-        { id: "delete", label: t("deleteWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true }
-      ],
+      items: menuItems,
       onSelect: (id) => {
         setMenuOpen(false);
-        if (id === "rename" && typeof props.onRenameWorkspace === "function") props.onRenameWorkspace(group);
-        if (id === "delete" && typeof props.onDeleteWorkspace === "function") props.onDeleteWorkspace(group);
+        if (id === "rename") {
+          if (kind === "workspace" && typeof props.onRenameWorkspace === "function") props.onRenameWorkspace(group);
+          if (kind === "custom" && typeof props.onRenameFolder === "function") props.onRenameFolder(group);
+        }
+        if (id === "delete") {
+          if (kind === "workspace" && typeof props.onDeleteWorkspace === "function") props.onDeleteWorkspace(group);
+          if (kind === "custom" && typeof props.onDeleteFolder === "function") props.onDeleteFolder(group);
+        }
+        if (id === "pin") {
+          const handler = pinned === true ? props.onUnpin : props.onPin;
+          if (typeof handler === "function") handler(group.key);
+        }
       },
       anchor: h(
         "button",
         {
           className: "sa-icon-btn",
           type: "button",
-          "aria-label": t("workspaceActions", { name: group.label }),
+          "aria-label": kind === "custom" ? t("folderActions", { name: group.label }) : t("workspaceActions", { name: group.label }),
           onClick: (event) => {
             event.stopPropagation();
             setMenuOpen((open) => !open);
@@ -446,13 +766,40 @@ function Group(props) {
       )
     }
   );
+  const canDrop = props.dragKind === "session" || props.dragKind === "folder" || pinned === true && props.dragKind === "pinned";
+  const className = [
+    "sa-group",
+    menuOpen ? "sa-menu-open" : "",
+    pinned === true ? "sa-pinned-group" : "",
+    props.dropTarget === group.key ? "sa-drop-target" : ""
+  ].filter((part) => part !== "").join(" ");
   const head = h(
     "div",
     {
-      className: ["sa-group", menuOpen ? "sa-menu-open" : ""].filter((part) => part !== "").join(" "),
+      className,
       role: "treeitem",
       "aria-expanded": expanded,
-      onClick: toggle
+      draggable: ungrouped !== true && busy !== true,
+      onClick: toggle,
+      onDragStart: (event) => {
+        if (ungrouped === true) return;
+        event.stopPropagation();
+        if (typeof props.onDragStart === "function") props.onDragStart(group);
+      },
+      onDragOver: (event) => {
+        if (!canDrop) return;
+        event.preventDefault();
+        if (typeof props.onDragOver === "function") props.onDragOver(group.key);
+      },
+      onDragLeave: (event) => {
+        if (event.currentTarget.contains(event.relatedTarget)) return;
+        if (typeof props.onDragOver === "function") props.onDragOver(null);
+      },
+      onDrop: (event) => {
+        if (ungrouped === true && props.dragKind !== "session") return;
+        event.preventDefault();
+        if (typeof props.onDrop === "function") props.onDrop(group);
+      }
     },
     h(
       "span",
@@ -465,7 +812,7 @@ function Group(props) {
       h(import_dsh_client_ui_primitives2.IconTriangleRightFillRegular, { className: expanded ? "sa-arrow sa-arrow-open" : "sa-arrow" })
     ),
     h("span", { className: "sa-title" }, group.label),
-    group.key === "" ? null : h(
+    ungrouped ? null : h(
       "span",
       { className: "sa-row-actions" },
       menu(),
@@ -494,29 +841,125 @@ function Group(props) {
     else
       body = h(
         "div",
-        { className: "sa-rows" },
+        {
+          className: "sa-rows",
+          onDragOver: (event) => {
+            if (props.dragKind !== "session") return;
+            const element = event.target instanceof Element ? event.target.closest("[data-session-id]") : null;
+            event.preventDefault();
+            event.stopPropagation();
+            const id = element === null ? null : element.getAttribute("data-session-id");
+            if (typeof props.onDragOver === "function") props.onDragOver(id === null ? group.key : `row:${id}`);
+          },
+          onDrop: (event) => {
+            if (props.dragKind !== "session") return;
+            const element = event.target instanceof Element ? event.target.closest("[data-session-id]") : null;
+            event.preventDefault();
+            event.stopPropagation();
+            const id = element === null ? void 0 : element.getAttribute("data-session-id");
+            if (typeof props.onDropRow === "function") props.onDropRow(group, id);
+          }
+        },
         sessions.map(
           (row) => h(SessionRow, {
             key: row.id,
             variant,
             row,
             now,
+            pinned: false,
             selected: selection.includes(row.id),
             busy,
             t,
+            dropBefore: props.dropTarget === `row:${row.id}`,
             onOpen: props.onOpen,
             onSelect: props.onSelect,
-            onDelete: props.onDelete
+            onDelete: props.onDelete,
+            onPin: props.onPin,
+            onDragStart: props.onSessionDragStart
           })
         )
       );
   }
-  return h("div", { className: "sa-block", key: group.key }, head, body);
+  return h("div", { className: "sa-block" }, head, body);
+}
+function PinnedEntry(props) {
+  const { entry, t, dropTarget, dragKind } = props;
+  if (entry.kind === "folder") {
+    return h(Group, {
+      group: entry.group,
+      kind: entry.group.kind,
+      pinned: true,
+      now: props.now,
+      expanded: props.expanded.includes(entry.group.key),
+      selection: props.selection,
+      busy: props.busy,
+      variant: props.variant,
+      t,
+      dropTarget,
+      dragKind,
+      onToggle: props.onToggle,
+      onOpen: props.onOpen,
+      onSelect: props.onSelect,
+      onDelete: props.onDelete,
+      onNewSession: props.onNewSession,
+      onRenameWorkspace: props.onRenameWorkspace,
+      onDeleteWorkspace: props.onDeleteWorkspace,
+      onRenameFolder: props.onRenameFolder,
+      onDeleteFolder: props.onDeleteFolder,
+      onPin: props.onPin,
+      onUnpin: props.onUnpin,
+      onDragStart: (group) => props.onPinnedDragStart(group.key),
+      onDragOver: props.onDragOver,
+      onDrop: (group) => props.onPinnedDrop(group.key),
+      onDropRow: (group, before) => props.onPinnedDropRow(group, before)
+    });
+  }
+  const row = entry.row;
+  return h(
+    "div",
+    {
+      className: [
+        "sa-pinned-entry",
+        dropTarget === entry.row.id ? "sa-drop-target" : ""
+      ].filter((part) => part !== "").join(" "),
+      draggable: props.busy !== true,
+      onDragStart: (event) => {
+        event.stopPropagation();
+        props.onPinnedDragStart(entry.row.id);
+      },
+      onDragOver: (event) => {
+        if (dragKind !== "pinned") return;
+        event.preventDefault();
+        props.onDragOver(entry.row.id);
+      },
+      onDrop: (event) => {
+        if (dragKind !== "pinned") return;
+        event.preventDefault();
+        props.onPinnedDrop(entry.row.id);
+      }
+    },
+    h(SessionRow, {
+      variant: props.variant,
+      row,
+      now: props.now,
+      pinned: true,
+      selected: props.selection.includes(row.id),
+      busy: props.busy,
+      t,
+      onOpen: props.onOpen,
+      onSelect: props.onSelect,
+      onDelete: props.onDelete,
+      onPin: props.onPin,
+      onUnpin: props.onUnpin,
+      onDragStart: () => props.onPinnedDragStart(entry.row.id)
+    })
+  );
 }
 function SessionTree(props) {
   const t = props.t;
   const variant = props.variant === "sidebar" ? "sidebar" : "panel";
   const groups = Array.isArray(props.groups) ? props.groups : [];
+  const pinned = Array.isArray(props.pinned) ? props.pinned : [];
   const expanded = Array.isArray(props.expanded) ? props.expanded : [];
   const selection = Array.isArray(props.selection) ? props.selection : [];
   const busy = props.busy === true;
@@ -529,26 +972,120 @@ function SessionTree(props) {
     if (busy) return;
     if (typeof props.onSelectionChange === "function") props.onSelectionChange(id);
   };
+  const [drag, setDrag] = react_default.useState(null);
+  const [dropTarget, setDropTarget] = react_default.useState(null);
+  const clearDrag = () => {
+    setDrag(null);
+    setDropTarget(null);
+  };
+  const endDrop = (group) => {
+    const current = drag;
+    clearDrag();
+    if (current === null) return;
+    if (current.kind === "session") {
+      if (typeof props.onMoveSession === "function") props.onMoveSession(current.id, group.key);
+      return;
+    }
+    if (current.kind === "folder") {
+      if (typeof props.onMoveFolder === "function") props.onMoveFolder(current.key, group.key);
+    }
+  };
+  const endRowDrop = (group, before) => {
+    const current = drag;
+    clearDrag();
+    if (current === null || current.kind !== "session" || current.id === before) return;
+    if (typeof props.onMoveSession === "function") props.onMoveSession(current.id, group.key, before);
+  };
+  const pinnedDrop = (target) => {
+    const current = drag;
+    clearDrag();
+    if (current === null || current.key === target) return;
+    const folderKey = parseKey(target) !== null;
+    if (current.kind === "pinned") {
+      if (typeof props.onReorderPinned === "function") props.onReorderPinned(current.key, target);
+      return;
+    }
+    if (current.kind === "session" && folderKey) {
+      if (typeof props.onMoveSession === "function") props.onMoveSession(current.id, target);
+      return;
+    }
+    if (current.kind === "folder" && folderKey) {
+      if (typeof props.onMoveFolder === "function") props.onMoveFolder(current.key, target);
+    }
+  };
   return h(
     "div",
-    { className: variant === "sidebar" ? "sa-tree sa-tree-sidebar" : "sa-tree", role: "tree" },
+    {
+      className: variant === "sidebar" ? "sa-tree sa-tree-sidebar" : "sa-tree",
+      role: "tree",
+      onDragEnd: clearDrag
+    },
+    pinned.length === 0 ? null : h(
+      "div",
+      { className: "sa-pinned" },
+      pinned.map(
+        (entry) => h(PinnedEntry, {
+          key: entry.kind === "folder" ? entry.group.key : entry.row.id,
+          entry,
+          now,
+          variant,
+          t,
+          expanded,
+          selection,
+          busy,
+          dropTarget,
+          dragKind: drag === null ? null : drag.kind,
+          onToggle: props.onToggle,
+          onOpen: open,
+          onSelect: select,
+          onDelete: props.onDelete,
+          onNewSession: props.onNewSession,
+          onRenameWorkspace: props.onRenameWorkspace,
+          onDeleteWorkspace: props.onDeleteWorkspace,
+          onRenameFolder: props.onRenameFolder,
+          onDeleteFolder: props.onDeleteFolder,
+          onPin: props.onPin,
+          onUnpin: props.onUnpin,
+          onDragOver: setDropTarget,
+          onPinnedDragStart: (key) => setDrag({ kind: "pinned", key }),
+          onPinnedDrop: pinnedDrop,
+          onPinnedDropRow: endRowDrop
+        })
+      )
+    ),
     groups.map(
       (group) => h(Group, {
-        key: group.key,
+        key: group.key === "" ? "ungrouped" : group.key,
         group,
+        kind: group.kind,
+        pinned: false,
         now,
         expanded: expanded.includes(group.key),
         selection,
         busy,
         variant,
         t,
+        dropTarget,
+        dragKind: drag === null ? null : drag.kind,
         onToggle: props.onToggle,
         onOpen: open,
         onSelect: select,
         onDelete: props.onDelete,
         onNewSession: props.onNewSession,
         onRenameWorkspace: props.onRenameWorkspace,
-        onDeleteWorkspace: props.onDeleteWorkspace
+        onDeleteWorkspace: props.onDeleteWorkspace,
+        onRenameFolder: props.onRenameFolder,
+        onDeleteFolder: props.onDeleteFolder,
+        onPin: props.onPin,
+        onUnpin: props.onUnpin,
+        onDragStart: (target) => {
+          if (target.id !== void 0) setDrag({ kind: "session", id: target.id });
+          else setDrag({ kind: "folder", key: target.key });
+        },
+        onSessionDragStart: (row) => setDrag({ kind: "session", id: row.id }),
+        onDragOver: setDropTarget,
+        onDrop: endDrop,
+        onDropRow: endRowDrop
       })
     )
   );
@@ -563,17 +1100,17 @@ function readStored() {
     return false;
   }
 }
-var store2 = createStore(readStored());
+var store3 = createStore(readStored());
 function setShellOverride(next) {
-  if (next === store2.get()) return;
-  store2.set(next);
+  if (next === store3.get()) return;
+  store3.set(next);
   try {
     localStorage.setItem(SHELL_KEY, next ? "1" : "0");
   } catch {
   }
 }
 function useShellOverride() {
-  return store2.useValue();
+  return store3.useValue();
 }
 
 // src/client/components/pref-switch.js
@@ -607,6 +1144,8 @@ function SessionAdminSection(props) {
   const workspaces = props.useWorkspaces((state) => state);
   const archivedIds = workspaces.archivedSessionIds;
   const goneIds = useVanished();
+  const treeState = useTree();
+  const layout = treeState.layout;
   const [query, setQuery] = react_default.useState("");
   const [selected, setSelected] = react_default.useState([]);
   const [confirming, setConfirming] = react_default.useState(null);
@@ -614,6 +1153,9 @@ function SessionAdminSection(props) {
   const [notice, setNotice] = react_default.useState(null);
   const [collapsed, setCollapsed] = react_default.useState([]);
   const [dialog, setDialog] = react_default.useState(null);
+  react_default.useEffect(() => {
+    if (!treeState.loaded && !treeState.loading) void refreshLayout();
+  }, [treeState.loaded, treeState.loading]);
   const archived = react_default.useMemo(() => new Set(archivedIds), [archivedIds]);
   const gone = react_default.useMemo(() => new Set(goneIds), [goneIds]);
   const currentId = react_default.useMemo(() => {
@@ -635,6 +1177,28 @@ function SessionAdminSection(props) {
     list.sort((left, right) => right.updatedAt - left.updatedAt);
     return list;
   }, [catalog, archived, gone, currentId]);
+  const warning = react_default.useMemo(() => {
+    if (treeState.error !== "") return t("treeFailed", { message: treeState.error });
+    return null;
+  }, [treeState.error, t]);
+  const workspaceInfo = react_default.useMemo(() => {
+    const map = /* @__PURE__ */ new Map();
+    for (const workspace of workspaces.items) {
+      const label = workspace.title !== void 0 && workspace.title !== "" ? workspace.title : workspace.path;
+      map.set(workspace.workspaceId, { label, key: workspaceKey(workspace.workspaceId) });
+    }
+    return map;
+  }, [workspaces.items]);
+  const base = react_default.useMemo(() => adoptWorkspaces(layout, [...workspaceInfo.keys()]), [layout, workspaceInfo]);
+  const defaultKey = react_default.useCallback(
+    (id) => {
+      for (const workspace of workspaces.items) {
+        if (workspace.sessionIds.includes(id)) return workspaceKey(workspace.workspaceId);
+      }
+      return "";
+    },
+    [workspaces.items]
+  );
   const needle = query.trim().toLowerCase();
   const matches = react_default.useCallback(
     (row) => {
@@ -646,27 +1210,88 @@ function SessionAdminSection(props) {
     [needle]
   );
   const groups = react_default.useMemo(() => {
-    const byId = /* @__PURE__ */ new Map();
-    for (const row of rows) if (matches(row)) byId.set(row.id, row);
-    const accounted = /* @__PURE__ */ new Set();
-    const list = workspaces.items.map((workspace) => {
-      const sessions = workspace.sessionIds.map((id) => {
-        accounted.add(id);
-        return byId.get(id);
-      }).filter((row) => row !== void 0);
-      const label = workspace.title !== void 0 && workspace.title !== "" ? workspace.title : workspace.path;
-      return { key: workspace.workspaceId, label, sessions };
-    });
-    const rest = rows.filter((row) => byId.has(row.id) && !accounted.has(row.id));
-    if (rest.length > 0) list.push({ key: "", label: t("groupUngrouped"), sessions: rest });
-    return needle === "" ? list : list.filter((group) => group.sessions.length > 0);
-  }, [rows, matches, needle, t, workspaces.items]);
-  const visibleRows = react_default.useMemo(() => groups.flatMap((group) => group.sessions), [groups]);
+    const visible = rows.filter((row) => matches(row));
+    const placed = base;
+    const byKey = /* @__PURE__ */ new Map();
+    for (const key of placed.order) {
+      const parsed = parseKey(key);
+      if (parsed === null) continue;
+      if (parsed.kind === "workspace") {
+        const info = workspaceInfo.get(parsed.value);
+        if (info === void 0) continue;
+        byKey.set(key, { key, kind: "workspace", label: info.label, sessions: [] });
+      } else {
+        byKey.set(key, { key, kind: "custom", label: parsed.value, sessions: [] });
+      }
+    }
+    const empty = [];
+    for (const row of visible) {
+      if (base.pinned.includes(row.id)) continue;
+      const target = base.placement[row.id];
+      const key = target !== void 0 && byKey.has(target) ? target : byKey.has(defaultKey(row.id)) ? defaultKey(row.id) : "";
+      if (key === "") {
+        empty.push(row);
+        continue;
+      }
+      byKey.get(key).sessions.push(row);
+    }
+    const ordered = (key, members) => {
+      const order = base.sessions[key];
+      if (!Array.isArray(order) || order.length === 0) return members;
+      const remaining = new Map(members.map((row) => [row.id, row]));
+      const list2 = [];
+      for (const id of order) {
+        const row = remaining.get(id);
+        if (row === void 0) continue;
+        remaining.delete(id);
+        list2.push(row);
+      }
+      for (const row of members) if (remaining.delete(row.id)) list2.push(row);
+      return list2;
+    };
+    let list = [...byKey.values()].map((group) => ({ ...group, sessions: ordered(group.key, group.sessions) }));
+    if (empty.length > 0) list.push({ key: "", kind: "ungrouped", label: t("groupUngrouped"), sessions: ordered("", empty) });
+    if (needle !== "") list = list.filter((group) => group.sessions.length > 0);
+    return list;
+  }, [rows, matches, needle, t, base, workspaceInfo, defaultKey]);
+  const groupByKey = react_default.useMemo(() => new Map(groups.map((group) => [group.key, group])), [groups]);
+  const rowById = react_default.useMemo(() => new Map(rows.map((row) => [row.id, row])), [rows]);
+  const pinned = react_default.useMemo(() => {
+    const list = [];
+    for (const entry of base.pinned) {
+      const parsed = parseKey(entry);
+      if (parsed === null) {
+        const row = rowById.get(entry);
+        if (row !== void 0 && matches(row)) list.push({ kind: "session", id: entry, row });
+        continue;
+      }
+      const group = groupByKey.get(entry);
+      if (group !== void 0) list.push({ kind: "folder", key: entry, group });
+    }
+    return list;
+  }, [base.pinned, rowById, groupByKey, matches]);
+  const pinnedKeys = react_default.useMemo(
+    () => new Set(pinned.filter((entry) => entry.kind === "folder").map((entry) => entry.key)),
+    [pinned]
+  );
+  const rest = react_default.useMemo(() => groups.filter((group) => !pinnedKeys.has(group.key)), [groups, pinnedKeys]);
+  const visibleRows = react_default.useMemo(() => {
+    const list = pinned.filter((entry) => entry.kind === "session").map((entry) => entry.row);
+    const seen = new Set(list.map((row) => row.id));
+    for (const group of groups) {
+      for (const row of group.sessions) {
+        if (seen.has(row.id)) continue;
+        seen.add(row.id);
+        list.push(row);
+      }
+    }
+    return list;
+  }, [groups, pinned]);
   const selectable = react_default.useMemo(() => visibleRows.filter((row) => !row.running), [visibleRows]);
   const visibleIds = react_default.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
   const selectedIds = selected.filter((id) => visibleIds.has(id));
   const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
-  const expandedKeys = groups.filter((group) => !collapsed.includes(group.key)).map((group) => group.key);
+  const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsed.includes(key));
   const toggle = (id) => {
     setSelected((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
   };
@@ -684,6 +1309,16 @@ function SessionAdminSection(props) {
     if (typeof props.openSession !== "function") return;
     props.openSession(id);
   };
+  const persist = (next) => {
+    void saveLayout(next).then((state) => {
+      if (state.error !== "") setNotice({ kind: "error", text: t("treeFailed", { message: state.error }) });
+    });
+  };
+  const syncWorkspaceOrder = (next) => {
+    if (typeof props.syncWorkspaceOrder !== "function") return;
+    void Promise.resolve(props.syncWorkspaceOrder(workspaceOrder(next))).catch(() => {
+    });
+  };
   const runDelete = async (ids) => {
     setBusy(true);
     setNotice(null);
@@ -696,6 +1331,7 @@ function SessionAdminSection(props) {
     }
     markVanished(result.deleted);
     setSelected([]);
+    void refreshLayout();
     if (result.skipped.length === 0) {
       setNotice({ kind: "ok", text: t("noticeDeleted", { count: result.deleted.length }) });
       return;
@@ -713,9 +1349,26 @@ function SessionAdminSection(props) {
     return t("noticeFailed", { message: error.message ?? String(error) });
   };
   const startSession = (group) => {
-    if (typeof props.startSession !== "function" || group.key === "") return;
-    props.startSession(group.key);
+    if (typeof props.startSession !== "function") return;
+    const parsed = parseKey(group.key);
+    if (parsed !== null && parsed.kind === "workspace") props.startSession(parsed.value);
+    else props.startSession();
   };
+  const pin = (key) => persist(pinItem(base, key));
+  const unpin = (key) => persist(unpinItem(base, key));
+  const moveSession = (id, key, before) => {
+    const parsed = parseKey(key);
+    if (parsed === null && key !== "") return;
+    const group = groupByKey.get(key);
+    const order = group === void 0 ? [] : group.sessions.map((row) => row.id);
+    persist(placeSession(base, id, key, before, defaultKey(id), order));
+  };
+  const moveFolder = (moved, before) => {
+    const next = reorderFolders(base, moved, before);
+    persist(next);
+    syncWorkspaceOrder(next);
+  };
+  const reorderPinnedEntry = (moved, before) => persist(reorderPinned(base, moved, before));
   const renameWorkspace = async (dialogState) => {
     const title = dialogState.value.trim();
     if (title === "" || typeof props.renameWorkspace !== "function") return;
@@ -739,6 +1392,39 @@ function SessionAdminSection(props) {
       setNotice({ kind: "error", text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }) });
     }
   };
+  const submitDialog = () => {
+    if (dialog === null) return;
+    const value = typeof dialog.value === "string" ? dialog.value.trim() : "";
+    if (dialog.kind === "renameWorkspace") {
+      void renameWorkspace(dialog);
+      return;
+    }
+    if (dialog.kind === "deleteWorkspace") {
+      void deleteWorkspace(dialog);
+      return;
+    }
+    setDialog(null);
+    setNotice(null);
+    if (dialog.kind === "newFolder") {
+      if (value === "") return;
+      if (base.folders.includes(value)) {
+        setNotice({ kind: "error", text: t("folderExists", { name: value }) });
+        return;
+      }
+      persist(addFolder(base, value));
+      return;
+    }
+    if (dialog.kind === "renameFolder") {
+      if (value === "" || value === dialog.name) return;
+      if (base.folders.includes(value)) {
+        setNotice({ kind: "error", text: t("folderExists", { name: value }) });
+        return;
+      }
+      persist(renameFolder(base, dialog.name, value));
+      return;
+    }
+    if (dialog.kind === "deleteFolder") persist(removeFolder(base, dialog.name));
+  };
   const header = h(
     "div",
     { className: "sa-head" },
@@ -756,6 +1442,16 @@ function SessionAdminSection(props) {
       "aria-label": t("search"),
       onChange: (event) => setQuery(event.target.value)
     }),
+    h(
+      "button",
+      {
+        className: "sa-btn",
+        type: "button",
+        disabled: busy || treeState.saving,
+        onClick: () => setDialog({ kind: "newFolder", value: "" })
+      },
+      t("newFolder")
+    ),
     h(
       "button",
       { className: "sa-btn", type: "button", onClick: toggleAll, disabled: selectable.length === 0 || busy },
@@ -806,7 +1502,44 @@ function SessionAdminSection(props) {
       t("confirmDelete")
     )
   );
-  const workspaceDialog = dialog === null ? null : h(
+  const dialogTitle = (() => {
+    if (dialog === null) return "";
+    if (dialog.kind === "renameWorkspace") return t("renameWorkspaceTitle");
+    if (dialog.kind === "deleteWorkspace") return t("deleteWorkspaceTitle");
+    if (dialog.kind === "newFolder") return t("newFolderTitle");
+    if (dialog.kind === "renameFolder") return t("renameFolderTitle");
+    return t("deleteFolderTitle");
+  })();
+  const dialogBody = (() => {
+    if (dialog === null) return null;
+    if (dialog.kind === "deleteWorkspace") {
+      return h("p", { className: "sa-dialog-body" }, t("deleteWorkspaceBody", { name: dialog.label }));
+    }
+    if (dialog.kind === "deleteFolder") {
+      return h("p", { className: "sa-dialog-body" }, t("deleteFolderBody", { name: dialog.name }));
+    }
+    const label = dialog.kind === "renameFolder" || dialog.kind === "newFolder" ? t("folderName") : t("renameWorkspaceTitle");
+    return h("input", {
+      className: "sa-search",
+      type: "text",
+      autoFocus: true,
+      value: dialog.value ?? "",
+      placeholder: t("folderName"),
+      "aria-label": label,
+      onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
+      onKeyDown: (event) => {
+        if (event.key === "Enter") submitDialog();
+        if (event.key === "Escape") setDialog(null);
+      }
+    });
+  })();
+  const dialogConfirmLabel = (() => {
+    if (dialog === null) return t("confirmDelete");
+    if (dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder") return t("save");
+    if (dialog.kind === "newFolder") return t("create");
+    return t("confirmDelete");
+  })();
+  const dialogView = dialog === null ? null : h(
     "div",
     { className: "sa-mask", onClick: () => setDialog(null) },
     h(
@@ -817,23 +1550,8 @@ function SessionAdminSection(props) {
         "aria-modal": "true",
         onClick: (event) => event.stopPropagation()
       },
-      h(
-        "div",
-        { className: "sa-dialog-title" },
-        dialog.kind === "rename" ? t("renameWorkspaceTitle") : t("deleteWorkspaceTitle")
-      ),
-      dialog.kind === "rename" ? h("input", {
-        className: "sa-search",
-        type: "text",
-        autoFocus: true,
-        value: dialog.value,
-        "aria-label": t("renameWorkspaceTitle"),
-        onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
-        onKeyDown: (event) => {
-          if (event.key === "Enter") void renameWorkspace(dialog);
-          if (event.key === "Escape") setDialog(null);
-        }
-      }) : h("p", { className: "sa-dialog-body" }, t("deleteWorkspaceBody", { name: dialog.label })),
+      h("div", { className: "sa-dialog-title" }, dialogTitle),
+      dialogBody,
       h(
         "div",
         { className: "sa-dialog-actions" },
@@ -841,38 +1559,62 @@ function SessionAdminSection(props) {
         h(
           "button",
           {
-            className: dialog.kind === "rename" ? "sa-btn sa-btn-primary" : "sa-btn sa-btn-danger-solid",
+            className: dialog.kind === "deleteWorkspace" || dialog.kind === "deleteFolder" ? "sa-btn sa-btn-danger-solid" : "sa-btn sa-btn-primary",
             type: "button",
-            onClick: () => {
-              if (dialog.kind === "rename") void renameWorkspace(dialog);
-              else void deleteWorkspace(dialog);
-            }
+            onClick: submitDialog
           },
-          dialog.kind === "rename" ? t("save") : t("confirmDelete")
+          dialogConfirmLabel
         )
       )
     )
   );
   const noticeLine = notice === null ? null : h("p", { className: notice.kind === "error" ? "sa-notice sa-notice-error" : "sa-notice sa-notice-ok" }, notice.text);
+  const warningLine = warning === null ? null : h(
+    "p",
+    { className: "sa-notice sa-notice-error" },
+    warning,
+    " ",
+    h(
+      "button",
+      { className: "sa-btn", type: "button", onClick: () => void refreshLayout() },
+      t("retry")
+    )
+  );
   let body;
   if (rows.length === 0) {
     body = h("div", { className: "sa-empty" }, t("empty"));
-  } else if (visibleRows.length === 0) {
+  } else if (visibleRows.length === 0 && pinned.length === 0) {
     body = h("div", { className: "sa-empty" }, t("noMatch"));
   } else {
     body = h(SessionTree, {
       variant: "panel",
-      groups,
+      groups: rest,
+      pinned,
       expanded: expandedKeys,
       selection: selectedIds,
-      busy,
+      busy: busy || treeState.saving,
       onOpen: openSession,
       onToggle: toggleGroup,
       onSelectionChange: toggle,
       onDelete: (row) => setConfirming([row.id]),
       onNewSession: startSession,
-      onRenameWorkspace: (group) => setDialog({ kind: "rename", workspaceId: group.key, label: group.label, value: group.label }),
-      onDeleteWorkspace: (group) => setDialog({ kind: "delete", workspaceId: group.key, label: group.label }),
+      onRenameWorkspace: (group) => {
+        const parsed = parseKey(group.key);
+        if (parsed === null) return;
+        setDialog({ kind: "renameWorkspace", workspaceId: parsed.value, label: group.label, value: group.label });
+      },
+      onDeleteWorkspace: (group) => {
+        const parsed = parseKey(group.key);
+        if (parsed === null) return;
+        setDialog({ kind: "deleteWorkspace", workspaceId: parsed.value, label: group.label });
+      },
+      onRenameFolder: (group) => setDialog({ kind: "renameFolder", name: group.label, value: group.label }),
+      onDeleteFolder: (group) => setDialog({ kind: "deleteFolder", name: group.label }),
+      onPin: pin,
+      onUnpin: unpin,
+      onMoveSession: moveSession,
+      onMoveFolder: moveFolder,
+      onReorderPinned: reorderPinnedEntry,
       t
     });
   }
@@ -884,20 +1626,21 @@ function SessionAdminSection(props) {
     h(SidebarSwitch, { t }),
     toolbar,
     confirmBar,
+    warningLine,
     noticeLine,
     body,
-    workspaceDialog,
+    dialogView,
     h("p", { className: "sa-hint" }, t("hint"))
   );
 }
 
 // src/client/stores/overlay.js
-var store3 = createStore(null);
+var store4 = createStore(null);
 function setOverlay(next) {
-  store3.set(next);
+  store4.set(next);
 }
 function useOverlay() {
-  return store3.useValue();
+  return store4.useValue();
 }
 
 // src/client/components/menu-item.js
@@ -1037,6 +1780,11 @@ function apply(ctx) {
     if (workspaces === void 0 || workspaces === null) return Promise.resolve();
     return workspaces.delete(workspaceId);
   };
+  const syncWorkspaceOrder = async (ids) => {
+    const workspaces = ctx.get("workspaces");
+    if (workspaces === void 0 || workspaces === null || typeof workspaces.insertBefore !== "function") return;
+    for (const id of ids) await workspaces.insertBefore(id, void 0);
+  };
   ctx.slots.inject(
     "settings.section",
     () => ctx.slots.register(
@@ -1047,7 +1795,14 @@ function apply(ctx) {
         label: () => t("nav"),
         locale: NS
       },
-      (slotProps) => h(SessionAdminSection, { ...slotProps, openSession, startSession, renameWorkspace, deleteWorkspace })
+      (slotProps) => h(SessionAdminSection, {
+        ...slotProps,
+        openSession,
+        startSession,
+        renameWorkspace,
+        deleteWorkspace,
+        syncWorkspaceOrder
+      })
     )
   );
   ctx.slots.inject(

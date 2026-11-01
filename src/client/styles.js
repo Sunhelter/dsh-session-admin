@@ -56,6 +56,13 @@ export const CSS = `
 .sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
 .sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
 .sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
+.sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
+.sa-pinned-entry { display: flex; flex-direction: column; }
+.sa-pinned-row { padding-left: 10px; }
+.sa-pin { color: var(--dsw-alias-label-secondary); }
+.sa-group.sa-drop-target, .sa-pinned-entry.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
+.sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
+.sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
 .sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
 .sa-tree-sidebar { padding: 0; gap: 0; }
 .sa-tree-sidebar .sa-session-sidebar { width: 100%; padding: 0 8px 0 10px; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }

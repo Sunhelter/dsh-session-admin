@@ -1,18 +1,37 @@
 /**
- * Session management page: browse the live client catalog grouped by native
- * workspaces, select, delete, open. Mounted by the `settings.section` seat.
+ * Session management page: browse the live client catalog as the stored tree
+ * (pinned entries first, then folders), select, delete, open. Mounted by the
+ * `settings.section` seat.
+ *
+ * The tree is display-only: moving a Session between folders or pinning it only
+ * changes where it is drawn, never its native Workspace membership.
  */
 import React, { h } from '../react.js';
 import { postDelete } from '../api.js';
 import { orderedUnique } from '../format.js';
 import { CSS } from '../styles.js';
 import { markVanished, useVanished } from '../stores/vanished.js';
+import { adoptWorkspaces, refreshLayout, saveLayout, useTree } from '../stores/tree.js';
+import {
+	addFolder,
+	parseKey,
+	pinItem,
+	placeSession,
+	removeFolder,
+	renameFolder,
+	reorderFolders,
+	reorderPinned,
+	unpinItem,
+	workspaceKey,
+	workspaceOrder,
+} from '../layout.js';
 import { SessionTree } from './session-tree.js';
 import { SidebarSwitch } from './pref-switch.js';
 
 /**
  * @param props - slot props: locale seat, session catalog, workspace snapshot,
- *   plus `openSession(id)` for navigation.
+ *   plus navigation and workspace actions (`openSession`, `startSession`,
+ *   `renameWorkspace`, `deleteWorkspace`, `syncWorkspaceOrder`).
  * @returns the settings section element.
  */
 export function SessionAdminSection(props) {
@@ -21,6 +40,8 @@ export function SessionAdminSection(props) {
 	const workspaces = props.useWorkspaces((state) => state);
 	const archivedIds = workspaces.archivedSessionIds;
 	const goneIds = useVanished();
+	const treeState = useTree();
+	const layout = treeState.layout;
 
 	const [query, setQuery] = React.useState('');
 	const [selected, setSelected] = React.useState([]);
@@ -29,6 +50,10 @@ export function SessionAdminSection(props) {
 	const [notice, setNotice] = React.useState(null);
 	const [collapsed, setCollapsed] = React.useState([]);
 	const [dialog, setDialog] = React.useState(null);
+
+	React.useEffect(() => {
+		if (!treeState.loaded && !treeState.loading) void refreshLayout();
+	}, [treeState.loaded, treeState.loading]);
 
 	const archived = React.useMemo(() => new Set(archivedIds), [archivedIds]);
 	const gone = React.useMemo(() => new Set(goneIds), [goneIds]);
@@ -56,6 +81,35 @@ export function SessionAdminSection(props) {
 		return list;
 	}, [catalog, archived, gone, currentId]);
 
+	const warning = React.useMemo(() => {
+		if (treeState.error !== '') return t('treeFailed', { message: treeState.error });
+		return null;
+	}, [treeState.error, t]);
+
+	/** Workspace lookup: id to its label and its folder key. */
+	const workspaceInfo = React.useMemo(() => {
+		const map = new Map();
+		for (const workspace of workspaces.items) {
+			const label = workspace.title !== undefined && workspace.title !== '' ? workspace.title : workspace.path;
+			map.set(workspace.workspaceId, { label, key: workspaceKey(workspace.workspaceId) });
+		}
+		return map;
+	}, [workspaces.items]);
+
+	/** The stored layout merged with every known Workspace, so a drag never hits a missing key. */
+	const base = React.useMemo(() => adoptWorkspaces(layout, [...workspaceInfo.keys()]), [layout, workspaceInfo]);
+
+	/** The folder key a Session would fall into without any recorded move. */
+	const defaultKey = React.useCallback(
+		(id) => {
+			for (const workspace of workspaces.items) {
+				if (workspace.sessionIds.includes(id)) return workspaceKey(workspace.workspaceId);
+			}
+			return '';
+		},
+		[workspaces.items],
+	);
+
 	const needle = query.trim().toLowerCase();
 	const matches = React.useCallback(
 		(row) => {
@@ -67,32 +121,101 @@ export function SessionAdminSection(props) {
 		[needle],
 	);
 
-	/** Groups in display order: native workspaces, then unaccounted rows. */
+	/**
+	 * Groups in layout order: one per folder in `order` (known Workspaces and
+	 * custom folders), plus 未归档 for rows the layout does not place anywhere.
+	 */
 	const groups = React.useMemo(() => {
-		const byId = new Map();
-		for (const row of rows) if (matches(row)) byId.set(row.id, row);
-		const accounted = new Set();
-		const list = workspaces.items.map((workspace) => {
-			const sessions = workspace.sessionIds
-				.map((id) => {
-					accounted.add(id);
-					return byId.get(id);
-				})
-				.filter((row) => row !== undefined);
-			const label = workspace.title !== undefined && workspace.title !== '' ? workspace.title : workspace.path;
-			return { key: workspace.workspaceId, label, sessions };
-		});
-		const rest = rows.filter((row) => byId.has(row.id) && !accounted.has(row.id));
-		if (rest.length > 0) list.push({ key: '', label: t('groupUngrouped'), sessions: rest });
-		return needle === '' ? list : list.filter((group) => group.sessions.length > 0);
-	}, [rows, matches, needle, t, workspaces.items]);
+		const visible = rows.filter((row) => matches(row));
+		const placed = base;
+		const byKey = new Map();
+		for (const key of placed.order) {
+			const parsed = parseKey(key);
+			if (parsed === null) continue;
+			if (parsed.kind === 'workspace') {
+				const info = workspaceInfo.get(parsed.value);
+				if (info === undefined) continue;
+				byKey.set(key, { key, kind: 'workspace', label: info.label, sessions: [] });
+			} else {
+				byKey.set(key, { key, kind: 'custom', label: parsed.value, sessions: [] });
+			}
+		}
+		const empty = [];
+		for (const row of visible) {
+			if (base.pinned.includes(row.id)) continue;
+			const target = base.placement[row.id];
+			const key = target !== undefined && byKey.has(target) ? target : byKey.has(defaultKey(row.id)) ? defaultKey(row.id) : '';
+			if (key === '') {
+				empty.push(row);
+				continue;
+			}
+			byKey.get(key).sessions.push(row);
+		}
+		/** Apply the recorded within-folder order, then keep the rest in place. */
+		const ordered = (key, members) => {
+			const order = base.sessions[key];
+			if (!Array.isArray(order) || order.length === 0) return members;
+			const remaining = new Map(members.map((row) => [row.id, row]));
+			const list = [];
+			for (const id of order) {
+				const row = remaining.get(id);
+				if (row === undefined) continue;
+				remaining.delete(id);
+				list.push(row);
+			}
+			for (const row of members) if (remaining.delete(row.id)) list.push(row);
+			return list;
+		};
+		let list = [...byKey.values()].map((group) => ({ ...group, sessions: ordered(group.key, group.sessions) }));
+		if (empty.length > 0) list.push({ key: '', kind: 'ungrouped', label: t('groupUngrouped'), sessions: ordered('', empty) });
+		if (needle !== '') list = list.filter((group) => group.sessions.length > 0);
+		return list;
+	}, [rows, matches, needle, t, base, workspaceInfo, defaultKey]);
 
-	const visibleRows = React.useMemo(() => groups.flatMap((group) => group.sessions), [groups]);
+	const groupByKey = React.useMemo(() => new Map(groups.map((group) => [group.key, group])), [groups]);
+	const rowById = React.useMemo(() => new Map(rows.map((row) => [row.id, row])), [rows]);
+
+	/** Pinned entries resolved to their row or group, in pinned order. */
+	const pinned = React.useMemo(() => {
+		const list = [];
+		for (const entry of base.pinned) {
+			const parsed = parseKey(entry);
+			if (parsed === null) {
+				const row = rowById.get(entry);
+				if (row !== undefined && matches(row)) list.push({ kind: 'session', id: entry, row });
+				continue;
+			}
+			const group = groupByKey.get(entry);
+			if (group !== undefined) list.push({ kind: 'folder', key: entry, group });
+		}
+		return list;
+	}, [base.pinned, rowById, groupByKey, matches]);
+
+	const pinnedKeys = React.useMemo(
+		() => new Set(pinned.filter((entry) => entry.kind === 'folder').map((entry) => entry.key)),
+		[pinned],
+	);
+
+	/** Folders drawn at the top are not drawn again in the list below. */
+	const rest = React.useMemo(() => groups.filter((group) => !pinnedKeys.has(group.key)), [groups, pinnedKeys]);
+
+	const visibleRows = React.useMemo(() => {
+		const list = pinned.filter((entry) => entry.kind === 'session').map((entry) => entry.row);
+		const seen = new Set(list.map((row) => row.id));
+		for (const group of groups) {
+			for (const row of group.sessions) {
+				if (seen.has(row.id)) continue;
+				seen.add(row.id);
+				list.push(row);
+			}
+		}
+		return list;
+	}, [groups, pinned]);
 	const selectable = React.useMemo(() => visibleRows.filter((row) => !row.running), [visibleRows]);
 	const visibleIds = React.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
 	const selectedIds = selected.filter((id) => visibleIds.has(id));
 	const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
-	const expandedKeys = groups.filter((group) => !collapsed.includes(group.key)).map((group) => group.key);
+	const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsed.includes(key));
 
 	const toggle = (id) => {
 		setSelected((previous) => (previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]));
@@ -115,6 +238,19 @@ export function SessionAdminSection(props) {
 		props.openSession(id);
 	};
 
+	/** Persist one layout change, surfacing a failed save in the notice line. */
+	const persist = (next) => {
+		void saveLayout(next).then((state) => {
+			if (state.error !== '') setNotice({ kind: 'error', text: t('treeFailed', { message: state.error }) });
+		});
+	};
+
+	/** Keep the native sidebar order in step after dragging folders. */
+	const syncWorkspaceOrder = (next) => {
+		if (typeof props.syncWorkspaceOrder !== 'function') return;
+		void Promise.resolve(props.syncWorkspaceOrder(workspaceOrder(next))).catch(() => {});
+	};
+
 	const runDelete = async (ids) => {
 		setBusy(true);
 		setNotice(null);
@@ -127,6 +263,7 @@ export function SessionAdminSection(props) {
 		}
 		markVanished(result.deleted);
 		setSelected([]);
+		void refreshLayout();
 		if (result.skipped.length === 0) {
 			setNotice({ kind: 'ok', text: t('noticeDeleted', { count: result.deleted.length }) });
 			return;
@@ -147,9 +284,36 @@ export function SessionAdminSection(props) {
 	};
 
 	const startSession = (group) => {
-		if (typeof props.startSession !== 'function' || group.key === '') return;
-		props.startSession(group.key);
+		if (typeof props.startSession !== 'function') return;
+		const parsed = parseKey(group.key);
+		if (parsed !== null && parsed.kind === 'workspace') props.startSession(parsed.value);
+		else props.startSession();
 	};
+
+	const pin = (key) => persist(pinItem(base, key));
+	const unpin = (key) => persist(unpinItem(base, key));
+
+	/**
+	 * Drop one Session into a folder, or before one of its rows.
+	 * @param id - dragged Session.
+	 * @param key - target folder key.
+	 * @param before - anchor Session id, or undefined to append.
+	 */
+	const moveSession = (id, key, before) => {
+		const parsed = parseKey(key);
+		if (parsed === null && key !== '') return;
+		const group = groupByKey.get(key);
+		const order = group === undefined ? [] : group.sessions.map((row) => row.id);
+		persist(placeSession(base, id, key, before, defaultKey(id), order));
+	};
+
+	const moveFolder = (moved, before) => {
+		const next = reorderFolders(base, moved, before);
+		persist(next);
+		syncWorkspaceOrder(next);
+	};
+
+	const reorderPinnedEntry = (moved, before) => persist(reorderPinned(base, moved, before));
 
 	const renameWorkspace = async (dialogState) => {
 		const title = dialogState.value.trim();
@@ -176,6 +340,40 @@ export function SessionAdminSection(props) {
 		}
 	};
 
+	const submitDialog = () => {
+		if (dialog === null) return;
+		const value = typeof dialog.value === 'string' ? dialog.value.trim() : '';
+		if (dialog.kind === 'renameWorkspace') {
+			void renameWorkspace(dialog);
+			return;
+		}
+		if (dialog.kind === 'deleteWorkspace') {
+			void deleteWorkspace(dialog);
+			return;
+		}
+		setDialog(null);
+		setNotice(null);
+		if (dialog.kind === 'newFolder') {
+			if (value === '') return;
+			if (base.folders.includes(value)) {
+				setNotice({ kind: 'error', text: t('folderExists', { name: value }) });
+				return;
+			}
+			persist(addFolder(base, value));
+			return;
+		}
+		if (dialog.kind === 'renameFolder') {
+			if (value === '' || value === dialog.name) return;
+			if (base.folders.includes(value)) {
+				setNotice({ kind: 'error', text: t('folderExists', { name: value }) });
+				return;
+			}
+			persist(renameFolder(base, dialog.name, value));
+			return;
+		}
+		if (dialog.kind === 'deleteFolder') persist(removeFolder(base, dialog.name));
+	};
+
 	const header = h(
 		'div',
 		{ className: 'sa-head' },
@@ -194,6 +392,16 @@ export function SessionAdminSection(props) {
 			'aria-label': t('search'),
 			onChange: (event) => setQuery(event.target.value),
 		}),
+		h(
+			'button',
+			{
+				className: 'sa-btn',
+				type: 'button',
+				disabled: busy || treeState.saving,
+				onClick: () => setDialog({ kind: 'newFolder', value: '' }),
+			},
+			t('newFolder'),
+		),
 		h(
 			'button',
 			{ className: 'sa-btn', type: 'button', onClick: toggleAll, disabled: selectable.length === 0 || busy },
@@ -252,7 +460,47 @@ export function SessionAdminSection(props) {
 					),
 				);
 
-	const workspaceDialog =
+	const dialogTitle = (() => {
+		if (dialog === null) return '';
+		if (dialog.kind === 'renameWorkspace') return t('renameWorkspaceTitle');
+		if (dialog.kind === 'deleteWorkspace') return t('deleteWorkspaceTitle');
+		if (dialog.kind === 'newFolder') return t('newFolderTitle');
+		if (dialog.kind === 'renameFolder') return t('renameFolderTitle');
+		return t('deleteFolderTitle');
+	})();
+
+	const dialogBody = (() => {
+		if (dialog === null) return null;
+		if (dialog.kind === 'deleteWorkspace') {
+			return h('p', { className: 'sa-dialog-body' }, t('deleteWorkspaceBody', { name: dialog.label }));
+		}
+		if (dialog.kind === 'deleteFolder') {
+			return h('p', { className: 'sa-dialog-body' }, t('deleteFolderBody', { name: dialog.name }));
+		}
+		const label = dialog.kind === 'renameFolder' || dialog.kind === 'newFolder' ? t('folderName') : t('renameWorkspaceTitle');
+		return h('input', {
+			className: 'sa-search',
+			type: 'text',
+			autoFocus: true,
+			value: dialog.value ?? '',
+			placeholder: t('folderName'),
+			'aria-label': label,
+			onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
+			onKeyDown: (event) => {
+				if (event.key === 'Enter') submitDialog();
+				if (event.key === 'Escape') setDialog(null);
+			},
+		});
+	})();
+
+	const dialogConfirmLabel = (() => {
+		if (dialog === null) return t('confirmDelete');
+		if (dialog.kind === 'renameWorkspace' || dialog.kind === 'renameFolder') return t('save');
+		if (dialog.kind === 'newFolder') return t('create');
+		return t('confirmDelete');
+	})();
+
+	const dialogView =
 		dialog === null
 			? null
 			: h(
@@ -266,25 +514,8 @@ export function SessionAdminSection(props) {
 							'aria-modal': 'true',
 							onClick: (event) => event.stopPropagation(),
 						},
-						h(
-							'div',
-							{ className: 'sa-dialog-title' },
-							dialog.kind === 'rename' ? t('renameWorkspaceTitle') : t('deleteWorkspaceTitle'),
-						),
-						dialog.kind === 'rename'
-							? h('input', {
-									className: 'sa-search',
-									type: 'text',
-									autoFocus: true,
-									value: dialog.value,
-									'aria-label': t('renameWorkspaceTitle'),
-									onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
-									onKeyDown: (event) => {
-										if (event.key === 'Enter') void renameWorkspace(dialog);
-										if (event.key === 'Escape') setDialog(null);
-									},
-								})
-							: h('p', { className: 'sa-dialog-body' }, t('deleteWorkspaceBody', { name: dialog.label })),
+						h('div', { className: 'sa-dialog-title' }, dialogTitle),
+						dialogBody,
 						h(
 							'div',
 							{ className: 'sa-dialog-actions' },
@@ -292,14 +523,14 @@ export function SessionAdminSection(props) {
 							h(
 								'button',
 								{
-									className: dialog.kind === 'rename' ? 'sa-btn sa-btn-primary' : 'sa-btn sa-btn-danger-solid',
+									className:
+										dialog.kind === 'deleteWorkspace' || dialog.kind === 'deleteFolder'
+											? 'sa-btn sa-btn-danger-solid'
+											: 'sa-btn sa-btn-primary',
 									type: 'button',
-									onClick: () => {
-										if (dialog.kind === 'rename') void renameWorkspace(dialog);
-										else void deleteWorkspace(dialog);
-									},
+									onClick: submitDialog,
 								},
-								dialog.kind === 'rename' ? t('save') : t('confirmDelete'),
+								dialogConfirmLabel,
 							),
 						),
 					),
@@ -310,26 +541,56 @@ export function SessionAdminSection(props) {
 			? null
 			: h('p', { className: notice.kind === 'error' ? 'sa-notice sa-notice-error' : 'sa-notice sa-notice-ok' }, notice.text);
 
+	const warningLine =
+		warning === null
+			? null
+			: h(
+					'p',
+					{ className: 'sa-notice sa-notice-error' },
+					warning,
+					' ',
+					h(
+						'button',
+						{ className: 'sa-btn', type: 'button', onClick: () => void refreshLayout() },
+						t('retry'),
+					),
+				);
+
 	let body;
 	if (rows.length === 0) {
 		body = h('div', { className: 'sa-empty' }, t('empty'));
-	} else if (visibleRows.length === 0) {
+	} else if (visibleRows.length === 0 && pinned.length === 0) {
 		body = h('div', { className: 'sa-empty' }, t('noMatch'));
 	} else {
 		body = h(SessionTree, {
 			variant: 'panel',
-			groups,
+			groups: rest,
+			pinned,
 			expanded: expandedKeys,
 			selection: selectedIds,
-			busy,
+			busy: busy || treeState.saving,
 			onOpen: openSession,
 			onToggle: toggleGroup,
 			onSelectionChange: toggle,
 			onDelete: (row) => setConfirming([row.id]),
 			onNewSession: startSession,
-			onRenameWorkspace: (group) =>
-				setDialog({ kind: 'rename', workspaceId: group.key, label: group.label, value: group.label }),
-			onDeleteWorkspace: (group) => setDialog({ kind: 'delete', workspaceId: group.key, label: group.label }),
+			onRenameWorkspace: (group) => {
+				const parsed = parseKey(group.key);
+				if (parsed === null) return;
+				setDialog({ kind: 'renameWorkspace', workspaceId: parsed.value, label: group.label, value: group.label });
+			},
+			onDeleteWorkspace: (group) => {
+				const parsed = parseKey(group.key);
+				if (parsed === null) return;
+				setDialog({ kind: 'deleteWorkspace', workspaceId: parsed.value, label: group.label });
+			},
+			onRenameFolder: (group) => setDialog({ kind: 'renameFolder', name: group.label, value: group.label }),
+			onDeleteFolder: (group) => setDialog({ kind: 'deleteFolder', name: group.label }),
+			onPin: pin,
+			onUnpin: unpin,
+			onMoveSession: moveSession,
+			onMoveFolder: moveFolder,
+			onReorderPinned: reorderPinnedEntry,
 			t,
 		});
 	}
@@ -342,9 +603,10 @@ export function SessionAdminSection(props) {
 		h(SidebarSwitch, { t }),
 		toolbar,
 		confirmBar,
+		warningLine,
 		noticeLine,
 		body,
-		workspaceDialog,
+		dialogView,
 		h('p', { className: 'sa-hint' }, t('hint')),
 	);
 }

@@ -44,6 +44,18 @@ export function apply(ctx) {
 		return workspaces.delete(workspaceId);
 	};
 
+	/**
+	 * Push the tree's folder order back to the native Workspace order, so the
+	 * shipped sidebar lists Workspaces the same way. Appending in sequence
+	 * leaves them in the given order.
+	 * @param ids - Workspace ids in display order.
+	 */
+	const syncWorkspaceOrder = async (ids) => {
+		const workspaces = ctx.get('workspaces');
+		if (workspaces === undefined || workspaces === null || typeof workspaces.insertBefore !== 'function') return;
+		for (const id of ids) await workspaces.insertBefore(id, undefined);
+	};
+
 	ctx.slots.inject('settings.section', () =>
 		ctx.slots.register(
 			{
@@ -53,7 +65,15 @@ export function apply(ctx) {
 				label: () => t('nav'),
 				locale: NS,
 			},
-			(slotProps) => h(SessionAdminSection, { ...slotProps, openSession, startSession, renameWorkspace, deleteWorkspace }),
+			(slotProps) =>
+				h(SessionAdminSection, {
+					...slotProps,
+					openSession,
+					startSession,
+					renameWorkspace,
+					deleteWorkspace,
+					syncWorkspaceOrder,
+				}),
 		),
 	);
 
