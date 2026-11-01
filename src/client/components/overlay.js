@@ -4,7 +4,6 @@
  */
 import React, { h } from '../react.js';
 import { postDelete } from '../api.js';
-import { CSS } from '../styles.js';
 import { setOverlay, useOverlay } from '../stores/overlay.js';
 import { markVanished } from '../stores/vanished.js';
 
@@ -64,7 +63,6 @@ export function SessionAdminOverlay(props) {
 	return h(
 		'div',
 		{ className: 'sa-mask' },
-		h('style', null, CSS),
 		h(
 			'div',
 			{ className: 'sa-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('deleteSession') },

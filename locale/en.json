@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Session Admin",
-    "description": "Browse stored Sessions and delete them in bulk (archived ones excluded)."
+    "description": "Session tree: Workspace folders, custom folders, drag-and-drop placement, pinning, archiving, renaming and permanent deletion. Same tree in Settings and the sidebar."
   }
 }

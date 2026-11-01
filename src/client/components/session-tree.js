@@ -32,9 +32,14 @@ import { relativeLabel } from '../format.js';
  * @param t - locale bind.
  * @returns the dot element or null.
  */
-function statusDot(row, t) {
-	if (row.running !== true) return null;
-	return h('span', { className: 'sa-dot', title: t('running'), 'aria-label': t('running') });
+function statusDot(row, t, unread) {
+	if (row.running === true) {
+		return h('span', { className: 'sa-dot', title: t('running'), 'aria-label': t('running') });
+	}
+	if (unread === true) {
+		return h('span', { className: 'sa-dot sa-dot-done', title: t('completed'), 'aria-label': t('completed') });
+	}
+	return null;
 }
 
 /**
@@ -56,6 +61,7 @@ function SessionMenu(props) {
 	const { row, pinned, archived, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
 	const title = rowTitle(row, t);
 	const items = [
+		{ id: 'rename', label: t('renameSession'), icon: h(IconEditOutlineRegular, null) },
 		{
 			id: 'pin',
 			label: pinned ? t('unpin') : t('pin'),
@@ -76,7 +82,11 @@ function SessionMenu(props) {
 			items,
 			onSelect: (id) => {
 				onOpenChange(false);
-				if (id === 'pin' && typeof onPin === 'function') onPin(row.id);
+				if (id === 'rename' && typeof props.onRename === 'function') props.onRename(row);
+				if (id === 'pin') {
+					const handler = pinned ? onUnpin : onPin;
+					if (typeof handler === 'function') handler(row.id);
+				}
 				if (id === 'archive') {
 					const handler = archived ? props.onUnarchive : props.onArchive;
 					if (typeof handler === 'function') handler(row.id);
@@ -88,7 +98,9 @@ function SessionMenu(props) {
 				{
 					className: 'sa-icon-btn',
 					type: 'button',
+					draggable: false,
 					'aria-label': t('sessionActions', { title }),
+					onPointerDown: (event) => event.stopPropagation(),
 					onClick: (event) => {
 						event.stopPropagation();
 						onOpenChange(!open);
@@ -108,25 +120,104 @@ function SessionMenu(props) {
  * @returns the row element.
  */
 function SessionRow(props) {
-	const { variant, row, now, pinned, archived, selected, busy, t, onOpen, onSelect, onDelete } = props;
+	const { variant, row, now, pinned, archived, unread, selected, busy, t, onOpen, onSelect, onDelete } = props;
 	const title = rowTitle(row, t);
 	const [menuOpen, setMenuOpen] = React.useState(false);
 
 	if (variant === 'sidebar') {
+		const rowClass = [
+			'sa-session',
+			'sa-session-sidebar',
+			pinned === true ? 'sa-pinned-row' : '',
+			archived === true ? 'sa-archived' : '',
+			menuOpen ? 'sa-menu-open' : '',
+			props.dropBefore === true ? 'sa-drop-before' : '',
+		]
+			.filter((part) => part !== '')
+			.join(' ');
+		const togglePin = (event) => {
+			event.stopPropagation();
+			const handler = pinned === true ? props.onUnpin : props.onPin;
+			if (typeof handler === 'function') handler(row.id);
+		};
 		return h(
-			'button',
+			'div',
 			{
-				className: 'sa-session sa-session-sidebar',
-				type: 'button',
-				title,
-				disabled: busy,
-				onClick: () => onOpen(row.id),
+				className: rowClass,
+				'data-session-id': row.id,
+				role: 'treeitem',
+				'aria-selected': false,
+				draggable: busy !== true,
+				onDragStart: (event) => {
+					event.stopPropagation();
+					if (typeof props.onDragStart === 'function') props.onDragStart(row);
+				},
 			},
-			pinned === true ? h('span', { className: 'sa-slot sa-pin' }, h(IconPinOutlineRegular, null)) : null,
-			h('span', { className: 'sa-title' }, title),
-			archived === true ? h('span', { className: 'sa-tag' }, t('archivedTag')) : null,
-			statusDot(row, t),
+			pinned === true
+				? h('span', { className: 'sa-slot sa-pin' }, h(IconPinOutlineRegular, null))
+				: null,
+			h(
+				'button',
+				{
+					className: 'sa-open',
+					type: 'button',
+					title,
+					disabled: busy || archived === true,
+					onClick: () => onOpen(row.id),
+				},
+				h('span', { className: 'sa-title' }, title),
+				archived === true ? h('span', { className: 'sa-tag' }, t('archivedTag')) : null,
+				statusDot(row, t, unread),
+			),
 			h('span', { className: 'sa-time' }, relativeLabel(row.updatedAt, now, t)),
+			h(
+				'span',
+				{ className: 'sa-row-actions' },
+				h(
+					Tooltip,
+					{
+						label: pinned === true ? t('unpin') : t('pin'),
+						side: 'bottom',
+						align: 'end',
+						delayMs: 500,
+						portal: true,
+					},
+					h(
+						'button',
+						{
+							className: 'sa-icon-btn',
+							type: 'button',
+							draggable: false,
+							'aria-label': pinned === true ? t('unpin') : t('pin'),
+							onPointerDown: (event) => event.stopPropagation(),
+							onClick: togglePin,
+						},
+						h(IconPinOutlineRegular, null),
+					),
+				),
+				h(SessionMenu, {
+					row,
+					pinned: pinned === true,
+					archived: archived === true,
+					onArchive: props.onArchive,
+					onUnarchive: props.onUnarchive,
+					t,
+					open: menuOpen,
+					onOpenChange: setMenuOpen,
+					onDelete: (target) => {
+						if (typeof onDelete === 'function') onDelete(target);
+					},
+					onPin: (id) => {
+						if (typeof props.onPin === 'function') props.onPin(id);
+					},
+					onUnpin: (id) => {
+						if (typeof props.onUnpin === 'function') props.onUnpin(id);
+					},
+					onRename: (target) => {
+						if (typeof props.onRename === 'function') props.onRename(target);
+					},
+				}),
+			),
 		);
 	}
 
@@ -175,7 +266,7 @@ function SessionRow(props) {
 			},
 			h('span', { className: 'sa-title' }, title),
 			archived === true ? h('span', { className: 'sa-tag' }, t('archivedTag')) : null,
-			statusDot(row, t),
+			statusDot(row, t, unread),
 		),
 		h('span', { className: 'sa-time' }, relativeLabel(row.updatedAt, now, t)),
 		h(
@@ -197,6 +288,9 @@ function SessionRow(props) {
 					const handler = pinned === true ? props.onUnpin : props.onPin;
 					if (typeof handler === 'function') handler(target);
 				},
+				onRename: (target) => {
+					if (typeof props.onRename === 'function') props.onRename(target);
+				},
 			}),
 		),
 	);
@@ -212,6 +306,7 @@ function SessionRow(props) {
  */
 function Group(props) {
 	const { group, kind, pinned, now, expanded, selection, busy, variant, t } = props;
+	const unread = props.unread instanceof Set ? props.unread : new Set();
 	const [menuOpen, setMenuOpen] = React.useState(false);
 	const sessions = Array.isArray(group.sessions) ? group.sessions : [];
 	const ungrouped = kind === 'ungrouped';
@@ -259,7 +354,9 @@ function Group(props) {
 					{
 						className: 'sa-icon-btn',
 						type: 'button',
+						draggable: false,
 						'aria-label': kind === 'custom' ? t('folderActions', { name: group.label }) : t('workspaceActions', { name: group.label }),
+						onPointerDown: (event) => event.stopPropagation(),
 						onClick: (event) => {
 							event.stopPropagation();
 							setMenuOpen((open) => !open);
@@ -334,7 +431,9 @@ function Group(props) {
 							{
 								className: 'sa-icon-btn',
 								type: 'button',
+								draggable: false,
 								'aria-label': t('newSessionIn', { name: group.label }),
+								onPointerDown: (event) => event.stopPropagation(),
 								onClick: (event) => {
 									event.stopPropagation();
 									if (typeof props.onNewSession === 'function') props.onNewSession(group);
@@ -379,6 +478,7 @@ function Group(props) {
 						now,
 						pinned: false,
 						archived: props.archived instanceof Set && props.archived.has(row.id),
+						unread: unread.has(row.id),
 						selected: selection.includes(row.id),
 						busy,
 						t,
@@ -387,8 +487,10 @@ function Group(props) {
 						onSelect: props.onSelect,
 						onDelete: props.onDelete,
 						onPin: props.onPin,
+						onUnpin: props.onUnpin,
 						onArchive: props.onArchive,
 						onUnarchive: props.onUnarchive,
+						onRename: props.onRename,
 						onDragStart: props.onSessionDragStart,
 					}),
 				),
@@ -404,72 +506,94 @@ function Group(props) {
  * @returns the pinned element.
  */
 function PinnedEntry(props) {
-	const { entry, t, dropTarget, dragKind } = props;
+	const { entry, t, dragKind, dropTarget } = props;
+	const key = entry.kind === 'folder' ? entry.group.key : entry.row.id;
+	const wrap = (draggable, onDragStart, children) =>
+		h(
+			'div',
+			{
+				className: [
+					'sa-pinned-entry',
+					entry.kind === 'folder' ? 'sa-pinned-folder-entry' : '',
+					props.dropBefore === true ? 'sa-drop-before' : '',
+					props.dropAfter === true ? 'sa-drop-after' : '',
+				]
+					.filter((part) => part !== '')
+					.join(' '),
+				draggable,
+				'data-pinned-key': key,
+				onDragStart:
+					draggable === true
+						? (event) => {
+								event.stopPropagation();
+								onDragStart();
+							}
+						: undefined,
+				onDragOver: (event) => {
+					if (dragKind !== 'pinned') return;
+					event.preventDefault();
+					event.stopPropagation();
+					const rect = event.currentTarget.getBoundingClientRect();
+					props.onPinHover(key, event.clientY > rect.top + rect.height / 2);
+				},
+				onDrop: (event) => {
+					if (dragKind !== 'pinned') return;
+					event.preventDefault();
+					event.stopPropagation();
+					const rect = event.currentTarget.getBoundingClientRect();
+					props.onPinDrop(key, event.clientY > rect.top + rect.height / 2);
+				},
+			},
+			children,
+		);
 	if (entry.kind === 'folder') {
-		return h(Group, {
-			group: entry.group,
-			kind: entry.group.kind,
-			pinned: true,
-			now: props.now,
-			expanded: props.expanded.includes(entry.group.key),
-			selection: props.selection,
-			busy: props.busy,
-			variant: props.variant,
-			t,
-			dropTarget,
-			dragKind,
-			onToggle: props.onToggle,
-			onOpen: props.onOpen,
-			onSelect: props.onSelect,
-			onDelete: props.onDelete,
-			onNewSession: props.onNewSession,
-			onRenameWorkspace: props.onRenameWorkspace,
-			onDeleteWorkspace: props.onDeleteWorkspace,
-			onRenameFolder: props.onRenameFolder,
-			onDeleteFolder: props.onDeleteFolder,
-			onPin: props.onPin,
-			onUnpin: props.onUnpin,
-			archived: props.archived,
-			onArchive: props.onArchive,
-			onUnarchive: props.onUnarchive,
-			onDragStart: (group) => props.onPinnedDragStart(group.key),
-			onDragOver: props.onDragOver,
-			onDrop: (group) => props.onPinnedDrop(group.key),
-			onDropRow: (group, before) => props.onPinnedDropRow(group, before),
-		});
+		return wrap(
+			false,
+			() => {},
+			h(Group, {
+				group: entry.group,
+				kind: entry.group.kind,
+				pinned: true,
+				now: props.now,
+				expanded: props.expanded.includes(entry.group.key),
+				selection: props.selection,
+				busy: props.busy,
+				variant: props.variant,
+				t,
+				archived: props.archived,
+				unread: props.unread,
+				dropTarget,
+				dragKind,
+				onToggle: props.onToggle,
+				onOpen: props.onOpen,
+				onSelect: props.onSelect,
+				onDelete: props.onDelete,
+				onNewSession: props.onNewSession,
+				onRenameWorkspace: props.onRenameWorkspace,
+				onDeleteWorkspace: props.onDeleteWorkspace,
+				onRenameFolder: props.onRenameFolder,
+				onDeleteFolder: props.onDeleteFolder,
+				onPin: props.onPin,
+				onUnpin: props.onUnpin,
+				onRename: props.onRename,
+				onArchive: props.onArchive,
+				onUnarchive: props.onUnarchive,
+				onDragStart: (group) => props.onPinnedDragStart(group.key),
+				onDragOver: props.onDragOver,
+				onDrop: (group) => props.onPinnedDrop(group.key),
+				onDropRow: (group, before) => props.onPinnedDropRow(group, before),
+			}),
+		);
 	}
 	const row = entry.row;
-	return h(
-		'div',
-		{
-			className: [
-				'sa-pinned-entry',
-				dropTarget === entry.row.id ? 'sa-drop-target' : '',
-			]
-				.filter((part) => part !== '')
-				.join(' '),
-			draggable: props.busy !== true,
-			onDragStart: (event) => {
-				event.stopPropagation();
-				props.onPinnedDragStart(entry.row.id);
-			},
-			onDragOver: (event) => {
-				if (dragKind !== 'pinned') return;
-				event.preventDefault();
-				props.onDragOver(entry.row.id);
-			},
-			onDrop: (event) => {
-				if (dragKind !== 'pinned') return;
-				event.preventDefault();
-				props.onPinnedDrop(entry.row.id);
-			},
-		},
+	return wrap(props.busy !== true, () => props.onPinnedDragStart(entry.row.id), [
 		h(SessionRow, {
 			variant: props.variant,
 			row,
 			now: props.now,
 			pinned: true,
 			archived: props.archived instanceof Set && props.archived.has(row.id),
+			unread: props.unread instanceof Set && props.unread.has(row.id),
 			selected: props.selection.includes(row.id),
 			busy: props.busy,
 			t,
@@ -480,9 +604,10 @@ function PinnedEntry(props) {
 			onUnpin: props.onUnpin,
 			onArchive: props.onArchive,
 			onUnarchive: props.onUnarchive,
+			onRename: props.onRename,
 			onDragStart: () => props.onPinnedDragStart(entry.row.id),
 		}),
-	);
+	]);
 }
 
 /**
@@ -501,6 +626,7 @@ export function SessionTree(props) {
 	const expanded = Array.isArray(props.expanded) ? props.expanded : [];
 	const selection = Array.isArray(props.selection) ? props.selection : [];
 	const archived = props.archived instanceof Set ? props.archived : new Set();
+	const unread = props.unread instanceof Set ? props.unread : new Set();
 	const busy = props.busy === true;
 	const now = Date.now();
 	const open = (id) => {
@@ -514,10 +640,12 @@ export function SessionTree(props) {
 
 	const [drag, setDrag] = React.useState(null);
 	const [dropTarget, setDropTarget] = React.useState(null);
+	const [pinHover, setPinHover] = React.useState(null);
 
 	const clearDrag = () => {
 		setDrag(null);
 		setDropTarget(null);
+		setPinHover(null);
 	};
 
 	const endDrop = (group) => {
@@ -568,6 +696,29 @@ export function SessionTree(props) {
 		}
 	};
 
+	/**
+	 * Reorder one pinned entry before the slot under the pointer.
+	 * @param key - pinned entry key under the pointer.
+	 * @param after - true when the pointer sits in the lower half of the entry.
+	 */
+	const pinDropAt = (key, after) => {
+		const current = drag;
+		clearDrag();
+		if (current === null || current.kind !== 'pinned') return;
+		const keys = pinned.map((item) => (item.kind === 'folder' ? item.group.key : item.row.id));
+		const index = keys.indexOf(key);
+		const before = after ? keys[index + 1] : key;
+		if (before === current.key) return;
+		if (typeof props.onReorderPinned === 'function') props.onReorderPinned(current.key, before);
+	};
+
+	const pinDropTail = () => {
+		const current = drag;
+		clearDrag();
+		if (current === null || current.kind !== 'pinned') return;
+		if (typeof props.onReorderPinned === 'function') props.onReorderPinned(current.key, undefined);
+	};
+
 	return h(
 		'div',
 		{
@@ -606,12 +757,40 @@ export function SessionTree(props) {
 							onUnpin: props.onUnpin,
 							onArchive: props.onArchive,
 							onUnarchive: props.onUnarchive,
+							onRename: props.onRename,
+							dropBefore:
+								pinHover !== null &&
+								drag !== null &&
+								drag.kind === 'pinned' &&
+								pinHover.key === (entry.kind === 'folder' ? entry.group.key : entry.row.id) &&
+								pinHover.after !== true,
+							dropAfter:
+								pinHover !== null &&
+								drag !== null &&
+								drag.kind === 'pinned' &&
+								pinHover.key === (entry.kind === 'folder' ? entry.group.key : entry.row.id) &&
+								pinHover.after === true,
+							onPinHover: (key, after) => setPinHover({ key, after }),
+							onPinDrop: pinDropAt,
 							onDragOver: setDropTarget,
 							onPinnedDragStart: (key) => setDrag({ kind: 'pinned', key }),
 							onPinnedDrop: pinnedDrop,
 							onPinnedDropRow: endRowDrop,
 						}),
 					),
+					h('div', {
+						className: 'sa-pinned-tail',
+						onDragOver: (event) => {
+							if (drag === null || drag.kind !== 'pinned') return;
+							event.preventDefault();
+							setPinHover({ key: '', after: true });
+						},
+						onDrop: (event) => {
+							if (drag === null || drag.kind !== 'pinned') return;
+							event.preventDefault();
+							pinDropTail();
+						},
+					}),
 				),
 		groups.map((group) =>
 			h(Group, {
@@ -625,6 +804,8 @@ export function SessionTree(props) {
 				busy,
 				variant,
 				t,
+				archived,
+				unread,
 				dropTarget,
 				dragKind: drag === null ? null : drag.kind,
 				archived,
@@ -639,6 +820,7 @@ export function SessionTree(props) {
 				onDeleteFolder: props.onDeleteFolder,
 				onPin: props.onPin,
 				onUnpin: props.onUnpin,
+				onRename: props.onRename,
 				onDragStart: (target) => {
 					if (target.id !== undefined) setDrag({ kind: 'session', id: target.id });
 					else setDrag({ kind: 'folder', key: target.key });

@@ -3,8 +3,10 @@
  * settings page and the sidebar agree while either is open.
  */
 import { getTree, postLayout } from '../api.js';
-import { emptyLayout, normalizeLayout } from '../layout.js';
+import { adoptWorkspaces, emptyLayout, normalizeLayout } from '../layout.js';
 import { createStore } from './create-store.js';
+
+export { adoptWorkspaces };
 
 const INITIAL = { loaded: false, loading: false, saving: false, error: '', layout: emptyLayout() };
 
@@ -15,29 +17,6 @@ let inflight = null;
 
 /** Writes run one at a time, so a quick second drag never overtakes the first. */
 let writes = Promise.resolve();
-
-/**
- * Fill in the keys of Workspaces the layout has never seen, so the next save
- * carries the whole order. The store keeps this merged view, so a reload shows
- * the same grouping the user just saw.
- * @param layout - stored layout.
- * @param workspaceIds - Workspace ids from the native snapshot.
- * @returns the merged layout.
- */
-export function adoptWorkspaces(layout, workspaceIds) {
-	const known = new Set(workspaceIds);
-	const order = layout.order.filter((key) => {
-		if (!key.startsWith('工作区:')) return true;
-		return known.has(key.slice('工作区:'.length));
-	});
-	for (const id of workspaceIds) {
-		const key = `工作区:${id}`;
-		if (!order.includes(key)) order.push(key);
-	}
-	return order.length === layout.order.length && order.every((key, index) => key === layout.order[index])
-		? layout
-		: { ...layout, order };
-}
 
 /**
  * Fetch the layout once more. Concurrent callers share one request.

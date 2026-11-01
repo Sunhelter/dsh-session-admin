@@ -3,7 +3,6 @@
  * confirmation overlay. Mounted by `sidebar.workspaces.session.menu.item`.
  */
 import { h } from '../react.js';
-import { CSS } from '../styles.js';
 import { setOverlay } from '../stores/overlay.js';
 
 /** 16×16 outline trash glyph matching the shipped menu icon weight. */
@@ -44,7 +43,6 @@ export function SessionDeleteMenuItem(props) {
 	return h(
 		'div',
 		{ className: 'sa-itemWrap' },
-		h('style', null, CSS),
 		h(
 			'button',
 			{

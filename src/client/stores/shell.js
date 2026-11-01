@@ -26,6 +26,14 @@ function readStored() {
 const store = createStore(readStored());
 
 /**
+ * Read the preference without subscribing.
+ * @returns whether the custom sidebar is enabled.
+ */
+export function getShellOverride() {
+	return store.get();
+}
+
+/**
  * Store the preference and wake every subscriber.
  * @param next - whether the custom sidebar should render.
  */

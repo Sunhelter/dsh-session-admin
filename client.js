@@ -42,6 +42,24 @@ var zh = {
   title: "\u4F1A\u8BDD\u7BA1\u7406",
   desc: "\u5217\u51FA\u5DF2\u4FDD\u5B58\u7684\u4F1A\u8BDD\uFF08\u4E0D\u542B\u5F52\u6863\uFF09\u3002\u62D6\u52A8\u4F1A\u8BDD\u6216\u6587\u4EF6\u5939\u8C03\u6574\u4F4D\u7F6E\uFF0C\u7F6E\u9876\u7684\u6761\u76EE\u6392\u5728\u6700\u524D\uFF1B\u52FE\u9009\u540E\u53EF\u6279\u91CF\u5220\u9664\uFF0C\u5220\u9664\u4F1A\u79FB\u9664\u4F1A\u8BDD\u6587\u4EF6\uFF0C\u4E0D\u53EF\u6062\u590D\uFF0C\u6B63\u5728\u8FD0\u884C\u7684\u4F1A\u8BDD\u4F1A\u88AB\u8DF3\u8FC7\u3002",
   search: "\u641C\u7D22\u6807\u9898\u6216\u76EE\u5F55",
+  sectionWorkspaces: "\u5DE5\u4F5C\u533A",
+  completed: "\u5DF2\u5B8C\u6210",
+  addWorkspace: "\u6DFB\u52A0\u5DE5\u4F5C\u533A",
+  createWorkspaceFailed: "\u6DFB\u52A0\u5DE5\u4F5C\u533A\u5931\u8D25",
+  pickDirectory: "\u9009\u62E9\u5DE5\u4F5C\u533A\u76EE\u5F55",
+  chooseDirectory: "\u9009\u62E9\u6B64\u76EE\u5F55",
+  loading: "\u52A0\u8F7D\u4E2D\u2026",
+  noSubdirectories: "\u6CA1\u6709\u5B50\u76EE\u5F55\u3002",
+  directoryTruncated: "\u76EE\u5F55\u6761\u76EE\u8FC7\u591A\uFF0C\u53EA\u663E\u793A\u4E86\u4E00\u90E8\u5206\u3002",
+  directoryUnavailable: "\u5F53\u524D\u73AF\u5883\u4E0D\u80FD\u6D4F\u89C8\u76EE\u5F55\uFF0C\u8BF7\u76F4\u63A5\u586B\u8DEF\u5F84\u3002",
+  searchSessions: "\u641C\u7D22\u4F1A\u8BDD",
+  searchPlaceholder: "\u641C\u7D22\u4F1A\u8BDD",
+  viewOptions: "\u89C6\u56FE\u9009\u9879",
+  orderBy: "\u6392\u5E8F\u65B9\u5F0F",
+  orderManual: "\u624B\u52A8",
+  orderUpdated: "\u6700\u8FD1\u66F4\u65B0",
+  resetSection: "\u91CD\u7F6E",
+  resetLayout: "\u6062\u590D\u9ED8\u8BA4",
   selectAll: "\u5168\u9009",
   clear: "\u6E05\u7A7A",
   selectedCount: "\u5DF2\u9009 {count} \u4E2A",
@@ -55,9 +73,6 @@ var zh = {
   confirmDelete: "\u786E\u8BA4\u5220\u9664",
   running: "\u8FD0\u884C\u4E2D",
   runningHint: "\u4F1A\u8BDD\u6B63\u5728\u8FD0\u884C\uFF0C\u5148\u505C\u6B62\u518D\u5220",
-  subagent: "\u5B50\u4F1A\u8BDD",
-  blank: "\u7A7A\u4F1A\u8BDD",
-  noProject: "\u65E0\u76EE\u5F55",
   empty: "\u6CA1\u6709\u53EF\u7BA1\u7406\u7684\u4F1A\u8BDD\u3002",
   noMatch: "\u6CA1\u6709\u5339\u914D\u7684\u4F1A\u8BDD\u3002",
   unnamed: "\u672A\u547D\u540D",
@@ -93,6 +108,8 @@ var zh = {
   pin: "\u7F6E\u9876",
   unpin: "\u53D6\u6D88\u7F6E\u9876",
   archive: "\u5F52\u6863",
+  renameSession: "\u91CD\u547D\u540D\u4F1A\u8BDD",
+  renameSessionTitle: "\u91CD\u547D\u540D\u4F1A\u8BDD",
   unarchive: "\u53D6\u6D88\u5F52\u6863",
   archivedTag: "\u5DF2\u5F52\u6863",
   archivedHint: "\u5DF2\u5F52\u6863\u7684\u4F1A\u8BDD\u53D6\u6D88\u5F52\u6863\u540E\u624D\u80FD\u6253\u5F00",
@@ -112,14 +129,32 @@ var zh = {
   "time.days": "{n}\u5929",
   "time.months": "{n}\u4E2A\u6708",
   "time.years": "{n}\u5E74",
-  shell: "\u66FF\u6362\u539F\u751F\u4FA7\u8FB9\u680F",
-  shellDesc: "\u7528\u672C\u63D2\u4EF6\u81EA\u5EFA\u7684\u4F1A\u8BDD\u4FA7\u8FB9\u680F\u66FF\u6362\u539F\u751F\u5DE6\u4FA7\u680F\u3002"
+  shell: "\u66FF\u6362\u539F\u751F\u5DE5\u4F5C\u533A\u533A\u57DF",
+  shellDesc: "\u7528\u672C\u63D2\u4EF6\u7684\u4F1A\u8BDD\u6811\u66FF\u6362\u5DE6\u4FA7\u680F\u7684\u5DE5\u4F5C\u533A\u533A\u57DF\uFF1B\u54C1\u724C\u884C\u3001\u65B0\u4F1A\u8BDD\u6309\u94AE\u548C\u5E95\u90E8\u4FDD\u7559\u539F\u751F\u3002"
 };
 var en = {
   nav: "Sessions",
   title: "Session management",
   desc: "List stored Sessions (archived ones excluded). Drag Sessions or folders to reposition them, pin entries to the top, and delete in bulk. Deleting removes the session files and cannot be undone; a running Session is skipped.",
   search: "Search title or directory",
+  sectionWorkspaces: "Workspaces",
+  completed: "Completed",
+  addWorkspace: "Add workspace",
+  createWorkspaceFailed: "Could not add the workspace",
+  pickDirectory: "Choose a workspace directory",
+  chooseDirectory: "Choose this directory",
+  loading: "Loading\u2026",
+  noSubdirectories: "No subdirectories.",
+  directoryTruncated: "This directory has more entries than shown.",
+  directoryUnavailable: "Directory browsing is unavailable here.",
+  searchSessions: "Search sessions",
+  searchPlaceholder: "Search sessions",
+  viewOptions: "View options",
+  orderBy: "Sort by",
+  orderManual: "Manual",
+  orderUpdated: "Last updated",
+  resetSection: "Reset",
+  resetLayout: "Restore defaults",
   selectAll: "Select all",
   clear: "Clear",
   selectedCount: "{count} selected",
@@ -133,9 +168,6 @@ var en = {
   confirmDelete: "Delete permanently",
   running: "Running",
   runningHint: "This session is running; stop it first.",
-  subagent: "Subagent",
-  blank: "Empty",
-  noProject: "No directory",
   empty: "No sessions to manage.",
   noMatch: "No matching sessions.",
   unnamed: "Untitled",
@@ -171,6 +203,8 @@ var en = {
   pin: "Pin",
   unpin: "Unpin",
   archive: "Archive",
+  renameSession: "Rename session",
+  renameSessionTitle: "Rename session",
   unarchive: "Unarchive",
   archivedTag: "Archived",
   archivedHint: "Unarchive this Session before opening it",
@@ -190,8 +224,8 @@ var en = {
   "time.days": "{n}d",
   "time.months": "{n}mo",
   "time.years": "{n}y",
-  shell: "Replace the native sidebar",
-  shellDesc: "Use this plugin\u2019s own session sidebar in place of the stock one."
+  shell: "Replace the native workspace region",
+  shellDesc: "Swaps the sidebar\u2019s workspace region for this plugin\u2019s session tree; the brand row, new-session button and footer stay native."
 };
 
 // src/client/layout.js
@@ -278,6 +312,18 @@ function reorder(list, moved, before) {
   if (into < 0) return list;
   return [...rest.slice(0, into), moved, ...rest.slice(into)];
 }
+function adoptWorkspaces(layout, workspaceIds) {
+  const known = new Set(workspaceIds);
+  const order = layout.order.filter((key) => {
+    if (!key.startsWith("\u5DE5\u4F5C\u533A:")) return true;
+    return known.has(key.slice("\u5DE5\u4F5C\u533A:".length));
+  });
+  for (const id of workspaceIds) {
+    const key = `\u5DE5\u4F5C\u533A:${id}`;
+    if (!order.includes(key)) order.push(key);
+  }
+  return order.length === layout.order.length && order.every((key, index) => key === layout.order[index]) ? layout : { ...layout, order };
+}
 function workspaceOrder(layout) {
   const ids = [];
   for (const key of layout.order) {
@@ -351,6 +397,9 @@ function reorderPinned(layout, moved, before) {
   if (!layout.pinned.includes(moved)) return layout;
   return { ...layout, pinned: reorder(layout.pinned, moved, before) };
 }
+function frontFolder(layout, key) {
+  return { ...layout, order: [key, ...layout.order.filter((item) => item !== key)] };
+}
 function reorderFolders(layout, moved, before) {
   if (!layout.order.includes(moved)) return layout;
   return { ...layout, order: reorder(layout.order, moved, before) };
@@ -423,105 +472,6 @@ function orderedUnique(values) {
   return result;
 }
 
-// src/client/styles.js
-var CSS = `
-.sa-root { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 14px; color: var(--dsw-alias-label-primary); }
-.sa-head h2 { margin: 0 0 4px; font-size: 15px; line-height: 22px; font-weight: 600; }
-.sa-desc { margin: 0; color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 20px; }
-.sa-pref { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border: 0.5px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-layer-1); }
-.sa-pref-text { flex: 1; min-width: 0; }
-.sa-pref-label { font-size: 13px; line-height: 18px; font-weight: 500; }
-.sa-pref-desc { margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-secondary); }
-.sa-switch { position: relative; flex: none; width: 34px; height: 20px; margin-top: 1px; padding: 0; border: none; border-radius: 999px; background: var(--dsw-alias-border-l3); cursor: pointer; transition: background 0.12s ease; }
-.sa-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: var(--dsw-alias-switch-thumb, #fff); transition: transform 0.12s ease; }
-.sa-switch[aria-checked="true"] { background: var(--dsw-alias-state-business-primary); }
-.sa-switch[aria-checked="true"]::after { transform: translateX(14px); }
-.sa-switch:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { .sa-switch, .sa-switch::after { transition: none; } }
-.sa-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.sa-search { flex: 1 1 220px; min-width: 160px; height: 30px; padding: 0 10px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-1); color: inherit; font: inherit; font-size: 13px; }
-.sa-search::placeholder { color: var(--dsw-alias-label-secondary); }
-.sa-btn { height: 30px; padding: 0 12px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: transparent; color: inherit; font: inherit; font-size: 13px; line-height: 28px; cursor: pointer; }
-.sa-btn:hover:not(:disabled) { background: var(--dsw-alias-bg-layer-2); }
-.sa-btn:disabled { opacity: 0.45; cursor: default; }
-.sa-btn-danger { border-color: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-state-error-primary); }
-.sa-btn-danger:hover:not(:disabled) { background: var(--dsw-alias-bg-layer-2); }
-.sa-btn-danger-solid { border-color: transparent; background: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-bg-base); }
-.sa-btn-danger-solid:hover:not(:disabled) { background: var(--dsw-alias-state-error-primary); opacity: 0.9; }
-.sa-count { font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
-.sa-tree { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; }
-.sa-block { display: flex; flex-direction: column; }
-.sa-group { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px; border-radius: var(--dsw-radius-md); cursor: pointer; user-select: none; color: var(--dsw-alias-label-primary); }
-.sa-group:hover, .sa-group.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-slot { width: 16px; height: 20px; flex: none; display: inline-flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-tertiary); }
-.sa-group .sa-chevron { display: none; }
-.sa-group:hover .sa-chevron { display: inline-flex; }
-.sa-group:hover .sa-folder { display: none; }
-.sa-arrow { transition: transform 0.15s var(--ds-ease-in-out); }
-.sa-arrow-open { transform: rotate(90deg); }
-.sa-title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; line-height: 20px; }
-.sa-row-actions { flex: none; display: none; align-items: center; gap: 12px; }
-.sa-group:hover .sa-row-actions, .sa-group.sa-menu-open .sa-row-actions, .sa-session:hover .sa-row-actions, .sa-session.sa-menu-open .sa-row-actions { display: inline-flex; }
-.sa-icon-btn { width: 16px; height: 16px; padding: 0; border: none; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-tertiary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-.sa-icon-btn:hover { color: var(--dsw-alias-label-primary); }
-.sa-rows { display: flex; flex-direction: column; }
-.sa-session { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px 0 10px; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-primary); }
-.sa-session:hover, .sa-session.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-session.sa-selected { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-check { flex: none; width: 14px; height: 14px; margin: 0; accent-color: var(--dsw-alias-state-business-primary); cursor: pointer; }
-.sa-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.sa-open:disabled { cursor: default; opacity: 0.6; }
-.sa-open .sa-title { flex: 0 1 auto; }
-.sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
-.sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
-.sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
-.sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
-.sa-pinned-entry { display: flex; flex-direction: column; }
-.sa-pinned-row { padding-left: 10px; }
-.sa-pin { color: var(--dsw-alias-label-secondary); }
-.sa-group.sa-drop-target, .sa-pinned-entry.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
-.sa-btn-active { background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-state-business-primary); }
-.sa-tag { flex: none; padding: 0 6px; border-radius: var(--dsw-radius-sm, 4px); font-size: 10px; line-height: 16px; color: var(--dsw-alias-label-tertiary); background: var(--dsw-alias-interactive-bg-hover); }
-.sa-session.sa-archived .sa-title { color: var(--dsw-alias-label-tertiary); }
-.sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
-.sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
-.sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
-.sa-tree-sidebar { padding: 0; gap: 0; }
-.sa-tree-sidebar .sa-session-sidebar { width: 100%; padding: 0 8px 0 10px; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }
-.sa-tree-sidebar .sa-session-sidebar:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-tree-sidebar .sa-session-sidebar:disabled { cursor: default; opacity: 0.6; }
-.sa-tree-sidebar .sa-time { font-size: 10px; }
-@media (prefers-reduced-motion: reduce) { .sa-arrow { transition: none; } }
-.sa-btn-primary { border-color: transparent; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-bg-base); }
-.sa-btn-primary:hover:not(:disabled) { background: var(--dsw-alias-state-business-primary); opacity: 0.9; }
-.sa-empty { padding: 24px 12px; text-align: center; font-size: 13px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
-.sa-confirm { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 8px; border: 0.5px solid var(--dsw-alias-state-error-primary); font-size: 13px; line-height: 18px; }
-.sa-confirm-text { flex: 1 1 220px; min-width: 0; }
-.sa-confirm-body { color: var(--dsw-alias-label-secondary); font-size: 12px; line-height: 16px; }
-.sa-notice { font-size: 13px; line-height: 18px; }
-.sa-notice-ok { color: var(--dsw-alias-state-success-primary); }
-.sa-notice-error { color: var(--dsw-alias-state-error-primary); }
-.sa-hint { font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-secondary); }
-.sa-itemWrap { position: relative; }
-.sa-item { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 34px; padding: 6px 8px; border: none; border-radius: var(--dsw-radius-md); background: transparent; cursor: pointer; font: inherit; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); text-align: left; }
-.sa-item:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-item:focus-visible:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); outline: none; }
-.sa-item:disabled { opacity: 0.4; cursor: not-allowed; }
-.sa-itemIcon { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--dsw-alias-menu-icon); }
-.sa-itemIcon svg { width: 14px; height: 14px; }
-.sa-itemLabel { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sa-item-danger, .sa-item-danger .sa-itemIcon { color: var(--dsw-alias-state-error-primary); }
-.sa-item-danger:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); }
-.sa-item-danger:focus-visible:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); outline: none; }
-.sa-mask { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; background: var(--dsw-alias-bg-mask-1); backdrop-filter: var(--dsw-mask-blur); }
-.sa-dialog { width: 380px; max-width: calc(100vw - 48px); padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--dsw-radius-lg); background: var(--dsw-alias-bg-layer-2); box-shadow: var(--dsw-elevation-prominent); color: var(--dsw-alias-label-primary); }
-.sa-dialog-title { font-size: 15px; line-height: 22px; font-weight: 600; }
-.sa-dialog-body { font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-secondary); }
-.sa-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-.sa-toast { position: fixed; left: 50%; bottom: 28px; z-index: 1200; transform: translateX(-50%); padding: 8px 14px; max-width: min(560px, calc(100vw - 48px)); border: 0.5px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-overlay); box-shadow: var(--dsw-elevation-prominent); font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); }
-.sa-toast-error { color: var(--dsw-alias-state-error-primary); }
-`;
-
 // src/client/stores/create-store.js
 function createStore(initial) {
   let value = initial;
@@ -567,18 +517,6 @@ var INITIAL = { loaded: false, loading: false, saving: false, error: "", layout:
 var store2 = createStore(INITIAL);
 var inflight = null;
 var writes = Promise.resolve();
-function adoptWorkspaces(layout, workspaceIds) {
-  const known = new Set(workspaceIds);
-  const order = layout.order.filter((key) => {
-    if (!key.startsWith("\u5DE5\u4F5C\u533A:")) return true;
-    return known.has(key.slice("\u5DE5\u4F5C\u533A:".length));
-  });
-  for (const id of workspaceIds) {
-    const key = `\u5DE5\u4F5C\u533A:${id}`;
-    if (!order.includes(key)) order.push(key);
-  }
-  return order.length === layout.order.length && order.every((key, index) => key === layout.order[index]) ? layout : { ...layout, order };
-}
 function refreshLayout() {
   if (inflight !== null) return inflight;
   store2.set({ ...store2.get(), loading: true, error: "" });
@@ -615,11 +553,130 @@ function useTree() {
   return store2.useValue();
 }
 
+// src/client/tree-model.js
+function selectRows(options) {
+  const { catalog, archivedIds, goneIds, showArchived } = options;
+  const archived = new Set(archivedIds);
+  const gone = new Set(goneIds);
+  let currentId;
+  for (const id of catalog.ids) {
+    const row = catalog.byId[id];
+    if (row !== void 0 && (row.retainedBy?.mainView ?? 0) > 0) {
+      currentId = id;
+      break;
+    }
+  }
+  const rows = [];
+  for (const id of catalog.ids) {
+    const row = catalog.byId[id];
+    if (row === void 0) continue;
+    if (gone.has(id)) continue;
+    if (archived.has(id) && showArchived !== true) continue;
+    rows.push(row);
+  }
+  rows.sort((left, right) => right.updatedAt - left.updatedAt);
+  return { rows, archived, gone, currentId };
+}
+function applyOrder(order, members) {
+  if (!Array.isArray(order) || order.length === 0) return members;
+  const remaining = new Map(members.map((row) => [row.id, row]));
+  const list = [];
+  for (const id of order) {
+    const row = remaining.get(id);
+    if (row === void 0) continue;
+    remaining.delete(id);
+    list.push(row);
+  }
+  for (const row of members) if (remaining.delete(row.id)) list.push(row);
+  return list;
+}
+function buildTreeModel(options) {
+  const { rows, base, workspaceInfo, defaultKey, needle, t, matches } = options;
+  const orderBy = options.orderBy === "updated" ? "updated" : "manual";
+  const pinnedIds = new Set(base.pinned);
+  const byUpdated = (list) => [...list].sort((left, right) => (right.updatedAt ?? 0) - (left.updatedAt ?? 0));
+  const orderSessions = (order, members) => orderBy === "updated" ? byUpdated(members) : applyOrder(order, members);
+  const visible = needle === "" ? rows : rows.filter(matches);
+  const currentId = rows.find((row) => (row.retainedBy?.mainView ?? 0) > 0)?.id;
+  const dropBlanks = (members) => {
+    if (!members.some((row) => row.blank !== true)) return members;
+    return members.filter((row) => row.blank !== true || row.id === currentId);
+  };
+  const byKey = /* @__PURE__ */ new Map();
+  for (const key of base.order) {
+    const parsed = parseKey(key);
+    if (parsed === null) continue;
+    if (parsed.kind === "workspace") {
+      const info = workspaceInfo.get(parsed.value);
+      if (info === void 0) continue;
+      byKey.set(key, { key, kind: "workspace", label: info.label, sessions: [] });
+    } else {
+      byKey.set(key, { key, kind: "custom", label: parsed.value, sessions: [] });
+    }
+  }
+  const empty = [];
+  for (const row of visible) {
+    if (pinnedIds.has(row.id)) continue;
+    const target = base.placement[row.id];
+    const fallback = defaultKey(row.id);
+    const key = target !== void 0 && byKey.has(target) ? target : byKey.has(fallback) ? fallback : "";
+    if (key === "") {
+      empty.push(row);
+      continue;
+    }
+    byKey.get(key).sessions.push(row);
+  }
+  let groups = [...byKey.values()].map((group) => ({
+    ...group,
+    sessions: dropBlanks(orderSessions(base.sessions[group.key], group.sessions))
+  }));
+  if (empty.length > 0) {
+    groups.push({
+      key: "",
+      kind: "ungrouped",
+      label: t("groupUngrouped"),
+      sessions: dropBlanks(orderSessions(void 0, empty))
+    });
+  }
+  if (needle !== "") groups = groups.filter((group) => group.sessions.length > 0);
+  const groupByKey = new Map(groups.map((group) => [group.key, group]));
+  const rowById = new Map(rows.map((row) => [row.id, row]));
+  const pinned = [];
+  for (const entry of base.pinned) {
+    const parsed = parseKey(entry);
+    if (parsed === null) {
+      const row = rowById.get(entry);
+      if (row !== void 0 && (needle === "" || matches(row))) pinned.push({ kind: "session", id: entry, row });
+      continue;
+    }
+    const group = groupByKey.get(entry);
+    if (group !== void 0) pinned.push({ kind: "folder", key: entry, group });
+  }
+  const pinnedKeys = new Set(pinned.filter((entry) => entry.kind === "folder").map((entry) => entry.key));
+  const rest = groups.filter((group) => !pinnedKeys.has(group.key));
+  const visibleRows = pinned.filter((entry) => entry.kind === "session").map((entry) => entry.row);
+  const seen = new Set(visibleRows.map((row) => row.id));
+  for (const group of groups) {
+    for (const row of group.sessions) {
+      if (seen.has(row.id)) continue;
+      seen.add(row.id);
+      visibleRows.push(row);
+    }
+  }
+  const selectable = visibleRows.filter((row) => !row.running);
+  return { groups, groupByKey, rowById, pinned, pinnedKeys, rest, visibleRows, selectable };
+}
+
 // src/client/components/session-tree.js
 var import_dsh_client_ui_primitives2 = require("@deepseek-ai/dsh-client-ui-primitives");
-function statusDot(row, t) {
-  if (row.running !== true) return null;
-  return h("span", { className: "sa-dot", title: t("running"), "aria-label": t("running") });
+function statusDot(row, t, unread) {
+  if (row.running === true) {
+    return h("span", { className: "sa-dot", title: t("running"), "aria-label": t("running") });
+  }
+  if (unread === true) {
+    return h("span", { className: "sa-dot sa-dot-done", title: t("completed"), "aria-label": t("completed") });
+  }
+  return null;
 }
 function rowTitle(row, t) {
   return row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
@@ -628,6 +685,7 @@ function SessionMenu(props) {
   const { row, pinned, archived, t, open, onOpenChange, onDelete, onPin, onUnpin } = props;
   const title = rowTitle(row, t);
   const items = [
+    { id: "rename", label: t("renameSession"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) },
     {
       id: "pin",
       label: pinned ? t("unpin") : t("pin"),
@@ -646,7 +704,11 @@ function SessionMenu(props) {
       items,
       onSelect: (id) => {
         onOpenChange(false);
-        if (id === "pin" && typeof onPin === "function") onPin(row.id);
+        if (id === "rename" && typeof props.onRename === "function") props.onRename(row);
+        if (id === "pin") {
+          const handler = pinned ? onUnpin : onPin;
+          if (typeof handler === "function") handler(row.id);
+        }
         if (id === "archive") {
           const handler = archived ? props.onUnarchive : props.onArchive;
           if (typeof handler === "function") handler(row.id);
@@ -658,7 +720,9 @@ function SessionMenu(props) {
         {
           className: "sa-icon-btn",
           type: "button",
+          draggable: false,
           "aria-label": t("sessionActions", { title }),
+          onPointerDown: (event) => event.stopPropagation(),
           onClick: (event) => {
             event.stopPropagation();
             onOpenChange(!open);
@@ -670,24 +734,99 @@ function SessionMenu(props) {
   );
 }
 function SessionRow(props) {
-  const { variant, row, now, pinned, archived, selected, busy, t, onOpen, onSelect, onDelete } = props;
+  const { variant, row, now, pinned, archived, unread, selected, busy, t, onOpen, onSelect, onDelete } = props;
   const title = rowTitle(row, t);
   const [menuOpen, setMenuOpen] = react_default.useState(false);
   if (variant === "sidebar") {
+    const rowClass = [
+      "sa-session",
+      "sa-session-sidebar",
+      pinned === true ? "sa-pinned-row" : "",
+      archived === true ? "sa-archived" : "",
+      menuOpen ? "sa-menu-open" : "",
+      props.dropBefore === true ? "sa-drop-before" : ""
+    ].filter((part) => part !== "").join(" ");
+    const togglePin = (event) => {
+      event.stopPropagation();
+      const handler = pinned === true ? props.onUnpin : props.onPin;
+      if (typeof handler === "function") handler(row.id);
+    };
     return h(
-      "button",
+      "div",
       {
-        className: "sa-session sa-session-sidebar",
-        type: "button",
-        title,
-        disabled: busy,
-        onClick: () => onOpen(row.id)
+        className: rowClass,
+        "data-session-id": row.id,
+        role: "treeitem",
+        "aria-selected": false,
+        draggable: busy !== true,
+        onDragStart: (event) => {
+          event.stopPropagation();
+          if (typeof props.onDragStart === "function") props.onDragStart(row);
+        }
       },
       pinned === true ? h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)) : null,
-      h("span", { className: "sa-title" }, title),
-      archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
-      statusDot(row, t),
-      h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t))
+      h(
+        "button",
+        {
+          className: "sa-open",
+          type: "button",
+          title,
+          disabled: busy || archived === true,
+          onClick: () => onOpen(row.id)
+        },
+        h("span", { className: "sa-title" }, title),
+        archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
+        statusDot(row, t, unread)
+      ),
+      h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)),
+      h(
+        "span",
+        { className: "sa-row-actions" },
+        h(
+          import_dsh_client_ui_primitives2.Tooltip,
+          {
+            label: pinned === true ? t("unpin") : t("pin"),
+            side: "bottom",
+            align: "end",
+            delayMs: 500,
+            portal: true
+          },
+          h(
+            "button",
+            {
+              className: "sa-icon-btn",
+              type: "button",
+              draggable: false,
+              "aria-label": pinned === true ? t("unpin") : t("pin"),
+              onPointerDown: (event) => event.stopPropagation(),
+              onClick: togglePin
+            },
+            h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)
+          )
+        ),
+        h(SessionMenu, {
+          row,
+          pinned: pinned === true,
+          archived: archived === true,
+          onArchive: props.onArchive,
+          onUnarchive: props.onUnarchive,
+          t,
+          open: menuOpen,
+          onOpenChange: setMenuOpen,
+          onDelete: (target) => {
+            if (typeof onDelete === "function") onDelete(target);
+          },
+          onPin: (id) => {
+            if (typeof props.onPin === "function") props.onPin(id);
+          },
+          onUnpin: (id) => {
+            if (typeof props.onUnpin === "function") props.onUnpin(id);
+          },
+          onRename: (target) => {
+            if (typeof props.onRename === "function") props.onRename(target);
+          }
+        })
+      )
     );
   }
   const className = [
@@ -732,7 +871,7 @@ function SessionRow(props) {
       },
       h("span", { className: "sa-title" }, title),
       archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
-      statusDot(row, t)
+      statusDot(row, t, unread)
     ),
     h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)),
     h(
@@ -753,6 +892,9 @@ function SessionRow(props) {
         onPin: (target) => {
           const handler = pinned === true ? props.onUnpin : props.onPin;
           if (typeof handler === "function") handler(target);
+        },
+        onRename: (target) => {
+          if (typeof props.onRename === "function") props.onRename(target);
         }
       })
     )
@@ -760,6 +902,7 @@ function SessionRow(props) {
 }
 function Group(props) {
   const { group, kind, pinned, now, expanded, selection, busy, variant, t } = props;
+  const unread = props.unread instanceof Set ? props.unread : /* @__PURE__ */ new Set();
   const [menuOpen, setMenuOpen] = react_default.useState(false);
   const sessions = Array.isArray(group.sessions) ? group.sessions : [];
   const ungrouped = kind === "ungrouped";
@@ -804,7 +947,9 @@ function Group(props) {
         {
           className: "sa-icon-btn",
           type: "button",
+          draggable: false,
           "aria-label": kind === "custom" ? t("folderActions", { name: group.label }) : t("workspaceActions", { name: group.label }),
+          onPointerDown: (event) => event.stopPropagation(),
           onClick: (event) => {
             event.stopPropagation();
             setMenuOpen((open) => !open);
@@ -872,7 +1017,9 @@ function Group(props) {
           {
             className: "sa-icon-btn",
             type: "button",
+            draggable: false,
             "aria-label": t("newSessionIn", { name: group.label }),
+            onPointerDown: (event) => event.stopPropagation(),
             onClick: (event) => {
               event.stopPropagation();
               if (typeof props.onNewSession === "function") props.onNewSession(group);
@@ -916,6 +1063,7 @@ function Group(props) {
             now,
             pinned: false,
             archived: props.archived instanceof Set && props.archived.has(row.id),
+            unread: unread.has(row.id),
             selected: selection.includes(row.id),
             busy,
             t,
@@ -924,8 +1072,10 @@ function Group(props) {
             onSelect: props.onSelect,
             onDelete: props.onDelete,
             onPin: props.onPin,
+            onUnpin: props.onUnpin,
             onArchive: props.onArchive,
             onUnarchive: props.onUnarchive,
+            onRename: props.onRename,
             onDragStart: props.onSessionDragStart
           })
         )
@@ -934,70 +1084,89 @@ function Group(props) {
   return h("div", { className: "sa-block" }, head, body);
 }
 function PinnedEntry(props) {
-  const { entry, t, dropTarget, dragKind } = props;
-  if (entry.kind === "folder") {
-    return h(Group, {
-      group: entry.group,
-      kind: entry.group.kind,
-      pinned: true,
-      now: props.now,
-      expanded: props.expanded.includes(entry.group.key),
-      selection: props.selection,
-      busy: props.busy,
-      variant: props.variant,
-      t,
-      dropTarget,
-      dragKind,
-      onToggle: props.onToggle,
-      onOpen: props.onOpen,
-      onSelect: props.onSelect,
-      onDelete: props.onDelete,
-      onNewSession: props.onNewSession,
-      onRenameWorkspace: props.onRenameWorkspace,
-      onDeleteWorkspace: props.onDeleteWorkspace,
-      onRenameFolder: props.onRenameFolder,
-      onDeleteFolder: props.onDeleteFolder,
-      onPin: props.onPin,
-      onUnpin: props.onUnpin,
-      archived: props.archived,
-      onArchive: props.onArchive,
-      onUnarchive: props.onUnarchive,
-      onDragStart: (group) => props.onPinnedDragStart(group.key),
-      onDragOver: props.onDragOver,
-      onDrop: (group) => props.onPinnedDrop(group.key),
-      onDropRow: (group, before) => props.onPinnedDropRow(group, before)
-    });
-  }
-  const row = entry.row;
-  return h(
+  const { entry, t, dragKind, dropTarget } = props;
+  const key = entry.kind === "folder" ? entry.group.key : entry.row.id;
+  const wrap = (draggable, onDragStart, children) => h(
     "div",
     {
       className: [
         "sa-pinned-entry",
-        dropTarget === entry.row.id ? "sa-drop-target" : ""
+        entry.kind === "folder" ? "sa-pinned-folder-entry" : "",
+        props.dropBefore === true ? "sa-drop-before" : "",
+        props.dropAfter === true ? "sa-drop-after" : ""
       ].filter((part) => part !== "").join(" "),
-      draggable: props.busy !== true,
-      onDragStart: (event) => {
+      draggable,
+      "data-pinned-key": key,
+      onDragStart: draggable === true ? (event) => {
         event.stopPropagation();
-        props.onPinnedDragStart(entry.row.id);
-      },
+        onDragStart();
+      } : void 0,
       onDragOver: (event) => {
         if (dragKind !== "pinned") return;
         event.preventDefault();
-        props.onDragOver(entry.row.id);
+        event.stopPropagation();
+        const rect = event.currentTarget.getBoundingClientRect();
+        props.onPinHover(key, event.clientY > rect.top + rect.height / 2);
       },
       onDrop: (event) => {
         if (dragKind !== "pinned") return;
         event.preventDefault();
-        props.onPinnedDrop(entry.row.id);
+        event.stopPropagation();
+        const rect = event.currentTarget.getBoundingClientRect();
+        props.onPinDrop(key, event.clientY > rect.top + rect.height / 2);
       }
     },
+    children
+  );
+  if (entry.kind === "folder") {
+    return wrap(
+      false,
+      () => {
+      },
+      h(Group, {
+        group: entry.group,
+        kind: entry.group.kind,
+        pinned: true,
+        now: props.now,
+        expanded: props.expanded.includes(entry.group.key),
+        selection: props.selection,
+        busy: props.busy,
+        variant: props.variant,
+        t,
+        archived: props.archived,
+        unread: props.unread,
+        dropTarget,
+        dragKind,
+        onToggle: props.onToggle,
+        onOpen: props.onOpen,
+        onSelect: props.onSelect,
+        onDelete: props.onDelete,
+        onNewSession: props.onNewSession,
+        onRenameWorkspace: props.onRenameWorkspace,
+        onDeleteWorkspace: props.onDeleteWorkspace,
+        onRenameFolder: props.onRenameFolder,
+        onDeleteFolder: props.onDeleteFolder,
+        onPin: props.onPin,
+        onUnpin: props.onUnpin,
+        onRename: props.onRename,
+        onArchive: props.onArchive,
+        onUnarchive: props.onUnarchive,
+        onDragStart: (group) => props.onPinnedDragStart(group.key),
+        onDragOver: props.onDragOver,
+        onDrop: (group) => props.onPinnedDrop(group.key),
+        onDropRow: (group, before) => props.onPinnedDropRow(group, before)
+      })
+    );
+  }
+  const row = entry.row;
+  return wrap(props.busy !== true, () => props.onPinnedDragStart(entry.row.id), [
     h(SessionRow, {
       variant: props.variant,
       row,
       now: props.now,
       pinned: true,
       archived: props.archived instanceof Set && props.archived.has(row.id),
+      unread: props.unread instanceof Set && props.unread.has(row.id),
       selected: props.selection.includes(row.id),
       busy: props.busy,
       t,
@@ -1008,9 +1177,10 @@ function PinnedEntry(props) {
       onUnpin: props.onUnpin,
       onArchive: props.onArchive,
       onUnarchive: props.onUnarchive,
+      onRename: props.onRename,
       onDragStart: () => props.onPinnedDragStart(entry.row.id)
     })
-  );
+  ]);
 }
 function SessionTree(props) {
   const t = props.t;
@@ -1020,6 +1190,7 @@ function SessionTree(props) {
   const expanded = Array.isArray(props.expanded) ? props.expanded : [];
   const selection = Array.isArray(props.selection) ? props.selection : [];
   const archived = props.archived instanceof Set ? props.archived : /* @__PURE__ */ new Set();
+  const unread = props.unread instanceof Set ? props.unread : /* @__PURE__ */ new Set();
   const busy = props.busy === true;
   const now = Date.now();
   const open = (id) => {
@@ -1032,9 +1203,11 @@ function SessionTree(props) {
   };
   const [drag, setDrag] = react_default.useState(null);
   const [dropTarget, setDropTarget] = react_default.useState(null);
+  const [pinHover, setPinHover] = react_default.useState(null);
   const clearDrag = () => {
     setDrag(null);
     setDropTarget(null);
+    setPinHover(null);
   };
   const endDrop = (group) => {
     const current = drag;
@@ -1070,6 +1243,22 @@ function SessionTree(props) {
     if (current.kind === "folder" && folderKey) {
       if (typeof props.onMoveFolder === "function") props.onMoveFolder(current.key, target);
     }
+  };
+  const pinDropAt = (key, after) => {
+    const current = drag;
+    clearDrag();
+    if (current === null || current.kind !== "pinned") return;
+    const keys = pinned.map((item) => item.kind === "folder" ? item.group.key : item.row.id);
+    const index = keys.indexOf(key);
+    const before = after ? keys[index + 1] : key;
+    if (before === current.key) return;
+    if (typeof props.onReorderPinned === "function") props.onReorderPinned(current.key, before);
+  };
+  const pinDropTail = () => {
+    const current = drag;
+    clearDrag();
+    if (current === null || current.kind !== "pinned") return;
+    if (typeof props.onReorderPinned === "function") props.onReorderPinned(current.key, void 0);
   };
   return h(
     "div",
@@ -1107,12 +1296,30 @@ function SessionTree(props) {
           onUnpin: props.onUnpin,
           onArchive: props.onArchive,
           onUnarchive: props.onUnarchive,
+          onRename: props.onRename,
+          dropBefore: pinHover !== null && drag !== null && drag.kind === "pinned" && pinHover.key === (entry.kind === "folder" ? entry.group.key : entry.row.id) && pinHover.after !== true,
+          dropAfter: pinHover !== null && drag !== null && drag.kind === "pinned" && pinHover.key === (entry.kind === "folder" ? entry.group.key : entry.row.id) && pinHover.after === true,
+          onPinHover: (key, after) => setPinHover({ key, after }),
+          onPinDrop: pinDropAt,
           onDragOver: setDropTarget,
           onPinnedDragStart: (key) => setDrag({ kind: "pinned", key }),
           onPinnedDrop: pinnedDrop,
           onPinnedDropRow: endRowDrop
         })
-      )
+      ),
+      h("div", {
+        className: "sa-pinned-tail",
+        onDragOver: (event) => {
+          if (drag === null || drag.kind !== "pinned") return;
+          event.preventDefault();
+          setPinHover({ key: "", after: true });
+        },
+        onDrop: (event) => {
+          if (drag === null || drag.kind !== "pinned") return;
+          event.preventDefault();
+          pinDropTail();
+        }
+      })
     ),
     groups.map(
       (group) => h(Group, {
@@ -1126,6 +1333,8 @@ function SessionTree(props) {
         busy,
         variant,
         t,
+        archived,
+        unread,
         dropTarget,
         dragKind: drag === null ? null : drag.kind,
         archived,
@@ -1140,6 +1349,7 @@ function SessionTree(props) {
         onDeleteFolder: props.onDeleteFolder,
         onPin: props.onPin,
         onUnpin: props.onUnpin,
+        onRename: props.onRename,
         onDragStart: (target) => {
           if (target.id !== void 0) setDrag({ kind: "session", id: target.id });
           else setDrag({ kind: "folder", key: target.key });
@@ -1163,6 +1373,9 @@ function readStored() {
   }
 }
 var store3 = createStore(readStored());
+function getShellOverride() {
+  return store3.get();
+}
 function setShellOverride(next) {
   if (next === store3.get()) return;
   store3.set(next);
@@ -1170,6 +1383,9 @@ function setShellOverride(next) {
     localStorage.setItem(SHELL_KEY, next ? "1" : "0");
   } catch {
   }
+}
+function subscribeShell(listener) {
+  return store3.subscribe(listener);
 }
 function useShellOverride() {
   return store3.useValue();
@@ -1221,26 +1437,10 @@ function SessionAdminSection(props) {
   }, [treeState.loaded, treeState.loading]);
   const archived = react_default.useMemo(() => new Set(archivedIds), [archivedIds]);
   const gone = react_default.useMemo(() => new Set(goneIds), [goneIds]);
-  const currentId = react_default.useMemo(() => {
-    for (const id of catalog.ids) {
-      const row = catalog.byId[id];
-      if (row !== void 0 && (row.retainedBy?.mainView ?? 0) > 0) return id;
-    }
-    return void 0;
-  }, [catalog]);
-  const rows = react_default.useMemo(() => {
-    const list = [];
-    for (const id of catalog.ids) {
-      const row = catalog.byId[id];
-      if (row === void 0) continue;
-      if (gone.has(id)) continue;
-      if (archived.has(id) && !showArchived) continue;
-      if (row.blank === true && id !== currentId) continue;
-      list.push(row);
-    }
-    list.sort((left, right) => right.updatedAt - left.updatedAt);
-    return list;
-  }, [catalog, archived, gone, currentId, showArchived]);
+  const { rows } = react_default.useMemo(
+    () => selectRows({ catalog, archivedIds, goneIds, showArchived }),
+    [catalog, archivedIds, goneIds, showArchived]
+  );
   const warning = react_default.useMemo(() => {
     if (treeState.error !== "") return t("treeFailed", { message: treeState.error });
     return null;
@@ -1273,85 +1473,19 @@ function SessionAdminSection(props) {
     },
     [needle]
   );
-  const groups = react_default.useMemo(() => {
-    const visible = rows.filter((row) => matches(row));
-    const placed = base;
-    const byKey = /* @__PURE__ */ new Map();
-    for (const key of placed.order) {
-      const parsed = parseKey(key);
-      if (parsed === null) continue;
-      if (parsed.kind === "workspace") {
-        const info = workspaceInfo.get(parsed.value);
-        if (info === void 0) continue;
-        byKey.set(key, { key, kind: "workspace", label: info.label, sessions: [] });
-      } else {
-        byKey.set(key, { key, kind: "custom", label: parsed.value, sessions: [] });
-      }
-    }
-    const empty = [];
-    for (const row of visible) {
-      if (base.pinned.includes(row.id)) continue;
-      const target = base.placement[row.id];
-      const key = target !== void 0 && byKey.has(target) ? target : byKey.has(defaultKey(row.id)) ? defaultKey(row.id) : "";
-      if (key === "") {
-        empty.push(row);
-        continue;
-      }
-      byKey.get(key).sessions.push(row);
-    }
-    const ordered = (key, members) => {
-      const order = base.sessions[key];
-      if (!Array.isArray(order) || order.length === 0) return members;
-      const remaining = new Map(members.map((row) => [row.id, row]));
-      const list2 = [];
-      for (const id of order) {
-        const row = remaining.get(id);
-        if (row === void 0) continue;
-        remaining.delete(id);
-        list2.push(row);
-      }
-      for (const row of members) if (remaining.delete(row.id)) list2.push(row);
-      return list2;
-    };
-    let list = [...byKey.values()].map((group) => ({ ...group, sessions: ordered(group.key, group.sessions) }));
-    if (empty.length > 0) list.push({ key: "", kind: "ungrouped", label: t("groupUngrouped"), sessions: ordered("", empty) });
-    if (needle !== "") list = list.filter((group) => group.sessions.length > 0);
-    return list;
-  }, [rows, matches, needle, t, base, workspaceInfo, defaultKey]);
-  const groupByKey = react_default.useMemo(() => new Map(groups.map((group) => [group.key, group])), [groups]);
-  const rowById = react_default.useMemo(() => new Map(rows.map((row) => [row.id, row])), [rows]);
-  const pinned = react_default.useMemo(() => {
-    const list = [];
-    for (const entry of base.pinned) {
-      const parsed = parseKey(entry);
-      if (parsed === null) {
-        const row = rowById.get(entry);
-        if (row !== void 0 && matches(row)) list.push({ kind: "session", id: entry, row });
-        continue;
-      }
-      const group = groupByKey.get(entry);
-      if (group !== void 0) list.push({ kind: "folder", key: entry, group });
-    }
-    return list;
-  }, [base.pinned, rowById, groupByKey, matches]);
-  const pinnedKeys = react_default.useMemo(
-    () => new Set(pinned.filter((entry) => entry.kind === "folder").map((entry) => entry.key)),
-    [pinned]
+  const model = react_default.useMemo(
+    () => buildTreeModel({
+      rows,
+      base,
+      workspaceInfo,
+      defaultKey,
+      needle,
+      t,
+      matches
+    }),
+    [rows, base, workspaceInfo, defaultKey, needle, t, matches]
   );
-  const rest = react_default.useMemo(() => groups.filter((group) => !pinnedKeys.has(group.key)), [groups, pinnedKeys]);
-  const visibleRows = react_default.useMemo(() => {
-    const list = pinned.filter((entry) => entry.kind === "session").map((entry) => entry.row);
-    const seen = new Set(list.map((row) => row.id));
-    for (const group of groups) {
-      for (const row of group.sessions) {
-        if (seen.has(row.id)) continue;
-        seen.add(row.id);
-        list.push(row);
-      }
-    }
-    return list;
-  }, [groups, pinned]);
-  const selectable = react_default.useMemo(() => visibleRows.filter((row) => !row.running), [visibleRows]);
+  const { groups, groupByKey, rowById, pinned, pinnedKeys, rest, visibleRows, selectable } = model;
   const visibleIds = react_default.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
   const selectedIds = selected.filter((id) => visibleIds.has(id));
   const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
@@ -1420,8 +1554,14 @@ function SessionAdminSection(props) {
     if (parsed !== null && parsed.kind === "workspace") props.startSession(parsed.value);
     else props.startSession();
   };
-  const pin = (key) => persist(pinItem(base, key));
-  const unpin = (key) => persist(unpinItem(base, key));
+  const pin = (key) => {
+    persist(pinItem(base, key));
+    if (isSessionId(key) && typeof props.pinSession === "function") props.pinSession(key);
+  };
+  const unpin = (key) => {
+    persist(unpinItem(base, key));
+    if (isSessionId(key) && typeof props.unpinSession === "function") props.unpinSession(key);
+  };
   const moveSession = (id, key, before) => {
     const parsed = parseKey(key);
     if (parsed === null && key !== "") return;
@@ -1557,6 +1697,22 @@ function SessionAdminSection(props) {
     const value = typeof dialog.value === "string" ? dialog.value.trim() : "";
     if (dialog.kind === "renameWorkspace") {
       void renameWorkspace(dialog);
+      return;
+    }
+    if (dialog.kind === "renameSession") {
+      setDialog(null);
+      setNotice(null);
+      if (value === "" || typeof props.renameSession !== "function") return;
+      void Promise.resolve(props.renameSession(dialog.sessionId, value)).then((result) => {
+        if (result !== void 0 && result !== null && result.ok === false) {
+          setNotice({ kind: "error", text: t("noticeFailed", { message: result.error?.message ?? "" }) });
+        }
+      }).catch((error) => {
+        setNotice({
+          kind: "error",
+          text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) })
+        });
+      });
       return;
     }
     if (dialog.kind === "deleteWorkspace") {
@@ -1700,6 +1856,7 @@ function SessionAdminSection(props) {
   const dialogTitle = (() => {
     if (dialog === null) return "";
     if (dialog.kind === "renameWorkspace") return t("renameWorkspaceTitle");
+    if (dialog.kind === "renameSession") return t("renameSessionTitle");
     if (dialog.kind === "deleteWorkspace") return t("deleteWorkspaceTitle");
     if (dialog.kind === "newFolder") return t("newFolderTitle");
     if (dialog.kind === "renameFolder") return t("renameFolderTitle");
@@ -1717,7 +1874,7 @@ function SessionAdminSection(props) {
     if (dialog.kind === "archive") {
       return h("p", { className: "sa-dialog-body" }, t("archiveConfirmBody", { title: dialog.label }));
     }
-    const label = dialog.kind === "renameFolder" || dialog.kind === "newFolder" ? t("folderName") : t("renameWorkspaceTitle");
+    const label = dialog.kind === "renameFolder" || dialog.kind === "newFolder" ? t("folderName") : dialog.kind === "renameSession" ? t("renameSessionTitle") : t("renameWorkspaceTitle");
     return h("input", {
       className: "sa-search",
       type: "text",
@@ -1734,7 +1891,7 @@ function SessionAdminSection(props) {
   })();
   const dialogConfirmLabel = (() => {
     if (dialog === null) return t("confirmDelete");
-    if (dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder") return t("save");
+    if (dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder" || dialog.kind === "renameSession") return t("save");
     if (dialog.kind === "newFolder") return t("create");
     if (dialog.kind === "archive") return t("archiveConfirmAction");
     return t("confirmDelete");
@@ -1824,7 +1981,6 @@ function SessionAdminSection(props) {
   return h(
     "div",
     { className: "sa-root" },
-    h("style", null, CSS),
     header,
     h(SidebarSwitch, { t }),
     toolbar,
@@ -1879,7 +2035,6 @@ function SessionDeleteMenuItem(props) {
   return h(
     "div",
     { className: "sa-itemWrap" },
-    h("style", null, CSS),
     h(
       "button",
       {
@@ -1941,7 +2096,6 @@ function SessionAdminOverlay(props) {
   return h(
     "div",
     { className: "sa-mask" },
-    h("style", null, CSS),
     h(
       "div",
       { className: "sa-dialog", role: "dialog", "aria-modal": "true", "aria-label": t("deleteSession") },
@@ -1955,6 +2109,617 @@ function SessionAdminOverlay(props) {
       )
     )
   );
+}
+
+// src/client/components/sidebar-workspaces.js
+var import_dsh_client_ui_primitives3 = require("@deepseek-ai/dsh-client-ui-primitives");
+function SidebarWorkspaces(props) {
+  const t = props.t;
+  const wide = props.wide !== false;
+  const catalog = props.useSessions((state) => state);
+  const workspaces = props.useWorkspaces((state) => state);
+  const goneIds = useVanished();
+  const statusHook = typeof props.useSessionStatus === "function" ? props.useSessionStatus : () => void 0;
+  const statuses = statusHook((state) => state);
+  const treeState = useTree();
+  const layout = treeState.layout;
+  const [collapsedGroups, setCollapsedGroups] = react_default.useState([]);
+  const [query, setQuery] = react_default.useState("");
+  const [searchExpanded, setSearchExpanded] = react_default.useState(false);
+  const [orderBy, setOrderBy] = react_default.useState("manual");
+  const [viewOpen, setViewOpen] = react_default.useState(false);
+  const [dialog, setDialog] = react_default.useState(null);
+  const [browse, setBrowse] = react_default.useState(null);
+  const [notice, setNotice] = react_default.useState("");
+  const [busy, setBusy] = react_default.useState(false);
+  const treeRef = react_default.useRef(null);
+  const searchRef = react_default.useRef(null);
+  react_default.useEffect(() => {
+    let current = treeRef.current;
+    let shell = null;
+    for (let depth = 0; depth < 8 && current !== null; depth += 1) {
+      const parent = current.parentElement;
+      if (parent === null) break;
+      if (parent.querySelector(":scope > nav") !== null) {
+        shell = parent;
+        break;
+      }
+      current = parent;
+    }
+    if (shell === null) return void 0;
+    shell.setAttribute("data-session-admin-sidebar", "");
+    return () => {
+      shell.removeAttribute("data-session-admin-sidebar");
+    };
+  }, []);
+  react_default.useEffect(() => {
+    if (!treeState.loaded && !treeState.loading) void refreshLayout();
+  }, [treeState.loaded, treeState.loading]);
+  react_default.useEffect(() => {
+    if (searchExpanded) searchRef.current?.focus({ preventScroll: true });
+  }, [searchExpanded]);
+  const { rows } = react_default.useMemo(
+    () => selectRows({
+      catalog,
+      archivedIds: workspaces.archivedSessionIds,
+      goneIds,
+      showArchived: false
+    }),
+    [catalog, workspaces.archivedSessionIds, goneIds]
+  );
+  const workspaceInfo = react_default.useMemo(() => {
+    const map = /* @__PURE__ */ new Map();
+    for (const workspace of workspaces.items) {
+      const label = workspace.title !== void 0 && workspace.title !== "" ? workspace.title : workspace.path;
+      map.set(workspace.workspaceId, { label, key: workspaceKey(workspace.workspaceId) });
+    }
+    return map;
+  }, [workspaces.items]);
+  const base = react_default.useMemo(() => adoptWorkspaces(layout, [...workspaceInfo.keys()]), [layout, workspaceInfo]);
+  const defaultKey = react_default.useCallback(
+    (id) => {
+      for (const workspace of workspaces.items) {
+        if (workspace.sessionIds.includes(id)) return workspaceKey(workspace.workspaceId);
+      }
+      return "";
+    },
+    [workspaces.items]
+  );
+  const needle = query.trim().toLowerCase();
+  const matches = react_default.useCallback(
+    (row) => {
+      if (needle === "") return true;
+      const title = typeof row.title === "string" ? row.title : "";
+      const cwd = typeof row.cwd === "string" ? row.cwd : "";
+      return title.toLowerCase().includes(needle) || cwd.toLowerCase().includes(needle);
+    },
+    [needle]
+  );
+  const model = react_default.useMemo(
+    () => buildTreeModel({
+      rows,
+      base,
+      workspaceInfo,
+      defaultKey,
+      needle,
+      t,
+      matches,
+      orderBy
+    }),
+    [rows, base, workspaceInfo, defaultKey, needle, t, matches, orderBy]
+  );
+  const { groupByKey, pinned, rest, visibleRows, rowById } = model;
+  const unread = react_default.useMemo(() => {
+    const ids = /* @__PURE__ */ new Set();
+    for (const row of rows) {
+      const status = statuses instanceof Map ? statuses.get(row.id) : void 0;
+      if (status !== void 0 && status !== null && status.completionUnread === true) ids.add(row.id);
+    }
+    return ids;
+  }, [rows, statuses]);
+  const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsedGroups.includes(key));
+  const persist = (next) => {
+    void saveLayout(next).then((state) => {
+      if (state.error !== "") console.warn("[session-admin] layout save failed:", state.error);
+    });
+  };
+  const syncWorkspaceOrder = (next) => {
+    if (typeof props.syncWorkspaceOrder !== "function") return;
+    void Promise.resolve(props.syncWorkspaceOrder(workspaceOrder(next))).catch(() => {
+    });
+  };
+  const openSession = (id) => {
+    if (typeof props.openSession === "function") props.openSession(id);
+  };
+  const startSession = (group) => {
+    if (typeof props.startSession !== "function") return;
+    if (group !== void 0) {
+      const parsed = parseKey(group.key);
+      if (parsed !== null && parsed.kind === "workspace") {
+        props.startSession(parsed.value);
+        return;
+      }
+    }
+    props.startSession();
+  };
+  const toggleGroup = (key) => {
+    setCollapsedGroups(
+      (previous) => previous.includes(key) ? previous.filter((value) => value !== key) : [...previous, key]
+    );
+  };
+  const moveSession = (id, key, before) => {
+    const parsed = parseKey(key);
+    if (parsed === null && key !== "") return;
+    const group = groupByKey.get(key);
+    const order = group === void 0 ? [] : group.sessions.map((row) => row.id);
+    persist(placeSession(base, id, key, before, defaultKey(id), order));
+  };
+  const moveFolder = (moved, before) => {
+    const next = reorderFolders(base, moved, before);
+    persist(next);
+    syncWorkspaceOrder(next);
+  };
+  const pin = (key) => {
+    persist(pinItem(base, key));
+    if (isSessionId(key) && typeof props.pinSession === "function") void props.pinSession(key);
+  };
+  const unpin = (key) => {
+    persist(unpinItem(base, key));
+    if (isSessionId(key) && typeof props.unpinSession === "function") void props.unpinSession(key);
+  };
+  const resetLayout = () => {
+    const ids = workspaces.items.map((item) => item.workspaceId);
+    persist(adoptWorkspaces(emptyLayout(), ids));
+  };
+  const activeRefusal = (error) => error instanceof Error && error.name === "WorkspaceArchiveError" && error.rpcError !== void 0 && error.rpcError !== null && error.rpcError.code === "workspace/session-active";
+  const titleOf = (id) => {
+    const row = rowById.get(id);
+    return row === void 0 || typeof row.title !== "string" || row.title.trim() === "" ? t("unnamed") : row.title;
+  };
+  const archiveRow = async (id, stopActivity) => {
+    if (typeof props.archiveSession !== "function") return;
+    try {
+      await props.archiveSession(id, stopActivity === true ? { stopActivity: true } : void 0);
+      await refreshLayout();
+    } catch (error) {
+      if (activeRefusal(error)) {
+        setDialog({ kind: "archive", sessionId: id, title: titleOf(id) });
+        return;
+      }
+      console.warn("[session-admin] archive failed:", error);
+    }
+  };
+  const unarchiveRow = async (id) => {
+    if (typeof props.unarchiveSession !== "function") return;
+    try {
+      await props.unarchiveSession(id);
+      await refreshLayout();
+    } catch (error) {
+      console.warn("[session-admin] unarchive failed:", error);
+    }
+  };
+  const adopt = async (path) => {
+    if (typeof path !== "string" || path === "") return;
+    setBrowse(null);
+    setBusy(true);
+    const result = await props.createWorkspace(path);
+    setBusy(false);
+    const ok = result !== void 0 && result !== null && result.ok !== false;
+    if (ok) {
+      const workspaceId = result?.value?.workspace?.workspaceId;
+      if (typeof workspaceId === "string" && workspaceId !== "") {
+        const next = frontFolder(base, workspaceKey(workspaceId));
+        persist(next);
+        syncWorkspaceOrder(next);
+      }
+    }
+    if (!ok) {
+      const detail = result?.error?.message ?? "";
+      setNotice(detail === "" ? t("createWorkspaceFailed") : `${t("createWorkspaceFailed")}: ${detail}`);
+      console.warn("[session-admin] create workspace failed:", path, result);
+    }
+  };
+  const loadDirectory = async (path) => {
+    if (typeof props.listDirectory !== "function") {
+      setBrowse({ error: t("directoryUnavailable") });
+      return;
+    }
+    setBrowse({ loading: true });
+    try {
+      const listing = await props.listDirectory(path);
+      setBrowse({ listing });
+    } catch (error) {
+      setBrowse({ error: t("directoryUnavailable") });
+      console.warn("[session-admin] list directory failed:", error);
+    }
+  };
+  const addWorkspace = async () => {
+    await loadDirectory(void 0);
+  };
+  const createWorkspace = async (path) => {
+    if (typeof props.createWorkspace !== "function") return false;
+    const result = await props.createWorkspace(path);
+    if (result === void 0 || result === null) return false;
+    return result.ok !== false;
+  };
+  const confirmDialog = async () => {
+    if (dialog === null) return;
+    const current = dialog;
+    setDialog(null);
+    if (current.kind === "archive") {
+      await archiveRow(current.sessionId, true);
+      return;
+    }
+    if (current.kind === "renameWorkspace") {
+      const value = typeof current.value === "string" ? current.value.trim() : "";
+      if (value === "" || typeof props.renameWorkspace !== "function") return;
+      setBusy(true);
+      setNotice("");
+      try {
+        const result2 = await props.renameWorkspace(current.workspaceId, value);
+        if (result2 !== void 0 && result2 !== null && result2.ok === false) {
+          setNotice(t("noticeFailed", { message: result2.error?.message ?? "" }));
+          console.warn("[session-admin] rename workspace failed:", result2.error);
+        }
+      } catch (error) {
+        setNotice(t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }));
+        console.warn("[session-admin] rename workspace failed:", error);
+      }
+      setBusy(false);
+      return;
+    }
+    if (current.kind === "deleteWorkspace") {
+      if (typeof props.deleteWorkspace !== "function") return;
+      setBusy(true);
+      const result2 = await props.deleteWorkspace(current.workspaceId);
+      setBusy(false);
+      if (result2 !== void 0 && result2 !== null && result2.ok === false) {
+        console.warn("[session-admin] delete workspace failed:", result2.error);
+      } else {
+        await refreshLayout();
+      }
+      return;
+    }
+    if (current.kind === "renameSession") {
+      const value = typeof current.value === "string" ? current.value.trim() : "";
+      if (value === "" || typeof props.renameSession !== "function") return;
+      setBusy(true);
+      try {
+        const result2 = await props.renameSession(current.sessionId, value);
+        if (result2 !== void 0 && result2 !== null && result2.ok === false) {
+          setNotice(t("noticeFailed", { message: result2.error?.message ?? "" }));
+          console.warn("[session-admin] rename session failed:", result2.error);
+        }
+      } catch (error) {
+        setNotice(t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }));
+        console.warn("[session-admin] rename session failed:", error);
+      }
+      setBusy(false);
+      return;
+    }
+    if (current.kind === "renameFolder") {
+      const value = typeof current.value === "string" ? current.value.trim() : "";
+      if (value === "" || value === current.name) return;
+      if (base.folders.includes(value)) return;
+      persist(renameFolder(base, current.name, value));
+      return;
+    }
+    if (current.kind === "deleteFolder") {
+      persist(removeFolder(base, current.name));
+      return;
+    }
+    setBusy(true);
+    const result = await postDelete([current.sessionId]);
+    setBusy(false);
+    if (!result.ok) {
+      console.warn("[session-admin] delete failed:", result.error);
+      return;
+    }
+    markVanished(result.deleted);
+    await refreshLayout();
+  };
+  const viewMenu = h(import_dsh_client_ui_primitives3.Menu, {
+    open: viewOpen,
+    onClose: () => setViewOpen(false),
+    portal: true,
+    closeOnPointerLeave: true,
+    dense: true,
+    align: "end",
+    selectedIds: [orderBy],
+    items: [
+      { type: "label", id: "order-by", text: t("orderBy") },
+      { id: "manual", label: t("orderManual"), icon: h(import_dsh_client_ui_primitives3.IconChevronsUpDownOutlineRegular, null) },
+      { id: "updated", label: t("orderUpdated"), icon: h(import_dsh_client_ui_primitives3.IconClockOutlineRegular, null) },
+      { type: "label", id: "reset-label", text: t("resetSection") },
+      { id: "reset", label: t("resetLayout"), icon: h(import_dsh_client_ui_primitives3.IconRefreshOutlineRegular, null) }
+    ],
+    onSelect: (id) => {
+      if (id === "manual" || id === "updated") setOrderBy(id);
+      if (id === "reset") resetLayout();
+      setViewOpen(false);
+    },
+    anchor: h(
+      import_dsh_client_ui_primitives3.Tooltip,
+      { label: t("viewOptions"), side: "bottom", delayMs: 500, portal: true },
+      h(
+        "button",
+        {
+          className: "sa-ws-icon-btn",
+          type: "button",
+          "aria-label": t("viewOptions"),
+          onClick: () => setViewOpen((value) => !value)
+        },
+        h(import_dsh_client_ui_primitives3.IconSlidersTwoOutlineRegular, null)
+      )
+    )
+  });
+  const header = h(
+    "div",
+    { className: "sa-ws-header" },
+    searchExpanded ? null : h("span", { className: "sa-ws-label" }, t("sectionWorkspaces")),
+    h(
+      "div",
+      { className: searchExpanded ? "sa-ws-search sa-ws-search-expanded" : "sa-ws-search" },
+      h(
+        import_dsh_client_ui_primitives3.Tooltip,
+        { label: t("search"), side: "bottom", delayMs: 500, portal: true, disabled: searchExpanded },
+        h(
+          "button",
+          {
+            className: "sa-ws-search-btn",
+            type: "button",
+            "aria-label": t("searchSessions"),
+            "aria-expanded": searchExpanded,
+            onClick: () => setSearchExpanded(true)
+          },
+          h(import_dsh_client_ui_primitives3.IconSearchOutlineRegular, { size: searchExpanded ? 11 : 14 })
+        )
+      ),
+      searchExpanded ? h("input", {
+        ref: searchRef,
+        className: "sa-ws-search-input",
+        type: "text",
+        placeholder: t("searchPlaceholder"),
+        value: query,
+        onChange: (event) => setQuery(event.target.value),
+        onKeyDown: (event) => {
+          if (event.key !== "Escape") return;
+          setQuery("");
+          setSearchExpanded(false);
+        }
+      }) : null,
+      searchExpanded ? h(
+        "button",
+        {
+          className: "sa-ws-search-clear",
+          type: "button",
+          "aria-label": t("clear"),
+          onClick: () => {
+            setQuery("");
+            setSearchExpanded(false);
+          }
+        },
+        h(import_dsh_client_ui_primitives3.IconCloseFillRegular, null)
+      ) : null
+    ),
+    searchExpanded ? null : h(
+      "div",
+      { className: "sa-ws-actions" },
+      viewMenu,
+      h(
+        import_dsh_client_ui_primitives3.Tooltip,
+        { label: t("addWorkspace"), side: "bottom", delayMs: 500, portal: true },
+        h(
+          "button",
+          {
+            className: "sa-ws-icon-btn",
+            type: "button",
+            "aria-label": t("addWorkspace"),
+            onClick: () => void addWorkspace()
+          },
+          h(import_dsh_client_ui_primitives3.IconProjectAddOutlineRegular, null)
+        )
+      )
+    )
+  );
+  if (!wide) return null;
+  const body = visibleRows.length === 0 ? h("div", { className: "sa-shell-empty" }, t(needle === "" ? "empty" : "noMatch")) : h(SessionTree, {
+    variant: "sidebar",
+    groups: rest,
+    pinned,
+    archived: /* @__PURE__ */ new Set(),
+    unread,
+    expanded: expandedKeys,
+    selection: [],
+    busy,
+    t,
+    onOpen: openSession,
+    onToggle: toggleGroup,
+    onSelectionChange: () => {
+    },
+    onNewSession: startSession,
+    onPin: pin,
+    onUnpin: unpin,
+    onRenameWorkspace: (group) => {
+      const parsed = parseKey(group.key);
+      if (parsed !== null && parsed.kind === "workspace") {
+        setDialog({ kind: "renameWorkspace", workspaceId: parsed.value, value: group.label });
+      }
+    },
+    onDeleteWorkspace: (group) => {
+      const parsed = parseKey(group.key);
+      if (parsed !== null && parsed.kind === "workspace") {
+        setDialog({ kind: "deleteWorkspace", workspaceId: parsed.value, name: group.label });
+      }
+    },
+    onRenameFolder: (group) => setDialog({ kind: "renameFolder", name: group.label, value: group.label }),
+    onDeleteFolder: (group) => setDialog({ kind: "deleteFolder", name: group.label }),
+    onRename: (row) => setDialog({
+      kind: "renameSession",
+      sessionId: row.id,
+      value: typeof row.title === "string" ? row.title : ""
+    }),
+    onArchive: (id) => void archiveRow(id, false),
+    onUnarchive: (id) => void unarchiveRow(id),
+    onDelete: (row) => setDialog({ kind: "delete", sessionId: row.id, title: titleOf(row.id) }),
+    onMoveSession: moveSession,
+    onMoveFolder: moveFolder,
+    onReorderPinned: (moved, before) => persist(reorderPinned(base, moved, before))
+  });
+  const dialogTitle = (state) => {
+    if (state.kind === "archive") return t("archiveConfirmTitle");
+    if (state.kind === "renameWorkspace") return t("renameWorkspaceTitle");
+    if (state.kind === "deleteWorkspace") return t("deleteWorkspaceTitle");
+    if (state.kind === "renameSession") return t("renameSessionTitle");
+    if (state.kind === "renameFolder") return t("renameFolderTitle");
+    if (state.kind === "deleteFolder") return t("deleteFolderTitle");
+    return t("confirmOneTitle", { title: state.title });
+  };
+  const dialogBody = (state) => {
+    if (state.kind === "archive") return h("p", { className: "sa-dialog-body" }, t("archiveConfirmBody"));
+    if (state.kind === "renameWorkspace") {
+      return h("input", {
+        className: "sa-input",
+        type: "text",
+        value: state.value,
+        autoFocus: true,
+        onChange: (event) => setDialog({ ...state, value: event.target.value }),
+        onKeyDown: (event) => {
+          if (event.key === "Enter") void confirmDialog();
+          if (event.key === "Escape") setDialog(null);
+        }
+      });
+    }
+    if (state.kind === "renameSession" || state.kind === "renameFolder") {
+      return h("input", {
+        className: "sa-input",
+        type: "text",
+        value: state.value,
+        autoFocus: true,
+        onChange: (event) => setDialog({ ...state, value: event.target.value }),
+        onKeyDown: (event) => {
+          if (event.key === "Enter") void confirmDialog();
+          if (event.key === "Escape") setDialog(null);
+        }
+      });
+    }
+    if (state.kind === "deleteWorkspace") {
+      return h("p", { className: "sa-dialog-body" }, t("deleteWorkspaceBody", { name: state.name }));
+    }
+    if (state.kind === "deleteFolder") {
+      return h("p", { className: "sa-dialog-body" }, t("deleteFolderBody", { name: state.name }));
+    }
+    return h("p", { className: "sa-dialog-body" }, t("confirmOneBody"));
+  };
+  const dialogView = dialog === null ? null : h(
+    "div",
+    { className: "sa-mask" },
+    h(
+      "div",
+      { className: "sa-dialog", role: "dialog", "aria-modal": "true" },
+      h(
+        "div",
+        { className: "sa-dialog-title" },
+        dialogTitle(dialog)
+      ),
+      dialogBody(dialog),
+      h(
+        "div",
+        { className: "sa-dialog-actions" },
+        h(
+          "button",
+          {
+            className: "sa-btn",
+            type: "button",
+            disabled: busy,
+            onClick: () => setDialog(null)
+          },
+          t("cancel")
+        ),
+        h(
+          "button",
+          {
+            className: dialog.kind === "delete" || dialog.kind === "deleteWorkspace" || dialog.kind === "deleteFolder" ? "sa-btn sa-btn-danger-solid" : "sa-btn sa-btn-primary",
+            type: "button",
+            disabled: busy,
+            onClick: () => void confirmDialog()
+          },
+          dialog.kind === "archive" ? t("archiveConfirmAction") : dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder" || dialog.kind === "renameSession" ? t("save") : t("confirmDelete")
+        )
+      )
+    )
+  );
+  const pickerView = browse === null ? null : h(
+    "div",
+    { className: "sa-mask" },
+    h(
+      "div",
+      { className: "sa-dialog sa-picker", role: "dialog", "aria-modal": "true" },
+      h("div", { className: "sa-dialog-title" }, t("pickDirectory")),
+      browse.loading === true ? h("div", { className: "sa-picker-status" }, t("loading")) : browse.error !== void 0 ? h("div", { className: "sa-picker-status" }, browse.error) : h(
+        "div",
+        { className: "sa-picker-body" },
+        h(
+          "div",
+          { className: "sa-picker-crumbs" },
+          browse.listing.crumbs.map(
+            (crumb, index) => h(
+              "button",
+              {
+                key: crumb.path,
+                className: index === browse.listing.crumbs.length - 1 ? "sa-picker-crumb sa-picker-crumb-current" : "sa-picker-crumb",
+                type: "button",
+                title: crumb.path,
+                onClick: () => void loadDirectory(crumb.path)
+              },
+              crumb.name === "" ? "/" : crumb.name
+            )
+          )
+        ),
+        h(
+          "div",
+          { className: "sa-picker-list" },
+          browse.listing.entries.map(
+            (entry) => h(
+              "button",
+              {
+                key: entry.path,
+                className: "sa-picker-row",
+                type: "button",
+                title: entry.path,
+                onClick: () => void loadDirectory(entry.path)
+              },
+              h("span", { className: "sa-picker-folder" }, "\u25B8"),
+              h("span", { className: "sa-picker-name" }, entry.name)
+            )
+          ),
+          browse.listing.entries.length === 0 ? h("div", { className: "sa-picker-status" }, t("noSubdirectories")) : null
+        ),
+        browse.listing.truncated === true ? h("div", { className: "sa-picker-status" }, t("directoryTruncated")) : null
+      ),
+      h(
+        "div",
+        { className: "sa-dialog-actions" },
+        h(
+          "button",
+          { className: "sa-btn", type: "button", disabled: busy, onClick: () => setBrowse(null) },
+          t("cancel")
+        ),
+        h(
+          "button",
+          {
+            className: "sa-btn sa-btn-primary",
+            type: "button",
+            disabled: busy || browse.loading === true || browse.error !== void 0,
+            onClick: () => void adopt(browse.listing.path)
+          },
+          t("chooseDirectory")
+        )
+      )
+    )
+  );
+  const noticeView = notice === "" ? null : h("div", { className: "sa-shell-empty" }, notice);
+  return h("div", { className: "sa-sidebar-tree", ref: treeRef }, header, noticeView, body, dialogView, pickerView);
 }
 
 // src/client/nav-icon.js
@@ -2039,9 +2804,157 @@ function installSettingsNavIcon(ctx, resolveLabel) {
   );
 }
 
+// src/client/styles.js
+var CSS = `
+.sa-root { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 14px; color: var(--dsw-alias-label-primary); }
+.sa-head h2 { margin: 0 0 4px; font-size: 15px; line-height: 22px; font-weight: 600; }
+.sa-desc { margin: 0; color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 20px; }
+.sa-pref { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border: 0.5px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-layer-1); }
+.sa-pref-text { flex: 1; min-width: 0; }
+.sa-pref-label { font-size: 13px; line-height: 18px; font-weight: 500; }
+.sa-pref-desc { margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-secondary); }
+.sa-switch { position: relative; flex: none; width: 34px; height: 20px; margin-top: 1px; padding: 0; border: none; border-radius: 999px; background: var(--dsw-alias-border-l3); cursor: pointer; transition: background 0.12s ease; }
+.sa-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: var(--dsw-alias-switch-thumb, #fff); transition: transform 0.12s ease; }
+.sa-switch[aria-checked="true"] { background: var(--dsw-alias-state-business-primary); }
+.sa-switch[aria-checked="true"]::after { transform: translateX(14px); }
+.sa-switch:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .sa-switch, .sa-switch::after { transition: none; } }
+.sa-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sa-search { flex: 1 1 220px; min-width: 160px; height: 30px; padding: 0 10px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-1); color: inherit; font: inherit; font-size: 13px; }
+.sa-search::placeholder { color: var(--dsw-alias-label-secondary); }
+.sa-btn { height: 30px; padding: 0 12px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: transparent; color: inherit; font: inherit; font-size: 13px; line-height: 28px; cursor: pointer; }
+.sa-btn:hover:not(:disabled) { background: var(--dsw-alias-bg-layer-2); }
+.sa-btn:disabled { opacity: 0.45; cursor: default; }
+.sa-btn-danger { border-color: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-state-error-primary); }
+.sa-btn-danger:hover:not(:disabled) { background: var(--dsw-alias-bg-layer-2); }
+.sa-btn-danger-solid { border-color: transparent; background: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-bg-base); }
+.sa-btn-danger-solid:hover:not(:disabled) { background: var(--dsw-alias-state-error-primary); opacity: 0.9; }
+.sa-count { font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
+.sa-tree { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; }
+.sa-block { display: flex; flex-direction: column; }
+.sa-group { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px; border-radius: var(--dsw-radius-md); cursor: pointer; user-select: none; color: var(--dsw-alias-label-primary); }
+.sa-group:hover, .sa-group.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-slot { width: 16px; height: 20px; flex: none; display: inline-flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-tertiary); }
+.sa-group .sa-chevron { display: none; }
+.sa-group:hover .sa-chevron { display: inline-flex; }
+.sa-group:hover .sa-folder { display: none; }
+.sa-arrow { transition: transform 0.15s var(--ds-ease-in-out); }
+.sa-arrow-open { transform: rotate(90deg); }
+.sa-title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; line-height: 20px; }
+.sa-row-actions { flex: none; display: none; align-items: center; gap: 12px; }
+.sa-group:hover .sa-row-actions, .sa-group.sa-menu-open .sa-row-actions, .sa-session:hover .sa-row-actions, .sa-session.sa-menu-open .sa-row-actions { display: inline-flex; }
+.sa-icon-btn { width: 16px; height: 16px; padding: 0; border: none; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-tertiary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.sa-icon-btn:hover { color: var(--dsw-alias-label-primary); }
+.sa-rows { display: flex; flex-direction: column; }
+.sa-session { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px 0 10px; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-primary); }
+.sa-session:hover, .sa-session.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-session.sa-selected { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-check { flex: none; width: 14px; height: 14px; margin: 0; accent-color: var(--dsw-alias-state-business-primary); cursor: pointer; }
+.sa-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.sa-open:disabled { cursor: default; opacity: 0.6; }
+.sa-open .sa-title { flex: 0 1 auto; }
+.sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
+.sa-dot-done { background: var(--dsw-alias-state-warn-primary); }
+.sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
+.sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
+.sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
+.sa-pinned-entry { display: flex; flex-direction: column; }
+.sa-pinned-row { padding-left: 10px; }
+.sa-pin { color: var(--dsw-alias-label-secondary); }
+.sa-group.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
+.sa-pinned-entry.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
+.sa-pinned-entry.sa-drop-after { box-shadow: inset 0 -2px 0 0 var(--dsw-alias-state-business-primary); }
+.sa-pinned-tail { height: 6px; }
+.sa-pinned-tail:hover { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
+.sa-btn-active { background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-state-business-primary); }
+.sa-tag { flex: none; padding: 0 6px; border-radius: var(--dsw-radius-sm, 4px); font-size: 10px; line-height: 16px; color: var(--dsw-alias-label-tertiary); background: var(--dsw-alias-interactive-bg-hover); }
+.sa-session.sa-archived .sa-title { color: var(--dsw-alias-label-tertiary); }
+.sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
+.sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
+.sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
+.sa-tree-sidebar { padding: 0; gap: 0; }
+.sa-tree-sidebar .sa-session-sidebar { width: 100%; padding: 0 8px 0 10px; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.sa-tree-sidebar .sa-session-sidebar:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-tree-sidebar .sa-session-sidebar:disabled { cursor: default; opacity: 0.6; }
+.sa-tree-sidebar .sa-time { font-size: 10px; }
+.sa-sidebar-tree { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; padding: 0 2px; box-sizing: border-box; }
+.sa-sidebar-tree .sa-tree { gap: 2px; }
+.sa-sidebar-tree .sa-shell-empty { padding: 12px 8px; font-size: 12px; color: var(--dsw-alias-label-tertiary); }
+.sa-sidebar-tree .sa-ws-header { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 36px; margin: 2px 0 4px; padding: 0 4px 0 8px; color: var(--dsw-alias-label-tertiary); box-sizing: border-box; }
+.sa-sidebar-tree .sa-ws-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 18px; font-weight: 500; }
+.sa-sidebar-tree .sa-ws-actions { display: flex; align-items: center; gap: 2px; }
+.sa-sidebar-tree .sa-ws-icon-btn,
+.sa-sidebar-tree .sa-ws-search-btn,
+.sa-sidebar-tree .sa-ws-search-clear { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: inherit; cursor: pointer; }
+.sa-sidebar-tree .sa-ws-icon-btn:hover,
+.sa-sidebar-tree .sa-ws-search-btn:hover,
+.sa-sidebar-tree .sa-ws-search-clear:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-secondary); }
+.sa-sidebar-tree .sa-ws-search { display: flex; align-items: center; flex: 0 1 auto; max-width: 28px; min-width: 0; transition: max-width 140ms ease; }
+.sa-sidebar-tree .sa-ws-search-expanded { flex: 1 1 auto; max-width: 100%; height: 30px; border: 0.5px solid var(--dsw-alias-border-l4); border-radius: var(--dsw-radius-md); padding: 0 2px 0 0; }
+.sa-sidebar-tree .sa-ws-search-input { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 0 0 6px; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 13px; line-height: 18px; outline: none; }
+.sa-sidebar-tree .sa-ws-search-input::placeholder { color: var(--dsw-alias-label-tertiary); }
+[data-session-admin-sidebar] > nav { display: none; }
+.sa-sidebar-tree .sa-group { height: 32px; padding: 0 8px; }
+.sa-sidebar-tree .sa-session { width: 100%; box-sizing: border-box; height: 32px; padding: 0 8px 0 10px; }
+.sa-sidebar-tree .sa-title { font-size: 14px; line-height: 20px; }
+.sa-sidebar-tree .sa-time { font-size: 11px; line-height: 15px; }
+@media (prefers-reduced-motion: reduce) { .sa-arrow { transition: none; } }
+.sa-btn-primary { border-color: transparent; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-bg-base); }
+.sa-btn-primary:hover:not(:disabled) { background: var(--dsw-alias-state-business-primary); opacity: 0.9; }
+.sa-empty { padding: 24px 12px; text-align: center; font-size: 13px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
+.sa-confirm { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 8px; border: 0.5px solid var(--dsw-alias-state-error-primary); font-size: 13px; line-height: 18px; }
+.sa-confirm-text { flex: 1 1 220px; min-width: 0; }
+.sa-confirm-body { color: var(--dsw-alias-label-secondary); font-size: 12px; line-height: 16px; }
+.sa-notice { font-size: 13px; line-height: 18px; }
+.sa-notice-ok { color: var(--dsw-alias-state-success-primary); }
+.sa-notice-error { color: var(--dsw-alias-state-error-primary); }
+.sa-hint { font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-secondary); }
+.sa-itemWrap { position: relative; }
+.sa-item { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 34px; padding: 6px 8px; border: none; border-radius: var(--dsw-radius-md); background: transparent; cursor: pointer; font: inherit; font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); text-align: left; }
+.sa-item:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-item:focus-visible:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); outline: none; }
+.sa-item:disabled { opacity: 0.4; cursor: not-allowed; }
+.sa-itemIcon { display: inline-flex; flex: none; width: 14px; height: 14px; align-items: center; justify-content: center; color: var(--dsw-alias-menu-icon); }
+.sa-itemIcon svg { width: 14px; height: 14px; }
+.sa-itemLabel { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sa-item-danger, .sa-item-danger .sa-itemIcon { color: var(--dsw-alias-state-error-primary); }
+.sa-item-danger:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); }
+.sa-item-danger:focus-visible:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); outline: none; }
+.sa-mask { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; background: var(--dsw-alias-bg-mask-1); backdrop-filter: var(--dsw-mask-blur); }
+.sa-picker { width: min(460px, calc(100vw - 64px)); }
+.sa-picker-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.sa-picker-crumbs { display: flex; flex-wrap: wrap; gap: 2px; max-height: 54px; overflow-y: auto; }
+.sa-picker-crumb { padding: 0 4px; border: 0; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; line-height: 18px; cursor: pointer; }
+.sa-picker-crumb:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+.sa-picker-crumb-current { color: var(--dsw-alias-label-primary); }
+.sa-picker-list { display: flex; flex-direction: column; max-height: 240px; overflow-y: auto; }
+.sa-picker-row { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 6px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.sa-picker-row:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-picker-folder { flex: none; width: 12px; color: var(--dsw-alias-label-tertiary); }
+.sa-picker-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sa-picker-status { padding: 6px 4px; font-size: 12px; color: var(--dsw-alias-label-tertiary); }
+.sa-input { width: 100%; height: 30px; box-sizing: border-box; padding: 0 10px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-1); color: inherit; font: inherit; font-size: 13px; }
+.sa-dialog { width: 380px; max-width: calc(100vw - 48px); padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--dsw-radius-lg); background: var(--dsw-alias-bg-layer-2); box-shadow: var(--dsw-elevation-prominent); color: var(--dsw-alias-label-primary); }
+.sa-dialog-title { font-size: 15px; line-height: 22px; font-weight: 600; }
+.sa-dialog-body { font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-secondary); }
+.sa-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.sa-toast { position: fixed; left: 50%; bottom: 28px; z-index: 1200; transform: translateX(-50%); padding: 8px 14px; max-width: min(560px, calc(100vw - 48px)); border: 0.5px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-overlay); box-shadow: var(--dsw-elevation-prominent); font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); }
+.sa-toast-error { color: var(--dsw-alias-state-error-primary); }
+`;
+
 // src/client/apply.js
 function apply(ctx) {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), "session-admin: dictionaries");
+  ctx.effect(() => {
+    const style = document.createElement("style");
+    style.dataset.plugin = "session-admin";
+    style.dataset.pluginCss = "session-admin/tree";
+    style.textContent = CSS;
+    document.head.appendChild(style);
+    return () => {
+      style.remove();
+    };
+  }, "session-admin: styles");
   const t = ctx.locale.bind(NS);
   installSettingsNavIcon(ctx, () => t("nav"));
   const archiveSession = (id, options) => {
@@ -2053,6 +2966,20 @@ function apply(ctx) {
     const workspace = ctx.get("uiWorkspace");
     if (workspace === void 0 || workspace === null) return Promise.resolve();
     return Promise.resolve(workspace.unarchiveSession(id));
+  };
+  const pinSession = (id) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null) return Promise.resolve();
+    if (typeof workspace.pinSession !== "function") return Promise.resolve();
+    return Promise.resolve(workspace.pinSession(id)).catch(() => {
+    });
+  };
+  const unpinSession = (id) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null) return Promise.resolve();
+    if (typeof workspace.unpinSession !== "function") return Promise.resolve();
+    return Promise.resolve(workspace.unpinSession(id)).catch(() => {
+    });
   };
   const openSession = (id) => {
     const workspace = ctx.get("uiWorkspace");
@@ -2070,6 +2997,28 @@ function apply(ctx) {
     const workspaces = ctx.get("workspaces");
     if (workspaces === void 0 || workspaces === null) return Promise.resolve();
     return workspaces.rename(workspaceId, title);
+  };
+  const renameSession = (sessionId, title) => {
+    const sessions = ctx.get("sessions");
+    const manager = sessions?.manager;
+    if (manager === void 0 || manager === null || typeof manager.rename !== "function") {
+      return Promise.resolve(void 0);
+    }
+    return manager.rename(sessionId, title);
+  };
+  const listDirectory = (path) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null || typeof workspace.listDirectory !== "function") {
+      return Promise.reject(new Error("directory browsing is unavailable"));
+    }
+    return workspace.listDirectory(path);
+  };
+  const createWorkspace = (path) => {
+    const workspaces = ctx.get("workspaces");
+    if (workspaces === void 0 || workspaces === null || typeof workspaces.create !== "function") {
+      return Promise.resolve(void 0);
+    }
+    return workspaces.create({ path });
   };
   const deleteWorkspace = (workspaceId) => {
     const workspaces = ctx.get("workspaces");
@@ -2099,7 +3048,10 @@ function apply(ctx) {
         deleteWorkspace,
         archiveSession,
         unarchiveSession,
-        syncWorkspaceOrder
+        syncWorkspaceOrder,
+        pinSession,
+        unpinSession,
+        renameSession
       })
     )
   );
@@ -2127,6 +3079,53 @@ function apply(ctx) {
       SessionAdminOverlay
     )
   );
+  let disposeSidebar;
+  const syncSidebar = () => {
+    const enabled = getShellOverride();
+    if (enabled && disposeSidebar === void 0) {
+      disposeSidebar = ctx.slots.inject(
+        "sidebar.workspaces",
+        () => ctx.slots.register(
+          {
+            name: "sidebar.workspaces",
+            locale: NS,
+            priority: -1
+          },
+          (slotProps) => h(SidebarWorkspaces, {
+            ...slotProps,
+            openSession,
+            startSession,
+            syncWorkspaceOrder,
+            pinSession,
+            unpinSession,
+            renameSession,
+            archiveSession,
+            unarchiveSession,
+            renameWorkspace,
+            deleteWorkspace,
+            createWorkspace,
+            listDirectory
+          })
+        )
+      );
+      return;
+    }
+    if (!enabled && disposeSidebar !== void 0) {
+      disposeSidebar();
+      disposeSidebar = void 0;
+    }
+  };
+  ctx.effect(() => {
+    const unsubscribe = subscribeShell(syncSidebar);
+    syncSidebar();
+    return () => {
+      unsubscribe();
+      if (disposeSidebar !== void 0) {
+        disposeSidebar();
+        disposeSidebar = void 0;
+      }
+    };
+  }, "session-admin: sidebar override");
 }
 
 // src/client/index.js

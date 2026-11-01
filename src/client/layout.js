@@ -133,6 +133,21 @@ export function reorder(list, moved, before) {
  * @param layout - current layout.
  * @returns Workspace ids.
  */
+export function adoptWorkspaces(layout, workspaceIds) {
+	const known = new Set(workspaceIds);
+	const order = layout.order.filter((key) => {
+		if (!key.startsWith('工作区:')) return true;
+		return known.has(key.slice('工作区:'.length));
+	});
+	for (const id of workspaceIds) {
+		const key = `工作区:${id}`;
+		if (!order.includes(key)) order.push(key);
+	}
+	return order.length === layout.order.length && order.every((key, index) => key === layout.order[index])
+		? layout
+		: { ...layout, order };
+}
+
 export function workspaceOrder(layout) {
 	const ids = [];
 	for (const key of layout.order) {
@@ -276,6 +291,16 @@ export function placeSession(layout, id, key, before, fallback, order) {
 export function reorderPinned(layout, moved, before) {
 	if (!layout.pinned.includes(moved)) return layout;
 	return { ...layout, pinned: reorder(layout.pinned, moved, before) };
+}
+
+/**
+ * Move one folder key to the front of the list.
+ * @param layout - current layout.
+ * @param key - folder key to hoist.
+ * @returns the updated layout.
+ */
+export function frontFolder(layout, key) {
+	return { ...layout, order: [key, ...layout.order.filter((item) => item !== key)] };
 }
 
 /**
