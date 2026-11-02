@@ -14,6 +14,7 @@ import {
 	IconChevronsUpDownOutlineRegular,
 	IconClockOutlineRegular,
 	IconCloseFillRegular,
+	IconPanelLeftOutlineRegular,
 	IconProjectAddOutlineRegular,
 	IconRefreshOutlineRegular,
 	IconSearchOutlineRegular,
@@ -40,6 +41,8 @@ import {
 	workspaceOrder,
 } from '../layout.js';
 import { markVanished, useVanished } from '../stores/vanished.js';
+import { useAutomationSessionIds } from '../stores/automation.js';
+import { setPanelsVisible, usePanelsVisible } from '../stores/panels.js';
 import { SessionTree } from './session-tree.js';
 
 /**
@@ -70,12 +73,15 @@ export function SidebarWorkspaces(props) {
 	const [notice, setNotice] = React.useState('');
 	const [busy, setBusy] = React.useState(false);
 	const treeRef = React.useRef(null);
+	const shellRef = React.useRef(null);
 	const searchRef = React.useRef(null);
+	const panelsVisible = usePanelsVisible();
+	const automation = useAutomationSessionIds();
 
 	// The panel list (插件 / 插件市场 / …) is ui-sidebar's own `nav`; leaving it in
 	// place would sit above the tree. The switch means "this region replaces the
-	// native browser", so hide that sibling row while the seat is occupied and put
-	// it back when our registration is disposed.
+	// native browser", so the header's toggle decides whether that sibling row
+	// stays visible, and the attribute goes away when our registration is disposed.
 	React.useEffect(() => {
 		// The panel list is a direct `nav` of the sidebar shell; our own node sits a
 		// few wrappers deeper, so climb until a parent owns a `nav` child.
@@ -91,11 +97,21 @@ export function SidebarWorkspaces(props) {
 			current = parent;
 		}
 		if (shell === null) return undefined;
+		shellRef.current = shell;
 		shell.setAttribute('data-session-admin-sidebar', '');
 		return () => {
 			shell.removeAttribute('data-session-admin-sidebar');
+			shell.removeAttribute('data-session-admin-panels');
+			shellRef.current = null;
 		};
 	}, []);
+
+	React.useEffect(() => {
+		const shell = shellRef.current;
+		if (shell === null) return;
+		if (panelsVisible) shell.setAttribute('data-session-admin-panels', '');
+		else shell.removeAttribute('data-session-admin-panels');
+	}, [panelsVisible]);
 
 	React.useEffect(() => {
 		if (!treeState.loaded && !treeState.loading) void refreshLayout();
@@ -506,6 +522,26 @@ export function SidebarWorkspaces(props) {
 			: h(
 					'div',
 					{ className: 'sa-ws-actions' },
+					h(
+						Tooltip,
+						{
+							label: t(panelsVisible ? 'hidePanels' : 'showPanels'),
+							side: 'bottom',
+							delayMs: 500,
+							portal: true,
+						},
+						h(
+							'button',
+							{
+								className: 'sa-ws-icon-btn',
+								type: 'button',
+								'aria-label': t(panelsVisible ? 'hidePanels' : 'showPanels'),
+								'aria-pressed': panelsVisible,
+								onClick: () => setPanelsVisible(!panelsVisible),
+							},
+							h(IconPanelLeftOutlineRegular, null),
+						),
+					),
 					viewMenu,
 					h(
 						Tooltip,
@@ -535,6 +571,7 @@ export function SidebarWorkspaces(props) {
 					pinned,
 					archived: new Set(),
 					unread,
+					automation,
 					expanded: expandedKeys,
 					selection: [],
 					busy,

@@ -56,7 +56,8 @@ export const CSS = `
 .sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
 .sa-dot-done { background: var(--dsw-alias-state-warn-primary); }
 .sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
-.sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
+.sa-time-dot { display: inline-flex; align-items: center; justify-content: flex-end; min-width: 20px; }
+.sa-session:hover .sa-time:not(.sa-time-dot), .sa-session.sa-menu-open .sa-time:not(.sa-time-dot) { display: none; }
 .sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
 .sa-pinned-entry { display: flex; flex-direction: column; }
 .sa-pinned-row { padding-left: 10px; }
@@ -93,7 +94,7 @@ export const CSS = `
 .sa-sidebar-tree .sa-ws-search-expanded { flex: 1 1 auto; max-width: 100%; height: 30px; border: 0.5px solid var(--dsw-alias-border-l4); border-radius: var(--dsw-radius-md); padding: 0 2px 0 0; }
 .sa-sidebar-tree .sa-ws-search-input { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 0 0 6px; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 13px; line-height: 18px; outline: none; }
 .sa-sidebar-tree .sa-ws-search-input::placeholder { color: var(--dsw-alias-label-tertiary); }
-[data-session-admin-sidebar] > nav { display: none; }
+[data-session-admin-sidebar]:not([data-session-admin-panels]) > nav { display: none; }
 .sa-sidebar-tree .sa-group { height: 32px; padding: 0 8px; }
 .sa-sidebar-tree .sa-session { width: 100%; box-sizing: border-box; height: 32px; padding: 0 8px 0 10px; }
 .sa-sidebar-tree .sa-title { font-size: 14px; line-height: 20px; }

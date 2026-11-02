@@ -11,6 +11,7 @@
 import React, { h } from '../react.js';
 import {
 	IconArchiveOutlineRegular,
+	IconClockOutlineRegular,
 	IconEditOutlineRegular,
 	IconEllipsisOutlineRegular,
 	IconFolderCloseRegular,
@@ -114,13 +115,14 @@ function SessionMenu(props) {
 
 /**
  * One Session row.
- * @param props - `{ variant, row, now, pinned, archived, selected, busy, t,
+ * @param props - `{ variant, row, now, pinned, archived, unread, automation, selected, busy, t,
  *   onOpen, onSelect, onDelete, onPin, onUnpin, onArchive, onUnarchive,
  *   onDragStart }`.
  * @returns the row element.
  */
 function SessionRow(props) {
-	const { variant, row, now, pinned, archived, unread, selected, busy, t, onOpen, onSelect, onDelete } = props;
+	const { variant, row, now, pinned, archived, unread, automation, selected, busy, t, onOpen, onSelect, onDelete } =
+		props;
 	const title = rowTitle(row, t);
 	const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -140,6 +142,20 @@ function SessionRow(props) {
 			const handler = pinned === true ? props.onUnpin : props.onPin;
 			if (typeof handler === 'function') handler(row.id);
 		};
+		const dot = statusDot(row, t, unread);
+		const mark = () => {
+			if (automation === true) {
+				return h(
+					'span',
+					{ className: 'sa-slot sa-clock', title: t('automation'), 'aria-label': t('automation') },
+					h(IconClockOutlineRegular, null),
+				);
+			}
+			if (pinned === true) {
+				return h('span', { className: 'sa-slot sa-pin' }, h(IconPinOutlineRegular, null));
+			}
+			return h('span', { className: 'sa-slot', 'aria-hidden': true });
+		};
 		return h(
 			'div',
 			{
@@ -153,9 +169,7 @@ function SessionRow(props) {
 					if (typeof props.onDragStart === 'function') props.onDragStart(row);
 				},
 			},
-			pinned === true
-				? h('span', { className: 'sa-slot sa-pin' }, h(IconPinOutlineRegular, null))
-				: null,
+			mark(),
 			h(
 				'button',
 				{
@@ -167,9 +181,10 @@ function SessionRow(props) {
 				},
 				h('span', { className: 'sa-title' }, title),
 				archived === true ? h('span', { className: 'sa-tag' }, t('archivedTag')) : null,
-				statusDot(row, t, unread),
 			),
-			h('span', { className: 'sa-time' }, relativeLabel(row.updatedAt, now, t)),
+			dot === null
+				? h('span', { className: 'sa-time' }, relativeLabel(row.updatedAt, now, t))
+				: h('span', { className: 'sa-time sa-time-dot' }, dot),
 			h(
 				'span',
 				{ className: 'sa-row-actions' },
@@ -298,7 +313,7 @@ function SessionRow(props) {
 
 /**
  * One folder group: header row plus its Session rows.
- * @param props - `{ group, kind, pinned, now, expanded, selection, busy, variant,
+ * @param props - `{ group, kind, pinned, now, expanded, selection, busy, variant, unread, automation,
  *   t, dropTarget, dragKind, onToggle, onOpen, onSelect, onDelete, onNewSession,
  *   onRenameWorkspace, onDeleteWorkspace, onRenameFolder, onDeleteFolder,
  *   onPin, onUnpin, onDragStart, onDragOver, onDrop }`.
@@ -307,6 +322,7 @@ function SessionRow(props) {
 function Group(props) {
 	const { group, kind, pinned, now, expanded, selection, busy, variant, t } = props;
 	const unread = props.unread instanceof Set ? props.unread : new Set();
+	const automation = props.automation instanceof Set ? props.automation : new Set();
 	const [menuOpen, setMenuOpen] = React.useState(false);
 	const sessions = Array.isArray(group.sessions) ? group.sessions : [];
 	const ungrouped = kind === 'ungrouped';
@@ -479,6 +495,7 @@ function Group(props) {
 						pinned: false,
 						archived: props.archived instanceof Set && props.archived.has(row.id),
 						unread: unread.has(row.id),
+						automation: automation.has(row.id),
 						selected: selection.includes(row.id),
 						busy,
 						t,
@@ -562,6 +579,7 @@ function PinnedEntry(props) {
 				t,
 				archived: props.archived,
 				unread: props.unread,
+				automation: props.automation,
 				dropTarget,
 				dragKind,
 				onToggle: props.onToggle,
@@ -594,6 +612,7 @@ function PinnedEntry(props) {
 			pinned: true,
 			archived: props.archived instanceof Set && props.archived.has(row.id),
 			unread: props.unread instanceof Set && props.unread.has(row.id),
+			automation: props.automation instanceof Set && props.automation.has(row.id),
 			selected: props.selection.includes(row.id),
 			busy: props.busy,
 			t,
@@ -611,7 +630,7 @@ function PinnedEntry(props) {
 }
 
 /**
- * @param props - `{ variant, groups, pinned, expanded, selection, busy, t,
+ * @param props - `{ variant, groups, pinned, expanded, selection, busy, archived, unread, t, automation,
  *   onOpen, onToggle, onSelectionChange, onDelete, onNewSession,
  *   onRenameWorkspace, onDeleteWorkspace, onRenameFolder, onDeleteFolder,
  *   onPin, onUnpin, onMoveSession, onMoveFolder, onReorderPinned }`; see
@@ -627,6 +646,7 @@ export function SessionTree(props) {
 	const selection = Array.isArray(props.selection) ? props.selection : [];
 	const archived = props.archived instanceof Set ? props.archived : new Set();
 	const unread = props.unread instanceof Set ? props.unread : new Set();
+	const automation = props.automation instanceof Set ? props.automation : new Set();
 	const busy = props.busy === true;
 	const now = Date.now();
 	const open = (id) => {
@@ -744,6 +764,7 @@ export function SessionTree(props) {
 							dropTarget,
 							dragKind: drag === null ? null : drag.kind,
 							archived,
+							automation,
 							onToggle: props.onToggle,
 							onOpen: open,
 							onSelect: select,
@@ -806,9 +827,9 @@ export function SessionTree(props) {
 				t,
 				archived,
 				unread,
+				automation,
 				dropTarget,
 				dragKind: drag === null ? null : drag.kind,
-				archived,
 				onToggle: props.onToggle,
 				onOpen: open,
 				onSelect: select,

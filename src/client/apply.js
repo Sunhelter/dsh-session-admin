@@ -9,6 +9,7 @@ import { SessionDeleteMenuItem } from './components/menu-item.js';
 import { SessionAdminOverlay } from './components/overlay.js';
 import { SidebarWorkspaces } from './components/sidebar-workspaces.js';
 import { installSettingsNavIcon } from './nav-icon.js';
+import { bindAutomation } from './stores/automation.js';
 import { getShellOverride, subscribeShell } from './stores/shell.js';
 import { CSS } from './styles.js';
 
@@ -33,6 +34,7 @@ export function apply(ctx) {
 	}, 'session-admin: styles');
 	const t = ctx.locale.bind(NS);
 	installSettingsNavIcon(ctx, () => t('nav'));
+	bindAutomation(ctx);
 
 	/** Archive one Session; a running one is refused by the host. */
 	const archiveSession = (id, options) => {

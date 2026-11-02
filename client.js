@@ -54,6 +54,8 @@ var zh = {
   directoryUnavailable: "\u5F53\u524D\u73AF\u5883\u4E0D\u80FD\u6D4F\u89C8\u76EE\u5F55\uFF0C\u8BF7\u76F4\u63A5\u586B\u8DEF\u5F84\u3002",
   searchSessions: "\u641C\u7D22\u4F1A\u8BDD",
   searchPlaceholder: "\u641C\u7D22\u4F1A\u8BDD",
+  showPanels: "\u663E\u793A\u9762\u677F\u5165\u53E3",
+  hidePanels: "\u9690\u85CF\u9762\u677F\u5165\u53E3",
   viewOptions: "\u89C6\u56FE\u9009\u9879",
   orderBy: "\u6392\u5E8F\u65B9\u5F0F",
   orderManual: "\u624B\u52A8",
@@ -73,6 +75,7 @@ var zh = {
   confirmDelete: "\u786E\u8BA4\u5220\u9664",
   running: "\u8FD0\u884C\u4E2D",
   runningHint: "\u4F1A\u8BDD\u6B63\u5728\u8FD0\u884C\uFF0C\u5148\u505C\u6B62\u518D\u5220",
+  automation: "\u81EA\u52A8\u5316\u4EFB\u52A1",
   empty: "\u6CA1\u6709\u53EF\u7BA1\u7406\u7684\u4F1A\u8BDD\u3002",
   noMatch: "\u6CA1\u6709\u5339\u914D\u7684\u4F1A\u8BDD\u3002",
   unnamed: "\u672A\u547D\u540D",
@@ -149,6 +152,8 @@ var en = {
   directoryUnavailable: "Directory browsing is unavailable here.",
   searchSessions: "Search sessions",
   searchPlaceholder: "Search sessions",
+  showPanels: "Show panel entries",
+  hidePanels: "Hide panel entries",
   viewOptions: "View options",
   orderBy: "Sort by",
   orderManual: "Manual",
@@ -168,6 +173,7 @@ var en = {
   confirmDelete: "Delete permanently",
   running: "Running",
   runningHint: "This session is running; stop it first.",
+  automation: "Automation task",
   empty: "No sessions to manage.",
   noMatch: "No matching sessions.",
   unnamed: "Untitled",
@@ -288,7 +294,7 @@ function normalizeLayout(raw) {
     if (!valid || pinned.includes(entry)) continue;
     pinned.push(entry);
   }
-  const sessions = {};
+  const sessions2 = {};
   const rawSessions = source.sessions !== null && typeof source.sessions === "object" ? source.sessions : {};
   for (const [key, ids] of Object.entries(rawSessions)) {
     const parsed = parseKey(key);
@@ -299,9 +305,9 @@ function normalizeLayout(raw) {
       if (!isSessionId(id) || list.includes(id)) continue;
       list.push(id);
     }
-    if (list.length > 0) sessions[key] = list;
+    if (list.length > 0) sessions2[key] = list;
   }
-  return { version: 1, order, folders, placement, pinned, sessions };
+  return { version: 1, order, folders, placement, pinned, sessions: sessions2 };
 }
 function reorder(list, moved, before) {
   const from = list.indexOf(moved);
@@ -345,15 +351,15 @@ function renameFolder(layout, from, to) {
   const swap = (key) => key === customKey(from) ? customKey(to) : key;
   const placement = {};
   for (const [id, key] of Object.entries(layout.placement)) placement[id] = swap(key);
-  const sessions = {};
-  for (const [key, ids] of Object.entries(layout.sessions)) sessions[swap(key)] = ids;
+  const sessions2 = {};
+  for (const [key, ids] of Object.entries(layout.sessions)) sessions2[swap(key)] = ids;
   return {
     ...layout,
     folders: layout.folders.map((name) => name === from ? to : name),
     order: layout.order.map(swap),
     placement,
     pinned: layout.pinned.map(swap),
-    sessions
+    sessions: sessions2
   };
 }
 function removeFolder(layout, name) {
@@ -361,15 +367,15 @@ function removeFolder(layout, name) {
   const key = customKey(name);
   const placement = {};
   for (const [id, value] of Object.entries(layout.placement)) if (value !== key) placement[id] = value;
-  const sessions = { ...layout.sessions };
-  delete sessions[key];
+  const sessions2 = { ...layout.sessions };
+  delete sessions2[key];
   return {
     ...layout,
     folders: layout.folders.filter((value) => value !== name),
     order: layout.order.filter((value) => value !== key),
     placement,
     pinned: layout.pinned.filter((value) => value !== key),
-    sessions
+    sessions: sessions2
   };
 }
 function pinItem(layout, key) {
@@ -381,17 +387,17 @@ function unpinItem(layout, key) {
   return { ...layout, pinned: layout.pinned.filter((value) => value !== key) };
 }
 function placeSession(layout, id, key, before, fallback, order) {
-  const sessions = {};
-  for (const [folder, ids] of Object.entries(layout.sessions)) sessions[folder] = ids.filter((value) => value !== id);
-  const seed = Array.isArray(order) ? order : sessions[key] ?? [];
+  const sessions2 = {};
+  for (const [folder, ids] of Object.entries(layout.sessions)) sessions2[folder] = ids.filter((value) => value !== id);
+  const seed = Array.isArray(order) ? order : sessions2[key] ?? [];
   const list = seed.filter((value) => value !== id);
   const into = before === void 0 ? list.length : list.indexOf(before);
   const next = into < 0 ? [...list, id] : [...list.slice(0, into), id, ...list.slice(into)];
-  sessions[key] = next;
+  sessions2[key] = next;
   const placement = { ...layout.placement };
   if (key === "" || key === fallback) delete placement[id];
   else placement[id] = key;
-  return { ...layout, placement, sessions };
+  return { ...layout, placement, sessions: sessions2 };
 }
 function reorderPinned(layout, moved, before) {
   if (!layout.pinned.includes(moved)) return layout;
@@ -734,7 +740,7 @@ function SessionMenu(props) {
   );
 }
 function SessionRow(props) {
-  const { variant, row, now, pinned, archived, unread, selected, busy, t, onOpen, onSelect, onDelete } = props;
+  const { variant, row, now, pinned, archived, unread, automation, selected, busy, t, onOpen, onSelect, onDelete } = props;
   const title = rowTitle(row, t);
   const [menuOpen, setMenuOpen] = react_default.useState(false);
   if (variant === "sidebar") {
@@ -751,6 +757,20 @@ function SessionRow(props) {
       const handler = pinned === true ? props.onUnpin : props.onPin;
       if (typeof handler === "function") handler(row.id);
     };
+    const dot = statusDot(row, t, unread);
+    const mark = () => {
+      if (automation === true) {
+        return h(
+          "span",
+          { className: "sa-slot sa-clock", title: t("automation"), "aria-label": t("automation") },
+          h(import_dsh_client_ui_primitives2.IconClockOutlineRegular, null)
+        );
+      }
+      if (pinned === true) {
+        return h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null));
+      }
+      return h("span", { className: "sa-slot", "aria-hidden": true });
+    };
     return h(
       "div",
       {
@@ -764,7 +784,7 @@ function SessionRow(props) {
           if (typeof props.onDragStart === "function") props.onDragStart(row);
         }
       },
-      pinned === true ? h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)) : null,
+      mark(),
       h(
         "button",
         {
@@ -775,10 +795,9 @@ function SessionRow(props) {
           onClick: () => onOpen(row.id)
         },
         h("span", { className: "sa-title" }, title),
-        archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
-        statusDot(row, t, unread)
+        archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null
       ),
-      h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)),
+      dot === null ? h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)) : h("span", { className: "sa-time sa-time-dot" }, dot),
       h(
         "span",
         { className: "sa-row-actions" },
@@ -903,8 +922,9 @@ function SessionRow(props) {
 function Group(props) {
   const { group, kind, pinned, now, expanded, selection, busy, variant, t } = props;
   const unread = props.unread instanceof Set ? props.unread : /* @__PURE__ */ new Set();
+  const automation = props.automation instanceof Set ? props.automation : /* @__PURE__ */ new Set();
   const [menuOpen, setMenuOpen] = react_default.useState(false);
-  const sessions = Array.isArray(group.sessions) ? group.sessions : [];
+  const sessions2 = Array.isArray(group.sessions) ? group.sessions : [];
   const ungrouped = kind === "ungrouped";
   const toggle = () => {
     if (typeof props.onToggle === "function") props.onToggle(group.key);
@@ -1032,7 +1052,7 @@ function Group(props) {
   );
   let body = null;
   if (expanded) {
-    if (sessions.length === 0) body = h("div", { className: "sa-empty-group" }, t("folderEmpty"));
+    if (sessions2.length === 0) body = h("div", { className: "sa-empty-group" }, t("folderEmpty"));
     else
       body = h(
         "div",
@@ -1055,7 +1075,7 @@ function Group(props) {
             if (typeof props.onDropRow === "function") props.onDropRow(group, id);
           }
         },
-        sessions.map(
+        sessions2.map(
           (row) => h(SessionRow, {
             key: row.id,
             variant,
@@ -1064,6 +1084,7 @@ function Group(props) {
             pinned: false,
             archived: props.archived instanceof Set && props.archived.has(row.id),
             unread: unread.has(row.id),
+            automation: automation.has(row.id),
             selected: selection.includes(row.id),
             busy,
             t,
@@ -1135,6 +1156,7 @@ function PinnedEntry(props) {
         t,
         archived: props.archived,
         unread: props.unread,
+        automation: props.automation,
         dropTarget,
         dragKind,
         onToggle: props.onToggle,
@@ -1167,6 +1189,7 @@ function PinnedEntry(props) {
       pinned: true,
       archived: props.archived instanceof Set && props.archived.has(row.id),
       unread: props.unread instanceof Set && props.unread.has(row.id),
+      automation: props.automation instanceof Set && props.automation.has(row.id),
       selected: props.selection.includes(row.id),
       busy: props.busy,
       t,
@@ -1191,6 +1214,7 @@ function SessionTree(props) {
   const selection = Array.isArray(props.selection) ? props.selection : [];
   const archived = props.archived instanceof Set ? props.archived : /* @__PURE__ */ new Set();
   const unread = props.unread instanceof Set ? props.unread : /* @__PURE__ */ new Set();
+  const automation = props.automation instanceof Set ? props.automation : /* @__PURE__ */ new Set();
   const busy = props.busy === true;
   const now = Date.now();
   const open = (id) => {
@@ -1283,6 +1307,7 @@ function SessionTree(props) {
           dropTarget,
           dragKind: drag === null ? null : drag.kind,
           archived,
+          automation,
           onToggle: props.onToggle,
           onOpen: open,
           onSelect: select,
@@ -1335,9 +1360,9 @@ function SessionTree(props) {
         t,
         archived,
         unread,
+        automation,
         dropTarget,
         dragKind: drag === null ? null : drag.kind,
-        archived,
         onToggle: props.onToggle,
         onOpen: open,
         onSelect: select,
@@ -2113,6 +2138,78 @@ function SessionAdminOverlay(props) {
 
 // src/client/components/sidebar-workspaces.js
 var import_dsh_client_ui_primitives3 = require("@deepseek-ai/dsh-client-ui-primitives");
+
+// src/client/stores/automation.js
+var EMPTY = /* @__PURE__ */ new Set();
+var sessions = createStore(EMPTY);
+var bound = false;
+function sameIds(left, right) {
+  if (left.size !== right.size) return false;
+  for (const id of left) if (!right.has(id)) return false;
+  return true;
+}
+function bindAutomation(ctx) {
+  if (bound) return;
+  bound = true;
+  ctx.inject(["remote", "remote.schedule"], (sctx) => {
+    const load = async () => {
+      try {
+        const result = await sctx.remote.schedule.catalog();
+        if (result === null || typeof result !== "object" || result.ok !== true || !Array.isArray(result.value)) return;
+        const ids = /* @__PURE__ */ new Set();
+        for (const record of result.value) {
+          if (record !== null && typeof record === "object" && record.status === "active" && typeof record.sessionId === "string") {
+            ids.add(record.sessionId);
+          }
+        }
+        if (!sameIds(ids, sessions.get())) sessions.set(ids);
+      } catch {
+      }
+    };
+    sctx.effect(() => {
+      let offChanged = () => {
+      };
+      try {
+        offChanged = sctx.remote.$on("schedule/changed", () => void load());
+      } catch {
+      }
+      const offReset = sctx.on("connection/reset", () => void load());
+      void load();
+      return () => {
+        offChanged();
+        offReset();
+        if (sessions.get().size > 0) sessions.set(EMPTY);
+      };
+    }, "session-admin: automation marks");
+  });
+}
+function useAutomationSessionIds() {
+  return sessions.useValue();
+}
+
+// src/client/stores/panels.js
+var PANELS_KEY = "session-admin.panels-visible";
+function readStored2() {
+  try {
+    return localStorage.getItem(PANELS_KEY) !== "0";
+  } catch {
+    return true;
+  }
+}
+var store5 = createStore(readStored2());
+function setPanelsVisible(next) {
+  if (next === store5.get()) return;
+  store5.set(next);
+  try {
+    localStorage.setItem(PANELS_KEY, next ? "1" : "0");
+  } catch {
+  }
+}
+function usePanelsVisible() {
+  return store5.useValue();
+}
+
+// src/client/components/sidebar-workspaces.js
 function SidebarWorkspaces(props) {
   const t = props.t;
   const wide = props.wide !== false;
@@ -2133,7 +2230,10 @@ function SidebarWorkspaces(props) {
   const [notice, setNotice] = react_default.useState("");
   const [busy, setBusy] = react_default.useState(false);
   const treeRef = react_default.useRef(null);
+  const shellRef = react_default.useRef(null);
   const searchRef = react_default.useRef(null);
+  const panelsVisible = usePanelsVisible();
+  const automation = useAutomationSessionIds();
   react_default.useEffect(() => {
     let current = treeRef.current;
     let shell = null;
@@ -2147,11 +2247,20 @@ function SidebarWorkspaces(props) {
       current = parent;
     }
     if (shell === null) return void 0;
+    shellRef.current = shell;
     shell.setAttribute("data-session-admin-sidebar", "");
     return () => {
       shell.removeAttribute("data-session-admin-sidebar");
+      shell.removeAttribute("data-session-admin-panels");
+      shellRef.current = null;
     };
   }, []);
+  react_default.useEffect(() => {
+    const shell = shellRef.current;
+    if (shell === null) return;
+    if (panelsVisible) shell.setAttribute("data-session-admin-panels", "");
+    else shell.removeAttribute("data-session-admin-panels");
+  }, [panelsVisible]);
   react_default.useEffect(() => {
     if (!treeState.loaded && !treeState.loading) void refreshLayout();
   }, [treeState.loaded, treeState.loading]);
@@ -2505,6 +2614,26 @@ function SidebarWorkspaces(props) {
     searchExpanded ? null : h(
       "div",
       { className: "sa-ws-actions" },
+      h(
+        import_dsh_client_ui_primitives3.Tooltip,
+        {
+          label: t(panelsVisible ? "hidePanels" : "showPanels"),
+          side: "bottom",
+          delayMs: 500,
+          portal: true
+        },
+        h(
+          "button",
+          {
+            className: "sa-ws-icon-btn",
+            type: "button",
+            "aria-label": t(panelsVisible ? "hidePanels" : "showPanels"),
+            "aria-pressed": panelsVisible,
+            onClick: () => setPanelsVisible(!panelsVisible)
+          },
+          h(import_dsh_client_ui_primitives3.IconPanelLeftOutlineRegular, null)
+        )
+      ),
       viewMenu,
       h(
         import_dsh_client_ui_primitives3.Tooltip,
@@ -2529,6 +2658,7 @@ function SidebarWorkspaces(props) {
     pinned,
     archived: /* @__PURE__ */ new Set(),
     unread,
+    automation,
     expanded: expandedKeys,
     selection: [],
     busy,
@@ -2856,7 +2986,8 @@ var CSS = `
 .sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
 .sa-dot-done { background: var(--dsw-alias-state-warn-primary); }
 .sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
-.sa-session:hover .sa-time, .sa-session.sa-menu-open .sa-time { display: none; }
+.sa-time-dot { display: inline-flex; align-items: center; justify-content: flex-end; min-width: 20px; }
+.sa-session:hover .sa-time:not(.sa-time-dot), .sa-session.sa-menu-open .sa-time:not(.sa-time-dot) { display: none; }
 .sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
 .sa-pinned-entry { display: flex; flex-direction: column; }
 .sa-pinned-row { padding-left: 10px; }
@@ -2893,7 +3024,7 @@ var CSS = `
 .sa-sidebar-tree .sa-ws-search-expanded { flex: 1 1 auto; max-width: 100%; height: 30px; border: 0.5px solid var(--dsw-alias-border-l4); border-radius: var(--dsw-radius-md); padding: 0 2px 0 0; }
 .sa-sidebar-tree .sa-ws-search-input { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 0 0 6px; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 13px; line-height: 18px; outline: none; }
 .sa-sidebar-tree .sa-ws-search-input::placeholder { color: var(--dsw-alias-label-tertiary); }
-[data-session-admin-sidebar] > nav { display: none; }
+[data-session-admin-sidebar]:not([data-session-admin-panels]) > nav { display: none; }
 .sa-sidebar-tree .sa-group { height: 32px; padding: 0 8px; }
 .sa-sidebar-tree .sa-session { width: 100%; box-sizing: border-box; height: 32px; padding: 0 8px 0 10px; }
 .sa-sidebar-tree .sa-title { font-size: 14px; line-height: 20px; }
@@ -2957,6 +3088,7 @@ function apply(ctx) {
   }, "session-admin: styles");
   const t = ctx.locale.bind(NS);
   installSettingsNavIcon(ctx, () => t("nav"));
+  bindAutomation(ctx);
   const archiveSession = (id, options) => {
     const workspace = ctx.get("uiWorkspace");
     if (workspace === void 0 || workspace === null) return Promise.resolve();
@@ -2999,8 +3131,8 @@ function apply(ctx) {
     return workspaces.rename(workspaceId, title);
   };
   const renameSession = (sessionId, title) => {
-    const sessions = ctx.get("sessions");
-    const manager = sessions?.manager;
+    const sessions2 = ctx.get("sessions");
+    const manager = sessions2?.manager;
     if (manager === void 0 || manager === null || typeof manager.rename !== "function") {
       return Promise.resolve(void 0);
     }
