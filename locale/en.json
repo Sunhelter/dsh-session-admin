@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Session Admin",
-    "description": "Session tree: Workspace folders, custom folders, drag-and-drop placement, pinning, archiving, renaming and permanent deletion. Same tree in Settings and the sidebar."
+    "description": "Session cards: newest activity first, grouped by day, with pinning, renaming, archiving and permanent deletion. Same list in Settings and the sidebar."
   }
 }

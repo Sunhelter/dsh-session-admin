@@ -1,45 +1,23 @@
 /**
- * The `sidebar.workspaces` seat replacement: the shared session tree, drawn in the
- * narrow column. The shipped sidebar keeps its own shell — brand row, new-session
- * button, collapse toggle, footer actions and settings row all stay where they
- * were; only the workspace/session browsing region is ours.
- *
- * Pinning is bridged: our order lives in `layout.json`, and pinning a Session
- * also pins it natively so the shipped sidebar agrees.
+ * The `sidebar.workspaces` seat replacement: the shared Session card list,
+ * drawn in the narrow column. The shipped sidebar keeps its own shell — brand
+ * row, new-session button, collapse toggle, footer actions and settings row all
+ * stay where they were; only the workspace/session browsing region is ours.
  *
  * Nothing here declares child slots, so ui-sidebar keeps owning them.
  */
 import React, { h } from '../react.js';
 import {
-	IconChevronsUpDownOutlineRegular,
-	IconClockOutlineRegular,
+	IconChecklistOutlineRegular,
 	IconCloseFillRegular,
 	IconPanelLeftOutlineRegular,
 	IconProjectAddOutlineRegular,
-	IconRefreshOutlineRegular,
 	IconSearchOutlineRegular,
-	IconSlidersTwoOutlineRegular,
-	Menu,
 	Tooltip,
 } from '@deepseek-ai/dsh-client-ui-primitives';
 import { postDelete } from '../api.js';
-import { buildTreeModel, selectRows } from '../tree-model.js';
-import { adoptWorkspaces, refreshLayout, saveLayout, useTree } from '../stores/tree.js';
-import {
-	emptyLayout,
-	frontFolder,
-	isSessionId,
-	removeFolder,
-	renameFolder,
-	parseKey,
-	pinItem,
-	placeSession,
-	reorderFolders,
-	reorderPinned,
-	unpinItem,
-	workspaceKey,
-	workspaceOrder,
-} from '../layout.js';
+import { buildCardList, selectRows } from '../tree-model.js';
+import { togglePin, usePinned } from '../stores/pins.js';
 import { markVanished, useVanished } from '../stores/vanished.js';
 import { useAutomationSessionIds } from '../stores/automation.js';
 import { setPanelsVisible, usePanelsVisible } from '../stores/panels.js';
@@ -47,10 +25,10 @@ import { SessionTree } from './session-tree.js';
 
 /**
  * @param props - `sidebar.workspaces` seat props (`wide`, `expandSidebar`) plus
- *   the actions wired in `apply.js`: `openSession`, `startSession`,
- *   `syncWorkspaceOrder`, `pinSession`, `unpinSession`, `archiveSession`,
- *   `unarchiveSession`.
- * @returns the header and tree region, or null in rail mode.
+ *   the actions wired in `apply.js`: `openSession`, `pinSession`,
+ *   `unpinSession`, `archiveSession`, `unarchiveSession`, `renameSession`,
+ *   `createWorkspace`, `listDirectory`.
+ * @returns the header and card list region, or null in rail mode.
  */
 export function SidebarWorkspaces(props) {
 	const t = props.t;
@@ -60,14 +38,12 @@ export function SidebarWorkspaces(props) {
 	const goneIds = useVanished();
 	const statusHook = typeof props.useSessionStatus === 'function' ? props.useSessionStatus : () => undefined;
 	const statuses = statusHook((state) => state);
-	const treeState = useTree();
-	const layout = treeState.layout;
+	const pinnedIds = usePinned();
 
-	const [collapsedGroups, setCollapsedGroups] = React.useState([]);
 	const [query, setQuery] = React.useState('');
 	const [searchExpanded, setSearchExpanded] = React.useState(false);
-	const [orderBy, setOrderBy] = React.useState('manual');
-	const [viewOpen, setViewOpen] = React.useState(false);
+	const [selectMode, setSelectMode] = React.useState(false);
+	const [selection, setSelection] = React.useState([]);
 	const [dialog, setDialog] = React.useState(null);
 	const [browse, setBrowse] = React.useState(null);
 	const [notice, setNotice] = React.useState('');
@@ -79,7 +55,7 @@ export function SidebarWorkspaces(props) {
 	const automation = useAutomationSessionIds();
 
 	// The panel list (插件 / 插件市场 / …) is ui-sidebar's own `nav`; leaving it in
-	// place would sit above the tree. The switch means "this region replaces the
+	// place would sit above the list. The switch means "this region replaces the
 	// native browser", so the header's toggle decides whether that sibling row
 	// stays visible, and the attribute goes away when our registration is disposed.
 	React.useEffect(() => {
@@ -102,9 +78,53 @@ export function SidebarWorkspaces(props) {
 		return () => {
 			shell.removeAttribute('data-session-admin-sidebar');
 			shell.removeAttribute('data-session-admin-panels');
+			shell.removeAttribute('data-session-admin-selecting');
 			shellRef.current = null;
 		};
 	}, []);
+
+	// Select mode owns the shell's new-session button: the shipped sidebar keeps
+	// it above this seat, so it is hidden while selection is on. The button has no
+	// stable class, only its localized label, so it is tagged by label instead.
+	React.useEffect(() => {
+		const shell = shellRef.current;
+		if (shell === null) return;
+		if (selectMode !== true || wide === false) {
+			shell.removeAttribute('data-session-admin-selecting');
+			return;
+		}
+		const labels = new Set(['新建会话', '新会话', 'New session', 'New chat']);
+		// The shipped sidebar also renders a fixed new-session button inside the
+		// titlebar (28px) on desktop; only the in-flow button below the brand row is
+		// the slot select mode takes over. Pick the tallest non-fixed match.
+		let newSession = null;
+		for (const element of shell.querySelectorAll('button')) {
+			// The logo row is itself a new-session button in the shipped sidebar; only
+			// the standalone button below it belongs to select mode.
+			if (element.closest('[data-window-drag]') !== null) continue;
+			const label = (element.getAttribute('aria-label') ?? '').trim();
+			const text = (element.textContent ?? '').trim();
+			const named =
+				labels.has(label) ||
+				labels.has(text) ||
+				(typeof element.className === 'string' && element.className.includes('newSession'));
+			if (!named) continue;
+			if (window.getComputedStyle(element).position === 'fixed') continue;
+			if (element.offsetHeight === 0) continue;
+			if (newSession === null || element.offsetHeight > newSession.offsetHeight) newSession = element;
+		}
+		if (newSession !== null) {
+			newSession.setAttribute('data-session-admin-new-session', '');
+			const style = window.getComputedStyle(newSession);
+			const top = Number.parseFloat(style.marginTop);
+			const bottom = Number.parseFloat(style.marginBottom);
+			const height = newSession.offsetHeight;
+			const gap = Number.isFinite(bottom) ? bottom : 0;
+			if (height > 0) shell.style.setProperty('--sa-select-header-h', `${Math.round(height)}px`);
+			shell.style.setProperty('--sa-select-header-mb', `${Math.round(Number.isFinite(top) ? top : 0) + gap}px`);
+		}
+		shell.setAttribute('data-session-admin-selecting', '');
+	}, [selectMode, wide]);
 
 	React.useEffect(() => {
 		const shell = shellRef.current;
@@ -114,14 +134,10 @@ export function SidebarWorkspaces(props) {
 	}, [panelsVisible]);
 
 	React.useEffect(() => {
-		if (!treeState.loaded && !treeState.loading) void refreshLayout();
-	}, [treeState.loaded, treeState.loading]);
-
-	React.useEffect(() => {
 		if (searchExpanded) searchRef.current?.focus({ preventScroll: true });
 	}, [searchExpanded]);
 
-	const { rows } = React.useMemo(
+	const { rows, currentId } = React.useMemo(
 		() =>
 			selectRows({
 				catalog,
@@ -132,26 +148,15 @@ export function SidebarWorkspaces(props) {
 		[catalog, workspaces.archivedSessionIds, goneIds],
 	);
 
-	const workspaceInfo = React.useMemo(() => {
+	/** Session id to its Workspace name, for the second line of every card. */
+	const workspaceLabels = React.useMemo(() => {
 		const map = new Map();
 		for (const workspace of workspaces.items) {
 			const label = workspace.title !== undefined && workspace.title !== '' ? workspace.title : workspace.path;
-			map.set(workspace.workspaceId, { label, key: workspaceKey(workspace.workspaceId) });
+			for (const id of workspace.sessionIds) map.set(id, label);
 		}
 		return map;
 	}, [workspaces.items]);
-
-	const base = React.useMemo(() => adoptWorkspaces(layout, [...workspaceInfo.keys()]), [layout, workspaceInfo]);
-
-	const defaultKey = React.useCallback(
-		(id) => {
-			for (const workspace of workspaces.items) {
-				if (workspace.sessionIds.includes(id)) return workspaceKey(workspace.workspaceId);
-			}
-			return '';
-		},
-		[workspaces.items],
-	);
 
 	const needle = query.trim().toLowerCase();
 	const matches = React.useCallback(
@@ -164,21 +169,14 @@ export function SidebarWorkspaces(props) {
 		[needle],
 	);
 
-	const model = React.useMemo(
-		() =>
-			buildTreeModel({
-				rows,
-				base,
-				workspaceInfo,
-				defaultKey,
-				needle,
-				t,
-				matches,
-				orderBy,
-			}),
-		[rows, base, workspaceInfo, defaultKey, needle, t, matches, orderBy],
-	);
-	const { groupByKey, pinned, rest, visibleRows, rowById } = model;
+	const { pinned, groups, visibleRows } = buildCardList({
+		rows,
+		pinnedIds,
+		needle,
+		matches,
+		now: Date.now(),
+		t,
+	});
 
 	const unread = React.useMemo(() => {
 		const ids = new Set();
@@ -188,73 +186,29 @@ export function SidebarWorkspaces(props) {
 		}
 		return ids;
 	}, [rows, statuses]);
-	const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsedGroups.includes(key));
-
-	const persist = (next) => {
-		void saveLayout(next).then((state) => {
-			if (state.error !== '') console.warn('[session-admin] layout save failed:', state.error);
-		});
-	};
-
-	const syncWorkspaceOrder = (next) => {
-		if (typeof props.syncWorkspaceOrder !== 'function') return;
-		void Promise.resolve(props.syncWorkspaceOrder(workspaceOrder(next))).catch(() => {});
-	};
 
 	const openSession = (id) => {
 		if (typeof props.openSession === 'function') props.openSession(id);
 	};
 
-	const startSession = (group) => {
-		if (typeof props.startSession !== 'function') return;
-		if (group !== undefined) {
-			const parsed = parseKey(group.key);
-			if (parsed !== null && parsed.kind === 'workspace') {
-				props.startSession(parsed.value);
-				return;
-			}
-		}
-		props.startSession();
+	const rowById = React.useMemo(() => new Map(rows.map((row) => [row.id, row])), [rows]);
+
+	const titleOf = (id) => {
+		const row = rowById.get(id);
+		return row === undefined || typeof row.title !== 'string' || row.title.trim() === ''
+			? t('unnamed')
+			: row.title;
 	};
 
-	const toggleGroup = (key) => {
-		setCollapsedGroups((previous) =>
-			previous.includes(key) ? previous.filter((value) => value !== key) : [...previous, key],
-		);
+	/** Our pin list and the shipped one stay in step for Sessions. */
+	const pin = (id) => {
+		togglePin(id);
+		if (typeof props.pinSession === 'function') void props.pinSession(id);
 	};
 
-	const moveSession = (id, key, before) => {
-		const parsed = parseKey(key);
-		if (parsed === null && key !== '') return;
-		const group = groupByKey.get(key);
-		const order = group === undefined ? [] : group.sessions.map((row) => row.id);
-		persist(placeSession(base, id, key, before, defaultKey(id), order));
-	};
-
-	const moveFolder = (moved, before) => {
-		const next = reorderFolders(base, moved, before);
-		persist(next);
-		syncWorkspaceOrder(next);
-	};
-
-	/** Our pin list is global; the shipped sidebar keeps its own per-workspace one. */
-	const pin = (key) => {
-		persist(pinItem(base, key));
-		if (isSessionId(key) && typeof props.pinSession === 'function') void props.pinSession(key);
-	};
-
-	const unpin = (key) => {
-		persist(unpinItem(base, key));
-		if (isSessionId(key) && typeof props.unpinSession === 'function') void props.unpinSession(key);
-	};
-
-	/**
-	 * Forget every recorded choice: folders, placement, pins, per-folder order and
-	 * folder order all fall back to the native Workspace snapshot.
-	 */
-	const resetLayout = () => {
-		const ids = workspaces.items.map((item) => item.workspaceId);
-		persist(adoptWorkspaces(emptyLayout(), ids));
+	const unpin = (id) => {
+		togglePin(id);
+		if (typeof props.unpinSession === 'function') void props.unpinSession(id);
 	};
 
 	/** A running Session refuses to archive; the refusal carries the activity kind. */
@@ -265,18 +219,10 @@ export function SidebarWorkspaces(props) {
 		error.rpcError !== null &&
 		error.rpcError.code === 'workspace/session-active';
 
-	const titleOf = (id) => {
-		const row = rowById.get(id);
-		return row === undefined || typeof row.title !== 'string' || row.title.trim() === ''
-			? t('unnamed')
-			: row.title;
-	};
-
 	const archiveRow = async (id, stopActivity) => {
 		if (typeof props.archiveSession !== 'function') return;
 		try {
 			await props.archiveSession(id, stopActivity === true ? { stopActivity: true } : undefined);
-			await refreshLayout();
 		} catch (error) {
 			if (activeRefusal(error)) {
 				setDialog({ kind: 'archive', sessionId: id, title: titleOf(id) });
@@ -290,32 +236,8 @@ export function SidebarWorkspaces(props) {
 		if (typeof props.unarchiveSession !== 'function') return;
 		try {
 			await props.unarchiveSession(id);
-			await refreshLayout();
 		} catch (error) {
 			console.warn('[session-admin] unarchive failed:', error);
-		}
-	};
-
-	/** Adopt one directory as a Workspace and close the picker. */
-	const adopt = async (path) => {
-		if (typeof path !== 'string' || path === '') return;
-		setBrowse(null);
-		setBusy(true);
-		const result = await props.createWorkspace(path);
-		setBusy(false);
-		const ok = result !== undefined && result !== null && result.ok !== false;
-		if (ok) {
-			const workspaceId = result?.value?.workspace?.workspaceId;
-			if (typeof workspaceId === 'string' && workspaceId !== '') {
-				const next = frontFolder(base, workspaceKey(workspaceId));
-				persist(next);
-				syncWorkspaceOrder(next);
-			}
-		}
-		if (!ok) {
-			const detail = result?.error?.message ?? '';
-			setNotice(detail === '' ? t('createWorkspaceFailed') : `${t('createWorkspaceFailed')}: ${detail}`);
-			console.warn('[session-admin] create workspace failed:', path, result);
 		}
 	};
 
@@ -344,11 +266,50 @@ export function SidebarWorkspaces(props) {
 		await loadDirectory(undefined);
 	};
 
-	const createWorkspace = async (path) => {
-		if (typeof props.createWorkspace !== 'function') return false;
+	/**
+	 * Adopt one directory as a Workspace and close the picker.
+	 * @param path - absolute directory path.
+	 */
+	const adopt = async (path) => {
+		if (typeof path !== 'string' || path === '') return;
+		setBrowse(null);
+		setBusy(true);
 		const result = await props.createWorkspace(path);
-		if (result === undefined || result === null) return false;
-		return result.ok !== false;
+		setBusy(false);
+		const ok = result !== undefined && result !== null && result.ok !== false;
+		if (!ok) {
+			const detail = result?.error?.message ?? '';
+			setNotice(detail === '' ? t('createWorkspaceFailed') : `${t('createWorkspaceFailed')}: ${detail}`);
+			console.warn('[session-admin] create workspace failed:', path, result);
+		}
+	};
+
+	const exitSelect = () => {
+		setSelectMode(false);
+		setSelection([]);
+	};
+	const toggleSelect = (id) => {
+		setSelection((previous) => (previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]));
+	};
+	const pinSelected = () => {
+		for (const id of selection) {
+			if (pinnedIds.includes(id)) continue;
+			if (typeof props.pinSession === 'function') props.pinSession(id);
+		}
+		exitSelect();
+	};
+	const deleteSelected = async () => {
+		if (selection.length === 0) return;
+		setBusy(true);
+		const result = await postDelete(selection);
+		setBusy(false);
+		if (!result.ok) {
+			setNotice(t('noticeFailed', { message: result.error?.message ?? '' }));
+			console.warn('[session-admin] delete failed:', result.error);
+			return;
+		}
+		markVanished(result.deleted);
+		exitSelect();
 	};
 
 	const confirmDialog = async () => {
@@ -357,36 +318,6 @@ export function SidebarWorkspaces(props) {
 		setDialog(null);
 		if (current.kind === 'archive') {
 			await archiveRow(current.sessionId, true);
-			return;
-		}
-		if (current.kind === 'renameWorkspace') {
-			const value = typeof current.value === 'string' ? current.value.trim() : '';
-			if (value === '' || typeof props.renameWorkspace !== 'function') return;
-			setBusy(true);
-			setNotice('');
-			try {
-				const result = await props.renameWorkspace(current.workspaceId, value);
-				if (result !== undefined && result !== null && result.ok === false) {
-					setNotice(t('noticeFailed', { message: result.error?.message ?? '' }));
-					console.warn('[session-admin] rename workspace failed:', result.error);
-				}
-			} catch (error) {
-				setNotice(t('noticeFailed', { message: error instanceof Error ? error.message : String(error) }));
-				console.warn('[session-admin] rename workspace failed:', error);
-			}
-			setBusy(false);
-			return;
-		}
-		if (current.kind === 'deleteWorkspace') {
-			if (typeof props.deleteWorkspace !== 'function') return;
-			setBusy(true);
-			const result = await props.deleteWorkspace(current.workspaceId);
-			setBusy(false);
-			if (result !== undefined && result !== null && result.ok === false) {
-				console.warn('[session-admin] delete workspace failed:', result.error);
-			} else {
-				await refreshLayout();
-			}
 			return;
 		}
 		if (current.kind === 'renameSession') {
@@ -406,17 +337,6 @@ export function SidebarWorkspaces(props) {
 			setBusy(false);
 			return;
 		}
-		if (current.kind === 'renameFolder') {
-			const value = typeof current.value === 'string' ? current.value.trim() : '';
-			if (value === '' || value === current.name) return;
-			if (base.folders.includes(value)) return;
-			persist(renameFolder(base, current.name, value));
-			return;
-		}
-		if (current.kind === 'deleteFolder') {
-			persist(removeFolder(base, current.name));
-			return;
-		}
 		setBusy(true);
 		const result = await postDelete([current.sessionId]);
 		setBusy(false);
@@ -425,99 +345,112 @@ export function SidebarWorkspaces(props) {
 			return;
 		}
 		markVanished(result.deleted);
-		await refreshLayout();
 	};
 
-	const viewMenu = h(Menu, {
-		open: viewOpen,
-		onClose: () => setViewOpen(false),
-		portal: true,
-		closeOnPointerLeave: true,
-		dense: true,
-		align: 'end',
-		selectedIds: [orderBy],
-		items: [
-			{ type: 'label', id: 'order-by', text: t('orderBy') },
-			{ id: 'manual', label: t('orderManual'), icon: h(IconChevronsUpDownOutlineRegular, null) },
-			{ id: 'updated', label: t('orderUpdated'), icon: h(IconClockOutlineRegular, null) },
-			{ type: 'label', id: 'reset-label', text: t('resetSection') },
-			{ id: 'reset', label: t('resetLayout'), icon: h(IconRefreshOutlineRegular, null) },
-		],
-		onSelect: (id) => {
-			if (id === 'manual' || id === 'updated') setOrderBy(id);
-			if (id === 'reset') resetLayout();
-			setViewOpen(false);
-		},
-		anchor: h(
-			Tooltip,
-			{ label: t('viewOptions'), side: 'bottom', delayMs: 500, portal: true },
-			h(
-				'button',
-				{
-					className: 'sa-ws-icon-btn',
-					type: 'button',
-					'aria-label': t('viewOptions'),
-					onClick: () => setViewOpen((value) => !value),
-				},
-				h(IconSlidersTwoOutlineRegular, null),
-			),
-		),
-	});
+	const groupLabel = pinned.length > 0 ? t('pinnedSection') : (groups[0]?.label ?? t('sectionSessions'));
+
+	const selectBar =
+		selectMode === false
+			? null
+			: h(
+					'div',
+					{ className: 'sa-ws-header sa-ws-header-select' },
+					h(
+						'span',
+						{ className: 'sa-ws-label' },
+						selection.length === 0 ? t('selectChats') : t('selectedChats', { count: selection.length }),
+					),
+					h(
+						'button',
+						{
+							className: 'sa-ws-select-close',
+							type: 'button',
+							'aria-label': t('cancel'),
+							onClick: exitSelect,
+						},
+						h(IconCloseFillRegular, { size: 12 }),
+					),
+				);
 
 	const header = h(
 		'div',
 		{ className: 'sa-ws-header' },
-		searchExpanded ? null : h('span', { className: 'sa-ws-label' }, t('sectionWorkspaces')),
-		h(
-			'div',
-			{ className: searchExpanded ? 'sa-ws-search sa-ws-search-expanded' : 'sa-ws-search' },
-			h(
-				Tooltip,
-				{ label: t('search'), side: 'bottom', delayMs: 500, portal: true, disabled: searchExpanded },
-				h(
-					'button',
-					{
-						className: 'sa-ws-search-btn',
-						type: 'button',
-						'aria-label': t('searchSessions'),
-						'aria-expanded': searchExpanded,
-						onClick: () => setSearchExpanded(true),
-					},
-					h(IconSearchOutlineRegular, { size: searchExpanded ? 11 : 14 }),
+		searchExpanded && selectMode === false
+			? null
+			: h('span', { className: 'sa-ws-label' }, groupLabel),
+		selectMode === true
+			? null
+			: h(
+					'div',
+					{ className: searchExpanded ? 'sa-ws-search sa-ws-search-expanded' : 'sa-ws-search' },
+					h(
+						Tooltip,
+						{ label: t('search'), side: 'bottom', delayMs: 500, portal: true, disabled: searchExpanded },
+						h(
+							'button',
+							{
+								className: 'sa-ws-search-btn',
+								type: 'button',
+								'aria-label': t('searchSessions'),
+								'aria-expanded': searchExpanded,
+								onClick: () => setSearchExpanded(true),
+							},
+							h(IconSearchOutlineRegular, { size: searchExpanded ? 11 : 14 }),
+						),
+					),
+					searchExpanded
+						? h('input', {
+								ref: searchRef,
+								className: 'sa-ws-search-input',
+								type: 'text',
+								placeholder: t('searchPlaceholder'),
+								value: query,
+								onChange: (event) => setQuery(event.target.value),
+								onKeyDown: (event) => {
+									if (event.key !== 'Escape') return;
+									setQuery('');
+									setSearchExpanded(false);
+								},
+							})
+						: null,
+					searchExpanded
+						? h(
+								'button',
+								{
+									className: 'sa-ws-search-clear',
+									type: 'button',
+									'aria-label': t('clear'),
+									onClick: () => {
+										setQuery('');
+										setSearchExpanded(false);
+									},
+								},
+								h(IconCloseFillRegular, null),
+							)
+						: null,
 				),
-			),
-			searchExpanded
-				? h('input', {
-						ref: searchRef,
-						className: 'sa-ws-search-input',
-						type: 'text',
-						placeholder: t('searchPlaceholder'),
-						value: query,
-						onChange: (event) => setQuery(event.target.value),
-						onKeyDown: (event) => {
-							if (event.key !== 'Escape') return;
-							setQuery('');
-							setSearchExpanded(false);
-						},
-					})
-				: null,
-			searchExpanded
-				? h(
+		selectMode === true || searchExpanded
+			? null
+			: h(
+					Tooltip,
+					{ label: t('selectChats'), side: 'bottom', delayMs: 500, portal: true },
+					h(
 						'button',
 						{
-							className: 'sa-ws-search-clear',
+							className: 'sa-ws-search-btn',
 							type: 'button',
-							'aria-label': t('clear'),
+							'aria-label': t('selectChats'),
 							onClick: () => {
 								setQuery('');
 								setSearchExpanded(false);
+								setSelectMode(true);
+								setSelection([]);
 							},
 						},
-						h(IconCloseFillRegular, null),
-					)
-				: null,
-		),
-		searchExpanded
+						h(IconChecklistOutlineRegular, null),
+					),
+				),
+		selectMode === true || searchExpanded
 			? null
 			: h(
 					'div',
@@ -542,7 +475,6 @@ export function SidebarWorkspaces(props) {
 							h(IconPanelLeftOutlineRegular, null),
 						),
 					),
-					viewMenu,
 					h(
 						Tooltip,
 						{ label: t('addWorkspace'), side: 'bottom', delayMs: 500, portal: true },
@@ -567,35 +499,23 @@ export function SidebarWorkspaces(props) {
 			? h('div', { className: 'sa-shell-empty' }, t(needle === '' ? 'empty' : 'noMatch'))
 			: h(SessionTree, {
 					variant: 'sidebar',
-					groups: rest,
+					currentId,
+
 					pinned,
+					groups,
+					workspaceLabels,
 					archived: new Set(),
 					unread,
 					automation,
-					expanded: expandedKeys,
-					selection: [],
+					selection,
+					selectMode,
 					busy,
+					hideFirstLabel: true,
 					t,
+					onSelectionChange: toggleSelect,
 					onOpen: openSession,
-					onToggle: toggleGroup,
-					onSelectionChange: () => {},
-					onNewSession: startSession,
 					onPin: pin,
 					onUnpin: unpin,
-					onRenameWorkspace: (group) => {
-						const parsed = parseKey(group.key);
-						if (parsed !== null && parsed.kind === 'workspace') {
-							setDialog({ kind: 'renameWorkspace', workspaceId: parsed.value, value: group.label });
-						}
-					},
-					onDeleteWorkspace: (group) => {
-						const parsed = parseKey(group.key);
-						if (parsed !== null && parsed.kind === 'workspace') {
-							setDialog({ kind: 'deleteWorkspace', workspaceId: parsed.value, name: group.label });
-						}
-					},
-					onRenameFolder: (group) => setDialog({ kind: 'renameFolder', name: group.label, value: group.label }),
-					onDeleteFolder: (group) => setDialog({ kind: 'deleteFolder', name: group.label }),
 					onRename: (row) =>
 						setDialog({
 							kind: 'renameSession',
@@ -605,24 +525,17 @@ export function SidebarWorkspaces(props) {
 					onArchive: (id) => void archiveRow(id, false),
 					onUnarchive: (id) => void unarchiveRow(id),
 					onDelete: (row) => setDialog({ kind: 'delete', sessionId: row.id, title: titleOf(row.id) }),
-					onMoveSession: moveSession,
-					onMoveFolder: moveFolder,
-					onReorderPinned: (moved, before) => persist(reorderPinned(base, moved, before)),
 				});
 
 	const dialogTitle = (state) => {
 		if (state.kind === 'archive') return t('archiveConfirmTitle');
-		if (state.kind === 'renameWorkspace') return t('renameWorkspaceTitle');
-		if (state.kind === 'deleteWorkspace') return t('deleteWorkspaceTitle');
 		if (state.kind === 'renameSession') return t('renameSessionTitle');
-		if (state.kind === 'renameFolder') return t('renameFolderTitle');
-		if (state.kind === 'deleteFolder') return t('deleteFolderTitle');
 		return t('confirmOneTitle', { title: state.title });
 	};
 
 	const dialogBody = (state) => {
 		if (state.kind === 'archive') return h('p', { className: 'sa-dialog-body' }, t('archiveConfirmBody'));
-		if (state.kind === 'renameWorkspace') {
+		if (state.kind === 'renameSession') {
 			return h('input', {
 				className: 'sa-input',
 				type: 'text',
@@ -634,25 +547,6 @@ export function SidebarWorkspaces(props) {
 					if (event.key === 'Escape') setDialog(null);
 				},
 			});
-		}
-		if (state.kind === 'renameSession' || state.kind === 'renameFolder') {
-			return h('input', {
-				className: 'sa-input',
-				type: 'text',
-				value: state.value,
-				autoFocus: true,
-				onChange: (event) => setDialog({ ...state, value: event.target.value }),
-				onKeyDown: (event) => {
-					if (event.key === 'Enter') void confirmDialog();
-					if (event.key === 'Escape') setDialog(null);
-				},
-			});
-		}
-		if (state.kind === 'deleteWorkspace') {
-			return h('p', { className: 'sa-dialog-body' }, t('deleteWorkspaceBody', { name: state.name }));
-		}
-		if (state.kind === 'deleteFolder') {
-			return h('p', { className: 'sa-dialog-body' }, t('deleteFolderBody', { name: state.name }));
 		}
 		return h('p', { className: 'sa-dialog-body' }, t('confirmOneBody'));
 	};
@@ -666,43 +560,27 @@ export function SidebarWorkspaces(props) {
 					h(
 						'div',
 						{ className: 'sa-dialog', role: 'dialog', 'aria-modal': 'true' },
-						h(
-							'div',
-							{ className: 'sa-dialog-title' },
-							dialogTitle(dialog),
-						),
+						h('div', { className: 'sa-dialog-title' }, dialogTitle(dialog)),
 						dialogBody(dialog),
 						h(
 							'div',
 							{ className: 'sa-dialog-actions' },
 							h(
 								'button',
-								{
-									className: 'sa-btn',
-									type: 'button',
-									disabled: busy,
-									onClick: () => setDialog(null),
-								},
+								{ className: 'sa-btn', type: 'button', disabled: busy, onClick: () => setDialog(null) },
 								t('cancel'),
 							),
 							h(
 								'button',
 								{
-									className:
-										dialog.kind === 'delete' ||
-										dialog.kind === 'deleteWorkspace' ||
-										dialog.kind === 'deleteFolder'
-											? 'sa-btn sa-btn-danger-solid'
-											: 'sa-btn sa-btn-primary',
+									className: dialog.kind === 'delete' ? 'sa-btn sa-btn-danger-solid' : 'sa-btn sa-btn-primary',
 									type: 'button',
 									disabled: busy,
 									onClick: () => void confirmDialog(),
 								},
 								dialog.kind === 'archive'
 									? t('archiveConfirmAction')
-									: dialog.kind === 'renameWorkspace' ||
-											dialog.kind === 'renameFolder' ||
-											dialog.kind === 'renameSession'
+									: dialog.kind === 'renameSession'
 										? t('save')
 										: t('confirmDelete'),
 							),
@@ -796,5 +674,50 @@ export function SidebarWorkspaces(props) {
 
 	const noticeView = notice === '' ? null : h('div', { className: 'sa-shell-empty' }, notice);
 
-	return h('div', { className: 'sa-sidebar-tree', ref: treeRef }, header, noticeView, body, dialogView, pickerView);
+	const bulkView =
+		selectMode === false
+			? null
+			: h(
+					'div',
+					{ className: 'sa-bulk' },
+					h(
+						'button',
+						{
+							className: 'sa-bulk-btn',
+							type: 'button',
+							disabled: busy || selection.length === 0,
+							onClick: pinSelected,
+						},
+						t('pin'),
+					),
+					h(
+						'button',
+						{
+							className: 'sa-bulk-btn sa-bulk-btn-danger',
+							type: 'button',
+							disabled: busy || selection.length === 0,
+							onClick: () => void deleteSelected(),
+						},
+						t('delete'),
+					),
+				);
+
+	return h(
+		'div',
+		{
+			className: 'sa-sidebar-tree',
+			ref: treeRef,
+			onKeyDown: (event) => {
+				if (event.key !== 'Escape' || selectMode !== true) return;
+				exitSelect();
+			},
+		},
+		selectBar,
+		header,
+		noticeView,
+		body,
+		bulkView,
+		dialogView,
+		pickerView,
+	);
 }

@@ -50,8 +50,8 @@ export function apply(ctx) {
 	};
 
 	/**
-	 * Pin a Session natively too, so the shipped sidebar and our tree agree on
-	 * what is pinned; our own order still lives in `layout.json`.
+	 * Pin a Session natively too, so the shipped sidebar and our card list agree
+	 * on what is pinned; our own list lives in `localStorage`.
 	 * @param id - Session id.
 	 */
 	const pinSession = (id) => {
@@ -76,20 +76,6 @@ export function apply(ctx) {
 		const workspace = ctx.get('uiWorkspace');
 		if (workspace === undefined || workspace === null) return;
 		void Promise.resolve(workspace.openSession(id)).catch(() => {});
-	};
-
-	/** Create a blank Session inside one Workspace; the workspace service may load after this plugin. */
-	const startSession = (workspaceId) => {
-		const workspace = ctx.get('uiWorkspace');
-		if (workspace === undefined || workspace === null) return;
-		void Promise.resolve(workspace.startSession(workspaceId, { clearPreviousDraft: false })).catch(() => {});
-	};
-
-	/** Rename one Workspace through the workspace controller service. */
-	const renameWorkspace = (workspaceId, title) => {
-		const workspaces = ctx.get('workspaces');
-		if (workspaces === undefined || workspaces === null) return Promise.resolve();
-		return workspaces.rename(workspaceId, title);
 	};
 
 	/** Rename one Session; the host normalizes the title before storing it. */
@@ -120,25 +106,6 @@ export function apply(ctx) {
 		return workspaces.create({ path });
 	};
 
-	/** Delete one Workspace; its Sessions fall back to the ungrouped bucket. */
-	const deleteWorkspace = (workspaceId) => {
-		const workspaces = ctx.get('workspaces');
-		if (workspaces === undefined || workspaces === null) return Promise.resolve();
-		return workspaces.delete(workspaceId);
-	};
-
-	/**
-	 * Push the tree's folder order back to the native Workspace order, so the
-	 * shipped sidebar lists Workspaces the same way. Appending in sequence
-	 * leaves them in the given order.
-	 * @param ids - Workspace ids in display order.
-	 */
-	const syncWorkspaceOrder = async (ids) => {
-		const workspaces = ctx.get('workspaces');
-		if (workspaces === undefined || workspaces === null || typeof workspaces.insertBefore !== 'function') return;
-		for (const id of ids) await workspaces.insertBefore(id, undefined);
-	};
-
 	ctx.slots.inject('settings.section', () =>
 		ctx.slots.register(
 			{
@@ -152,12 +119,8 @@ export function apply(ctx) {
 				h(SessionAdminSection, {
 					...slotProps,
 					openSession,
-					startSession,
-					renameWorkspace,
-					deleteWorkspace,
 					archiveSession,
 					unarchiveSession,
-					syncWorkspaceOrder,
 					pinSession,
 					unpinSession,
 					renameSession,
@@ -210,15 +173,11 @@ export function apply(ctx) {
 						h(SidebarWorkspaces, {
 							...slotProps,
 							openSession,
-							startSession,
-							syncWorkspaceOrder,
 							pinSession,
 							unpinSession,
 							renameSession,
 							archiveSession,
 							unarchiveSession,
-							renameWorkspace,
-							deleteWorkspace,
 							createWorkspace,
 							listDirectory,
 						}),

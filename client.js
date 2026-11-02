@@ -40,9 +40,16 @@ var NS = "sessionAdmin";
 var zh = {
   nav: "\u4F1A\u8BDD\u7BA1\u7406",
   title: "\u4F1A\u8BDD\u7BA1\u7406",
-  desc: "\u5217\u51FA\u5DF2\u4FDD\u5B58\u7684\u4F1A\u8BDD\uFF08\u4E0D\u542B\u5F52\u6863\uFF09\u3002\u62D6\u52A8\u4F1A\u8BDD\u6216\u6587\u4EF6\u5939\u8C03\u6574\u4F4D\u7F6E\uFF0C\u7F6E\u9876\u7684\u6761\u76EE\u6392\u5728\u6700\u524D\uFF1B\u52FE\u9009\u540E\u53EF\u6279\u91CF\u5220\u9664\uFF0C\u5220\u9664\u4F1A\u79FB\u9664\u4F1A\u8BDD\u6587\u4EF6\uFF0C\u4E0D\u53EF\u6062\u590D\uFF0C\u6B63\u5728\u8FD0\u884C\u7684\u4F1A\u8BDD\u4F1A\u88AB\u8DF3\u8FC7\u3002",
+  desc: "\u5217\u51FA\u5DF2\u4FDD\u5B58\u7684\u4F1A\u8BDD\uFF08\u4E0D\u542B\u5F52\u6863\uFF09\u3002\u6309\u6700\u540E\u6D3B\u52A8\u65F6\u95F4\u5012\u5E8F\uFF0C\u6309\u5929\u5206\u7EC4\uFF0C\u7F6E\u9876\u7684\u4F1A\u8BDD\u6392\u5728\u6700\u524D\uFF1B\u52FE\u9009\u540E\u53EF\u6279\u91CF\u5220\u9664\uFF0C\u5220\u9664\u4F1A\u79FB\u9664\u4F1A\u8BDD\u6587\u4EF6\uFF0C\u4E0D\u53EF\u6062\u590D\uFF0C\u6B63\u5728\u8FD0\u884C\u7684\u4F1A\u8BDD\u4F1A\u88AB\u8DF3\u8FC7\u3002",
   search: "\u641C\u7D22\u6807\u9898\u6216\u76EE\u5F55",
-  sectionWorkspaces: "\u5DE5\u4F5C\u533A",
+  sectionSessions: "\u4F1A\u8BDD",
+  pinnedSection: "\u7F6E\u9876",
+  "workspaceUnknown": "\u672A\u5F52\u6863\u5DE5\u4F5C\u533A",
+  "bucket.today": "\u4ECA\u5929",
+  "bucket.yesterday": "\u6628\u5929",
+  "bucket.week": "\u8FD1 7 \u5929",
+  "bucket.month": "\u8FD1 30 \u5929",
+  "bucket.older": "\u66F4\u65E9",
   completed: "\u5DF2\u5B8C\u6210",
   addWorkspace: "\u6DFB\u52A0\u5DE5\u4F5C\u533A",
   createWorkspaceFailed: "\u6DFB\u52A0\u5DE5\u4F5C\u533A\u5931\u8D25",
@@ -56,13 +63,9 @@ var zh = {
   searchPlaceholder: "\u641C\u7D22\u4F1A\u8BDD",
   showPanels: "\u663E\u793A\u9762\u677F\u5165\u53E3",
   hidePanels: "\u9690\u85CF\u9762\u677F\u5165\u53E3",
-  viewOptions: "\u89C6\u56FE\u9009\u9879",
-  orderBy: "\u6392\u5E8F\u65B9\u5F0F",
-  orderManual: "\u624B\u52A8",
-  orderUpdated: "\u6700\u8FD1\u66F4\u65B0",
-  resetSection: "\u91CD\u7F6E",
-  resetLayout: "\u6062\u590D\u9ED8\u8BA4",
   selectAll: "\u5168\u9009",
+  selectChats: "\u9009\u62E9\u5BF9\u8BDD",
+  selectedChats: "\u5DF2\u9009\u62E9 {count} \u4E2A\u5BF9\u8BDD",
   clear: "\u6E05\u7A7A",
   selectedCount: "\u5DF2\u9009 {count} \u4E2A",
   delete: "\u5220\u9664",
@@ -83,31 +86,7 @@ var zh = {
   noticeSkipped: "\u8DF3\u8FC7 {count} \u4E2A\uFF1A{reasons}",
   noticeFailed: "\u5220\u9664\u5931\u8D25\uFF1A{message}",
   hint: "\u5220\u9664\u53EA\u6E05\u7406\u4F1A\u8BDD\u6587\u4EF6\u4E0E\u6295\u5F71\u7F13\u5B58\uFF1B\u4FA7\u680F\u7531 Host \u542F\u52A8\u65F6\u5EFA\u7ACB\u7684\u7D22\u5F15\u9A71\u52A8\uFF0C\u91CD\u542F dsharness.service \u540E\u624D\u4F1A\u5F7B\u5E95\u6D88\u5931\u3002",
-  groupUngrouped: "\u672A\u5F52\u6863",
-  folderEmpty: "\uFF08\u7A7A\uFF09",
-  treeFailed: "\u8BFB\u53D6\u4F1A\u8BDD\u6811\u5931\u8D25\uFF1A{message}",
-  retry: "\u91CD\u8BD5",
-  newSession: "\u65B0\u5EFA\u4F1A\u8BDD",
-  newSessionIn: "\u5728 {name} \u4E2D\u65B0\u5EFA\u4F1A\u8BDD",
-  workspaceActions: "{name} \u7684\u5DE5\u4F5C\u533A\u64CD\u4F5C",
   sessionActions: "{title} \u7684\u4F1A\u8BDD\u64CD\u4F5C",
-  renameWorkspace: "\u91CD\u547D\u540D\u5DE5\u4F5C\u533A",
-  deleteWorkspace: "\u5220\u9664\u5DE5\u4F5C\u533A",
-  renameWorkspaceTitle: "\u91CD\u547D\u540D\u5DE5\u4F5C\u533A",
-  deleteWorkspaceTitle: "\u5220\u9664\u5DE5\u4F5C\u533A",
-  deleteWorkspaceBody: "\u5220\u9664\u5DE5\u4F5C\u533A\u300C{name}\u300D\uFF1F\u5DE5\u4F5C\u533A\u91CC\u7684\u4F1A\u8BDD\u4E0D\u4F1A\u5220\u9664\uFF0C\u4F1A\u56DE\u5230\u300C\u672A\u5F52\u6863\u300D\u3002",
-  save: "\u4FDD\u5B58",
-  folderName: "\u6587\u4EF6\u5939\u540D",
-  newFolder: "\u65B0\u5EFA\u6587\u4EF6\u5939",
-  newFolderTitle: "\u65B0\u5EFA\u6587\u4EF6\u5939",
-  create: "\u521B\u5EFA",
-  renameFolder: "\u91CD\u547D\u540D\u6587\u4EF6\u5939",
-  renameFolderTitle: "\u91CD\u547D\u540D\u6587\u4EF6\u5939",
-  deleteFolder: "\u5220\u9664\u6587\u4EF6\u5939",
-  deleteFolderTitle: "\u5220\u9664\u6587\u4EF6\u5939",
-  deleteFolderBody: "\u5220\u9664\u6587\u4EF6\u5939\u300C{name}\u300D\uFF1F\u91CC\u9762\u7684\u4F1A\u8BDD\u4F1A\u56DE\u5230\u5404\u81EA\u7684\u5DE5\u4F5C\u533A\u3002",
-  folderExists: "\u5DF2\u7ECF\u6709\u540C\u540D\u6587\u4EF6\u5939\u300C{name}\u300D\u3002",
-  folderActions: "{name} \u7684\u6587\u4EF6\u5939\u64CD\u4F5C",
   pin: "\u7F6E\u9876",
   unpin: "\u53D6\u6D88\u7F6E\u9876",
   archive: "\u5F52\u6863",
@@ -117,6 +96,7 @@ var zh = {
   archivedTag: "\u5DF2\u5F52\u6863",
   archivedHint: "\u5DF2\u5F52\u6863\u7684\u4F1A\u8BDD\u53D6\u6D88\u5F52\u6863\u540E\u624D\u80FD\u6253\u5F00",
   showArchived: "\u663E\u793A\u5DF2\u5F52\u6863",
+  save: "\u4FDD\u5B58",
   archiveConfirmTitle: "\u505C\u6B62\u5E76\u5F52\u6863\u6B64\u4F1A\u8BDD\uFF1F",
   archiveConfirmBody: "\u300C{title}\u300D\u8FD8\u6709\u6B63\u5728\u8FDB\u884C\u7684\u5DE5\u4F5C\u3002\u5F52\u6863\u4F1A\u5148\u505C\u6B62\u8FD9\u4E9B\u5DE5\u4F5C\uFF1B\u4E4B\u540E\u6253\u5F00\u300C\u663E\u793A\u5DF2\u5F52\u6863\u300D\u518D\u53D6\u6D88\u5F52\u6863\u5373\u53EF\u6062\u590D\uFF0C\u88AB\u505C\u6B62\u7684\u5DE5\u4F5C\u4E0D\u4F1A\u81EA\u52A8\u7EE7\u7EED\u3002",
   archiveConfirmAction: "\u505C\u6B62\u5E76\u5F52\u6863",
@@ -133,14 +113,21 @@ var zh = {
   "time.months": "{n}\u4E2A\u6708",
   "time.years": "{n}\u5E74",
   shell: "\u66FF\u6362\u539F\u751F\u5DE5\u4F5C\u533A\u533A\u57DF",
-  shellDesc: "\u7528\u672C\u63D2\u4EF6\u7684\u4F1A\u8BDD\u6811\u66FF\u6362\u5DE6\u4FA7\u680F\u7684\u5DE5\u4F5C\u533A\u533A\u57DF\uFF1B\u54C1\u724C\u884C\u3001\u65B0\u4F1A\u8BDD\u6309\u94AE\u548C\u5E95\u90E8\u4FDD\u7559\u539F\u751F\u3002"
+  shellDesc: "\u7528\u672C\u63D2\u4EF6\u7684\u4F1A\u8BDD\u5361\u7247\u5217\u8868\u66FF\u6362\u5DE6\u4FA7\u680F\u7684\u5DE5\u4F5C\u533A\u533A\u57DF\uFF1B\u54C1\u724C\u884C\u3001\u65B0\u4F1A\u8BDD\u6309\u94AE\u548C\u5E95\u90E8\u4FDD\u7559\u539F\u751F\u3002"
 };
 var en = {
   nav: "Sessions",
   title: "Session management",
-  desc: "List stored Sessions (archived ones excluded). Drag Sessions or folders to reposition them, pin entries to the top, and delete in bulk. Deleting removes the session files and cannot be undone; a running Session is skipped.",
+  desc: "List stored Sessions (archived ones excluded), newest activity first and grouped by day, with pinned Sessions on top. Select cards to delete in bulk: deleting removes the session files and cannot be undone; a running Session is skipped.",
   search: "Search title or directory",
-  sectionWorkspaces: "Workspaces",
+  sectionSessions: "Sessions",
+  pinnedSection: "Pinned",
+  "workspaceUnknown": "No workspace",
+  "bucket.today": "Today",
+  "bucket.yesterday": "Yesterday",
+  "bucket.week": "Previous 7 days",
+  "bucket.month": "Previous 30 days",
+  "bucket.older": "Older",
   completed: "Completed",
   addWorkspace: "Add workspace",
   createWorkspaceFailed: "Could not add the workspace",
@@ -154,13 +141,9 @@ var en = {
   searchPlaceholder: "Search sessions",
   showPanels: "Show panel entries",
   hidePanels: "Hide panel entries",
-  viewOptions: "View options",
-  orderBy: "Sort by",
-  orderManual: "Manual",
-  orderUpdated: "Last updated",
-  resetSection: "Reset",
-  resetLayout: "Restore defaults",
   selectAll: "Select all",
+  selectChats: "Select chats",
+  selectedChats: "{count} selected",
   clear: "Clear",
   selectedCount: "{count} selected",
   delete: "Delete",
@@ -181,31 +164,7 @@ var en = {
   noticeSkipped: "Skipped {count}: {reasons}",
   noticeFailed: "Delete failed: {message}",
   hint: "Deleting removes session files and the projection checkpoint; the sidebar is driven by an index built at host startup, so it clears only after restarting dsharness.service.",
-  groupUngrouped: "Unsorted",
-  folderEmpty: "(empty)",
-  treeFailed: "Failed to read the session tree: {message}",
-  retry: "Retry",
-  newSession: "New session",
-  newSessionIn: "New session in {name}",
-  workspaceActions: "Workspace actions for {name}",
   sessionActions: "Session actions for {title}",
-  renameWorkspace: "Rename workspace",
-  deleteWorkspace: "Delete workspace",
-  renameWorkspaceTitle: "Rename workspace",
-  deleteWorkspaceTitle: "Delete workspace",
-  deleteWorkspaceBody: "Delete the workspace \u201C{name}\u201D? Its sessions are kept and fall back to Unsorted.",
-  save: "Save",
-  folderName: "Folder name",
-  newFolder: "New folder",
-  newFolderTitle: "New folder",
-  create: "Create",
-  renameFolder: "Rename folder",
-  renameFolderTitle: "Rename folder",
-  deleteFolder: "Delete folder",
-  deleteFolderTitle: "Delete folder",
-  deleteFolderBody: "Delete the folder \u201C{name}\u201D? Its sessions move back to their workspaces.",
-  folderExists: "A folder named \u201C{name}\u201D already exists.",
-  folderActions: "Folder actions for {name}",
   pin: "Pin",
   unpin: "Unpin",
   archive: "Archive",
@@ -215,6 +174,7 @@ var en = {
   archivedTag: "Archived",
   archivedHint: "Unarchive this Session before opening it",
   showArchived: "Show archived",
+  save: "Save",
   archiveConfirmTitle: "Stop and archive this Session?",
   archiveConfirmBody: '"{title}" has work in progress. Archiving stops that work first; turn on "Show archived" and unarchive to restore it afterwards. The stopped work does not resume by itself.',
   archiveConfirmAction: "Stop and archive",
@@ -231,215 +191,11 @@ var en = {
   "time.months": "{n}mo",
   "time.years": "{n}y",
   shell: "Replace the native workspace region",
-  shellDesc: "Swaps the sidebar\u2019s workspace region for this plugin\u2019s session tree; the brand row, new-session button and footer stay native."
+  shellDesc: "Swaps the sidebar\u2019s workspace region for this plugin\u2019s Session card list; the brand row, new-session button and footer stay native."
 };
-
-// src/client/layout.js
-var WORKSPACE_PREFIX = "\u5DE5\u4F5C\u533A:";
-var CUSTOM_PREFIX = "\u81EA\u5B9A\u4E49:";
-var SESSION_ID = /^session-[0-9a-fA-F-]{8,64}$/;
-function emptyLayout() {
-  return { version: 1, order: [], folders: [], placement: {}, pinned: [], sessions: {} };
-}
-function workspaceKey(id) {
-  return WORKSPACE_PREFIX + id;
-}
-function customKey(name) {
-  return CUSTOM_PREFIX + name;
-}
-function parseKey(key) {
-  if (typeof key !== "string") return null;
-  if (key.startsWith(WORKSPACE_PREFIX)) {
-    const value = key.slice(WORKSPACE_PREFIX.length);
-    return value === "" ? null : { kind: "workspace", value };
-  }
-  if (key.startsWith(CUSTOM_PREFIX)) {
-    const value = key.slice(CUSTOM_PREFIX.length);
-    return value === "" ? null : { kind: "custom", value };
-  }
-  return null;
-}
-function isSessionId(value) {
-  return typeof value === "string" && SESSION_ID.test(value);
-}
-function normalizeLayout(raw) {
-  const source = raw !== null && typeof raw === "object" ? raw : {};
-  const folders = [];
-  for (const name of Array.isArray(source.folders) ? source.folders : []) {
-    if (typeof name !== "string" || name === "" || folders.includes(name)) continue;
-    folders.push(name);
-  }
-  const order = [];
-  for (const key of Array.isArray(source.order) ? source.order : []) {
-    const parsed = parseKey(key);
-    if (parsed === null || order.includes(key)) continue;
-    if (parsed.kind === "custom" && !folders.includes(parsed.value)) continue;
-    order.push(key);
-  }
-  for (const name of folders) {
-    if (!order.includes(customKey(name))) order.push(customKey(name));
-  }
-  const placement = {};
-  const rawPlacement = source.placement !== null && typeof source.placement === "object" ? source.placement : {};
-  for (const [id, key] of Object.entries(rawPlacement)) {
-    if (!isSessionId(id)) continue;
-    const parsed = parseKey(key);
-    if (parsed === null) continue;
-    if (parsed.kind === "custom" && !folders.includes(parsed.value)) continue;
-    placement[id] = key;
-  }
-  const pinned = [];
-  for (const entry of Array.isArray(source.pinned) ? source.pinned : []) {
-    const valid = isSessionId(entry) || parseKey(entry) !== null;
-    if (!valid || pinned.includes(entry)) continue;
-    pinned.push(entry);
-  }
-  const sessions2 = {};
-  const rawSessions = source.sessions !== null && typeof source.sessions === "object" ? source.sessions : {};
-  for (const [key, ids] of Object.entries(rawSessions)) {
-    const parsed = parseKey(key);
-    if (parsed === null) continue;
-    if (parsed.kind === "custom" && !folders.includes(parsed.value)) continue;
-    const list = [];
-    for (const id of Array.isArray(ids) ? ids : []) {
-      if (!isSessionId(id) || list.includes(id)) continue;
-      list.push(id);
-    }
-    if (list.length > 0) sessions2[key] = list;
-  }
-  return { version: 1, order, folders, placement, pinned, sessions: sessions2 };
-}
-function reorder(list, moved, before) {
-  const from = list.indexOf(moved);
-  if (from < 0) return list;
-  const rest = list.filter((key) => key !== moved);
-  if (before === void 0 || before === moved) return rest.length === list.length ? rest : [...rest, moved];
-  const into = rest.indexOf(before);
-  if (into < 0) return list;
-  return [...rest.slice(0, into), moved, ...rest.slice(into)];
-}
-function adoptWorkspaces(layout, workspaceIds) {
-  const known = new Set(workspaceIds);
-  const order = layout.order.filter((key) => {
-    if (!key.startsWith("\u5DE5\u4F5C\u533A:")) return true;
-    return known.has(key.slice("\u5DE5\u4F5C\u533A:".length));
-  });
-  for (const id of workspaceIds) {
-    const key = `\u5DE5\u4F5C\u533A:${id}`;
-    if (!order.includes(key)) order.push(key);
-  }
-  return order.length === layout.order.length && order.every((key, index) => key === layout.order[index]) ? layout : { ...layout, order };
-}
-function workspaceOrder(layout) {
-  const ids = [];
-  for (const key of layout.order) {
-    const parsed = parseKey(key);
-    if (parsed !== null && parsed.kind === "workspace" && !ids.includes(parsed.value)) ids.push(parsed.value);
-  }
-  return ids;
-}
-function addFolder(layout, name) {
-  if (name === "" || layout.folders.includes(name)) return layout;
-  return {
-    ...layout,
-    folders: [...layout.folders, name],
-    order: [...layout.order, customKey(name)]
-  };
-}
-function renameFolder(layout, from, to) {
-  if (from === to || to === "" || layout.folders.includes(to) || !layout.folders.includes(from)) return layout;
-  const swap = (key) => key === customKey(from) ? customKey(to) : key;
-  const placement = {};
-  for (const [id, key] of Object.entries(layout.placement)) placement[id] = swap(key);
-  const sessions2 = {};
-  for (const [key, ids] of Object.entries(layout.sessions)) sessions2[swap(key)] = ids;
-  return {
-    ...layout,
-    folders: layout.folders.map((name) => name === from ? to : name),
-    order: layout.order.map(swap),
-    placement,
-    pinned: layout.pinned.map(swap),
-    sessions: sessions2
-  };
-}
-function removeFolder(layout, name) {
-  if (!layout.folders.includes(name)) return layout;
-  const key = customKey(name);
-  const placement = {};
-  for (const [id, value] of Object.entries(layout.placement)) if (value !== key) placement[id] = value;
-  const sessions2 = { ...layout.sessions };
-  delete sessions2[key];
-  return {
-    ...layout,
-    folders: layout.folders.filter((value) => value !== name),
-    order: layout.order.filter((value) => value !== key),
-    placement,
-    pinned: layout.pinned.filter((value) => value !== key),
-    sessions: sessions2
-  };
-}
-function pinItem(layout, key) {
-  if (layout.pinned.includes(key)) return layout;
-  return { ...layout, pinned: [key, ...layout.pinned] };
-}
-function unpinItem(layout, key) {
-  if (!layout.pinned.includes(key)) return layout;
-  return { ...layout, pinned: layout.pinned.filter((value) => value !== key) };
-}
-function placeSession(layout, id, key, before, fallback, order) {
-  const sessions2 = {};
-  for (const [folder, ids] of Object.entries(layout.sessions)) sessions2[folder] = ids.filter((value) => value !== id);
-  const seed = Array.isArray(order) ? order : sessions2[key] ?? [];
-  const list = seed.filter((value) => value !== id);
-  const into = before === void 0 ? list.length : list.indexOf(before);
-  const next = into < 0 ? [...list, id] : [...list.slice(0, into), id, ...list.slice(into)];
-  sessions2[key] = next;
-  const placement = { ...layout.placement };
-  if (key === "" || key === fallback) delete placement[id];
-  else placement[id] = key;
-  return { ...layout, placement, sessions: sessions2 };
-}
-function reorderPinned(layout, moved, before) {
-  if (!layout.pinned.includes(moved)) return layout;
-  return { ...layout, pinned: reorder(layout.pinned, moved, before) };
-}
-function frontFolder(layout, key) {
-  return { ...layout, order: [key, ...layout.order.filter((item) => item !== key)] };
-}
-function reorderFolders(layout, moved, before) {
-  if (!layout.order.includes(moved)) return layout;
-  return { ...layout, order: reorder(layout.order, moved, before) };
-}
 
 // src/client/api.js
 var DELETE_URL = "/plugins/session-admin/delete";
-var TREE_URL = "/plugins/session-admin/tree";
-var LAYOUT_URL = "/plugins/session-admin/layout";
-async function getTree() {
-  try {
-    const response = await fetch(TREE_URL, { credentials: "same-origin" });
-    const data = await response.json().catch(() => ({ ok: false, error: `HTTP ${response.status}` }));
-    if (data.ok !== true) return { ok: false, error: data.error ?? `HTTP ${response.status}` };
-    return { ok: true, layout: normalizeLayout(data.layout) };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  }
-}
-async function postLayout(layout) {
-  try {
-    const response = await fetch(LAYOUT_URL, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ layout })
-    });
-    const data = await response.json().catch(() => ({ ok: false, error: `HTTP ${response.status}` }));
-    if (data.ok !== true) return { ok: false, error: data.error ?? `HTTP ${response.status}` };
-    return { ok: true, layout: normalizeLayout(data.layout) };
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) };
-  }
-}
 async function postDelete(ids) {
   try {
     const response = await fetch(DELETE_URL, {
@@ -518,48 +274,40 @@ function useVanished() {
   return store.useValue();
 }
 
-// src/client/stores/tree.js
-var INITIAL = { loaded: false, loading: false, saving: false, error: "", layout: emptyLayout() };
-var store2 = createStore(INITIAL);
-var inflight = null;
-var writes = Promise.resolve();
-function refreshLayout() {
-  if (inflight !== null) return inflight;
-  store2.set({ ...store2.get(), loading: true, error: "" });
-  inflight = getTree().then((result) => {
-    if (result.ok !== true) {
-      store2.set({ ...store2.get(), loading: false, error: result.error });
-      return store2.get();
+// src/client/stores/pins.js
+var PINS_KEY = "session-admin.pinned";
+var SESSION_ID = /^session-[0-9a-fA-F-]{8,64}$/;
+function readStored() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PINS_KEY) ?? "[]");
+    if (!Array.isArray(raw)) return [];
+    const list = [];
+    for (const value of raw) {
+      if (typeof value !== "string" || !SESSION_ID.test(value) || list.includes(value)) continue;
+      list.push(value);
     }
-    store2.set({ loaded: true, loading: false, error: "", layout: result.layout });
-    return store2.get();
-  }).finally(() => {
-    inflight = null;
-  });
-  return inflight;
+    return list;
+  } catch {
+    return [];
+  }
 }
-function saveLayout(next) {
-  const previous = store2.get();
-  const layout = normalizeLayout(next);
-  store2.set({ ...previous, saving: true, error: "", layout });
-  writes = writes.then(async () => {
-    const result = await postLayout(store2.get().layout);
-    const current = store2.get();
-    if (result.ok !== true) {
-      const fallback = current.layout === layout ? previous.layout : current.layout;
-      store2.set({ ...current, saving: false, error: result.error, layout: fallback });
-      return store2.get();
-    }
-    store2.set({ ...current, loaded: true, saving: false, error: "", layout: result.layout });
-    return store2.get();
-  });
-  return writes;
+var store2 = createStore(readStored());
+function togglePin(id) {
+  const current = store2.get();
+  const next = current.includes(id) ? current.filter((value) => value !== id) : [id, ...current];
+  store2.set(next);
+  try {
+    localStorage.setItem(PINS_KEY, JSON.stringify(next));
+  } catch {
+  }
 }
-function useTree() {
+function usePinned() {
   return store2.useValue();
 }
 
 // src/client/tree-model.js
+var BUCKETS = ["today", "yesterday", "week", "month", "older"];
+var DAY = 24 * 60 * 60 * 1e3;
 function selectRows(options) {
   const { catalog, archivedIds, goneIds, showArchived } = options;
   const archived = new Set(archivedIds);
@@ -576,6 +324,7 @@ function selectRows(options) {
   for (const id of catalog.ids) {
     const row = catalog.byId[id];
     if (row === void 0) continue;
+    if (row.blank === true) continue;
     if (gone.has(id)) continue;
     if (archived.has(id) && showArchived !== true) continue;
     rows.push(row);
@@ -583,94 +332,52 @@ function selectRows(options) {
   rows.sort((left, right) => right.updatedAt - left.updatedAt);
   return { rows, archived, gone, currentId };
 }
-function applyOrder(order, members) {
-  if (!Array.isArray(order) || order.length === 0) return members;
-  const remaining = new Map(members.map((row) => [row.id, row]));
-  const list = [];
-  for (const id of order) {
-    const row = remaining.get(id);
-    if (row === void 0) continue;
-    remaining.delete(id);
-    list.push(row);
-  }
-  for (const row of members) if (remaining.delete(row.id)) list.push(row);
-  return list;
+function startOfDay(ms) {
+  const date = new Date(ms);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
 }
-function buildTreeModel(options) {
-  const { rows, base, workspaceInfo, defaultKey, needle, t, matches } = options;
-  const orderBy = options.orderBy === "updated" ? "updated" : "manual";
-  const pinnedIds = new Set(base.pinned);
-  const byUpdated = (list) => [...list].sort((left, right) => (right.updatedAt ?? 0) - (left.updatedAt ?? 0));
-  const orderSessions = (order, members) => orderBy === "updated" ? byUpdated(members) : applyOrder(order, members);
+function bucketOf(updatedAt, now) {
+  const today = startOfDay(now);
+  const at = typeof updatedAt === "number" ? updatedAt : 0;
+  if (at >= today) return "today";
+  if (at >= today - DAY) return "yesterday";
+  if (at >= today - 7 * DAY) return "week";
+  if (at >= today - 30 * DAY) return "month";
+  return "older";
+}
+function buildCardList(options) {
+  const { rows, pinnedIds, needle, matches, now, t } = options;
   const visible = needle === "" ? rows : rows.filter(matches);
-  const currentId = rows.find((row) => (row.retainedBy?.mainView ?? 0) > 0)?.id;
-  const dropBlanks = (members) => {
-    if (!members.some((row) => row.blank !== true)) return members;
-    return members.filter((row) => row.blank !== true || row.id === currentId);
-  };
-  const byKey = /* @__PURE__ */ new Map();
-  for (const key of base.order) {
-    const parsed = parseKey(key);
-    if (parsed === null) continue;
-    if (parsed.kind === "workspace") {
-      const info = workspaceInfo.get(parsed.value);
-      if (info === void 0) continue;
-      byKey.set(key, { key, kind: "workspace", label: info.label, sessions: [] });
-    } else {
-      byKey.set(key, { key, kind: "custom", label: parsed.value, sessions: [] });
-    }
-  }
-  const empty = [];
-  for (const row of visible) {
-    if (pinnedIds.has(row.id)) continue;
-    const target = base.placement[row.id];
-    const fallback = defaultKey(row.id);
-    const key = target !== void 0 && byKey.has(target) ? target : byKey.has(fallback) ? fallback : "";
-    if (key === "") {
-      empty.push(row);
-      continue;
-    }
-    byKey.get(key).sessions.push(row);
-  }
-  let groups = [...byKey.values()].map((group) => ({
-    ...group,
-    sessions: dropBlanks(orderSessions(base.sessions[group.key], group.sessions))
-  }));
-  if (empty.length > 0) {
-    groups.push({
-      key: "",
-      kind: "ungrouped",
-      label: t("groupUngrouped"),
-      sessions: dropBlanks(orderSessions(void 0, empty))
-    });
-  }
-  if (needle !== "") groups = groups.filter((group) => group.sessions.length > 0);
-  const groupByKey = new Map(groups.map((group) => [group.key, group]));
-  const rowById = new Map(rows.map((row) => [row.id, row]));
+  const pins = Array.isArray(pinnedIds) ? pinnedIds : [];
+  const pinnedSet = new Set(pins);
   const pinned = [];
-  for (const entry of base.pinned) {
-    const parsed = parseKey(entry);
-    if (parsed === null) {
-      const row = rowById.get(entry);
-      if (row !== void 0 && (needle === "" || matches(row))) pinned.push({ kind: "session", id: entry, row });
-      continue;
-    }
-    const group = groupByKey.get(entry);
-    if (group !== void 0) pinned.push({ kind: "folder", key: entry, group });
+  const rest = [];
+  for (const row of visible) {
+    if (pinnedSet.has(row.id)) pinned.push(row);
+    else rest.push(row);
   }
-  const pinnedKeys = new Set(pinned.filter((entry) => entry.kind === "folder").map((entry) => entry.key));
-  const rest = groups.filter((group) => !pinnedKeys.has(group.key));
-  const visibleRows = pinned.filter((entry) => entry.kind === "session").map((entry) => entry.row);
-  const seen = new Set(visibleRows.map((row) => row.id));
-  for (const group of groups) {
-    for (const row of group.sessions) {
-      if (seen.has(row.id)) continue;
-      seen.add(row.id);
-      visibleRows.push(row);
+  const rank = new Map(pins.map((id, index) => [id, index]));
+  pinned.sort((left, right) => (rank.get(left.id) ?? 0) - (rank.get(right.id) ?? 0));
+  rest.sort((left, right) => (right.updatedAt ?? 0) - (left.updatedAt ?? 0));
+  const groups = [];
+  let current = null;
+  for (const row of rest) {
+    const key = bucketOf(row.updatedAt, now);
+    if (current === null || current.key !== key) {
+      current = { key, label: t(`bucket.${key}`), rows: [] };
+      groups.push(current);
     }
+    current.rows.push(row);
   }
-  const selectable = visibleRows.filter((row) => !row.running);
-  return { groups, groupByKey, rowById, pinned, pinnedKeys, rest, visibleRows, selectable };
+  groups.sort((left, right) => BUCKETS.indexOf(left.key) - BUCKETS.indexOf(right.key));
+  const visibleRows = [...pinned, ...rest];
+  return {
+    pinned,
+    groups,
+    visibleRows,
+    selectable: visibleRows.filter((row) => !row.running)
+  };
 }
 
 // src/client/components/session-tree.js
@@ -726,7 +433,6 @@ function SessionMenu(props) {
         {
           className: "sa-icon-btn",
           type: "button",
-          draggable: false,
           "aria-label": t("sessionActions", { title }),
           onPointerDown: (event) => event.stopPropagation(),
           onClick: (event) => {
@@ -739,650 +445,252 @@ function SessionMenu(props) {
     }
   );
 }
-function SessionRow(props) {
-  const { variant, row, now, pinned, archived, unread, automation, selected, busy, t, onOpen, onSelect, onDelete } = props;
+function SessionCard(props) {
+  const { variant, row, workspaceLabel, now, pinned, archived, unread, automation, selected, busy, t } = props;
+  const selectMode = props.selectMode === true && variant === "sidebar";
+  const current = props.current === true;
   const title = rowTitle(row, t);
   const [menuOpen, setMenuOpen] = react_default.useState(false);
-  if (variant === "sidebar") {
-    const rowClass = [
-      "sa-session",
-      "sa-session-sidebar",
-      pinned === true ? "sa-pinned-row" : "",
-      archived === true ? "sa-archived" : "",
-      menuOpen ? "sa-menu-open" : "",
-      props.dropBefore === true ? "sa-drop-before" : ""
-    ].filter((part) => part !== "").join(" ");
-    const togglePin = (event) => {
-      event.stopPropagation();
-      const handler = pinned === true ? props.onUnpin : props.onPin;
-      if (typeof handler === "function") handler(row.id);
-    };
-    const dot = statusDot(row, t, unread);
-    const mark = () => {
-      if (automation === true) {
-        return h(
-          "span",
-          { className: "sa-slot sa-clock", title: t("automation"), "aria-label": t("automation") },
-          h(import_dsh_client_ui_primitives2.IconClockOutlineRegular, null)
-        );
-      }
-      if (pinned === true) {
-        return h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null));
-      }
-      return h("span", { className: "sa-slot", "aria-hidden": true });
-    };
-    return h(
-      "div",
-      {
-        className: rowClass,
-        "data-session-id": row.id,
-        role: "treeitem",
-        "aria-selected": false,
-        draggable: busy !== true,
-        onDragStart: (event) => {
-          event.stopPropagation();
-          if (typeof props.onDragStart === "function") props.onDragStart(row);
-        }
-      },
-      mark(),
-      h(
-        "button",
-        {
-          className: "sa-open",
-          type: "button",
-          title,
-          disabled: busy || archived === true,
-          onClick: () => onOpen(row.id)
-        },
-        h("span", { className: "sa-title" }, title),
-        archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null
-      ),
-      dot === null ? h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)) : h("span", { className: "sa-time sa-time-dot" }, dot),
-      h(
-        "span",
-        { className: "sa-row-actions" },
-        h(
-          import_dsh_client_ui_primitives2.Tooltip,
-          {
-            label: pinned === true ? t("unpin") : t("pin"),
-            side: "bottom",
-            align: "end",
-            delayMs: 500,
-            portal: true
-          },
-          h(
-            "button",
-            {
-              className: "sa-icon-btn",
-              type: "button",
-              draggable: false,
-              "aria-label": pinned === true ? t("unpin") : t("pin"),
-              onPointerDown: (event) => event.stopPropagation(),
-              onClick: togglePin
-            },
-            h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)
-          )
-        ),
-        h(SessionMenu, {
-          row,
-          pinned: pinned === true,
-          archived: archived === true,
-          onArchive: props.onArchive,
-          onUnarchive: props.onUnarchive,
-          t,
-          open: menuOpen,
-          onOpenChange: setMenuOpen,
-          onDelete: (target) => {
-            if (typeof onDelete === "function") onDelete(target);
-          },
-          onPin: (id) => {
-            if (typeof props.onPin === "function") props.onPin(id);
-          },
-          onUnpin: (id) => {
-            if (typeof props.onUnpin === "function") props.onUnpin(id);
-          },
-          onRename: (target) => {
-            if (typeof props.onRename === "function") props.onRename(target);
-          }
-        })
-      )
-    );
-  }
+  const blocked = busy === true || archived === true;
+  const toggle = () => {
+    if (blocked) return;
+    if (typeof props.onSelect === "function") props.onSelect(row.id);
+  };
+  const open = () => {
+    if (blocked) return;
+    if (selectMode === true) {
+      toggle();
+      return;
+    }
+    if (typeof props.onOpen === "function") props.onOpen(row.id);
+  };
   const className = [
-    "sa-session",
-    pinned === true ? "sa-pinned-row" : "",
+    "sa-card",
+    variant === "sidebar" ? "sa-card-sidebar" : "",
+    pinned === true ? "sa-pinned-card" : "",
     archived === true ? "sa-archived" : "",
     selected ? "sa-selected" : "",
-    menuOpen ? "sa-menu-open" : "",
-    props.dropBefore === true ? "sa-drop-before" : ""
+    current ? "sa-current" : "",
+    menuOpen ? "sa-menu-open" : ""
   ].filter((part) => part !== "").join(" ");
+  const mark = () => {
+    if (dot !== null) return h("span", { className: "sa-slot" }, dot);
+    if (pinned === true) {
+      return h("span", { className: "sa-slot sa-pin" }, h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null));
+    }
+    if (automation === true) {
+      return h(
+        "span",
+        { className: "sa-slot sa-clock", title: t("automation"), "aria-label": t("automation") },
+        h(import_dsh_client_ui_primitives2.IconClockOutlineRegular, null)
+      );
+    }
+    return h("span", { className: "sa-slot", "aria-hidden": true });
+  };
+  const togglePin2 = (event) => {
+    event.stopPropagation();
+    const handler = pinned === true ? props.onUnpin : props.onPin;
+    if (typeof handler === "function") handler(row.id);
+  };
+  const dot = statusDot(row, t, unread);
   return h(
     "div",
     {
       className,
-      role: "treeitem",
-      "aria-selected": selected,
       "data-session-id": row.id,
-      draggable: busy !== true,
-      onDragStart: (event) => {
-        event.stopPropagation();
-        if (typeof props.onDragStart === "function") props.onDragStart(row);
+      role: "button",
+      tabIndex: blocked ? -1 : 0,
+      "aria-disabled": blocked,
+      title: archived === true ? t("archivedHint") : title,
+      onClick: open,
+      onKeyDown: (event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        open();
       }
     },
-    h("input", {
+    variant === "sidebar" ? selectMode === true ? h("span", {
+      className: selected === true ? "sa-check-ring sa-check-ring-on" : "sa-check-ring",
+      role: "checkbox",
+      "aria-checked": selected === true,
+      "aria-label": title,
+      onClick: (event) => {
+        event.stopPropagation();
+        toggle();
+      }
+    }) : mark() : h("input", {
       className: "sa-check",
       type: "checkbox",
-      checked: selected,
-      disabled: row.running || busy,
-      title: row.running ? t("runningHint") : title,
+      checked: selected === true,
+      disabled: row.running === true || busy === true,
+      title: row.running === true ? t("runningHint") : title,
       "aria-label": title,
       onClick: (event) => event.stopPropagation(),
-      onChange: () => onSelect(row.id)
+      onChange: () => {
+        if (typeof props.onSelect === "function") props.onSelect(row.id);
+      }
     }),
     h(
-      "button",
-      {
-        className: "sa-open",
-        type: "button",
-        disabled: busy || archived === true,
-        title: archived === true ? t("archivedHint") : title,
-        onClick: () => onOpen(row.id)
-      },
-      h("span", { className: "sa-title" }, title),
-      archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null,
-      statusDot(row, t, unread)
-    ),
-    h("span", { className: "sa-time" }, relativeLabel(row.updatedAt, now, t)),
-    h(
-      "span",
-      { className: "sa-row-actions" },
-      h(SessionMenu, {
-        row,
-        pinned: pinned === true,
-        archived: archived === true,
-        onArchive: props.onArchive,
-        onUnarchive: props.onUnarchive,
-        t,
-        open: menuOpen,
-        onOpenChange: setMenuOpen,
-        onDelete: (target) => {
-          if (typeof onDelete === "function") onDelete(target);
-        },
-        onPin: (target) => {
-          const handler = pinned === true ? props.onUnpin : props.onPin;
-          if (typeof handler === "function") handler(target);
-        },
-        onRename: (target) => {
-          if (typeof props.onRename === "function") props.onRename(target);
-        }
-      })
-    )
-  );
-}
-function Group(props) {
-  const { group, kind, pinned, now, expanded, selection, busy, variant, t } = props;
-  const unread = props.unread instanceof Set ? props.unread : /* @__PURE__ */ new Set();
-  const automation = props.automation instanceof Set ? props.automation : /* @__PURE__ */ new Set();
-  const [menuOpen, setMenuOpen] = react_default.useState(false);
-  const sessions2 = Array.isArray(group.sessions) ? group.sessions : [];
-  const ungrouped = kind === "ungrouped";
-  const toggle = () => {
-    if (typeof props.onToggle === "function") props.onToggle(group.key);
-  };
-  const menuItems = [];
-  if (kind === "workspace") {
-    menuItems.push({ id: "rename", label: t("renameWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) });
-    menuItems.push({ id: "delete", label: t("deleteWorkspace"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true });
-  }
-  if (kind === "custom") {
-    menuItems.push({ id: "rename", label: t("renameFolder"), icon: h(import_dsh_client_ui_primitives2.IconEditOutlineRegular, null) });
-    menuItems.push({ id: "delete", label: t("deleteFolder"), icon: h(import_dsh_client_ui_primitives2.IconTrashOutlineRegular, null), danger: true });
-  }
-  menuItems.push({ id: "pin", label: pinned === true ? t("unpin") : t("pin"), icon: h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null) });
-  const menu = () => h(
-    import_dsh_client_ui_primitives2.Menu,
-    {
-      open: menuOpen,
-      onClose: () => setMenuOpen(false),
-      portal: true,
-      closeOnPointerLeave: true,
-      items: menuItems,
-      onSelect: (id) => {
-        setMenuOpen(false);
-        if (id === "rename") {
-          if (kind === "workspace" && typeof props.onRenameWorkspace === "function") props.onRenameWorkspace(group);
-          if (kind === "custom" && typeof props.onRenameFolder === "function") props.onRenameFolder(group);
-        }
-        if (id === "delete") {
-          if (kind === "workspace" && typeof props.onDeleteWorkspace === "function") props.onDeleteWorkspace(group);
-          if (kind === "custom" && typeof props.onDeleteFolder === "function") props.onDeleteFolder(group);
-        }
-        if (id === "pin") {
-          const handler = pinned === true ? props.onUnpin : props.onPin;
-          if (typeof handler === "function") handler(group.key);
-        }
-      },
-      anchor: h(
-        "button",
-        {
-          className: "sa-icon-btn",
-          type: "button",
-          draggable: false,
-          "aria-label": kind === "custom" ? t("folderActions", { name: group.label }) : t("workspaceActions", { name: group.label }),
-          onPointerDown: (event) => event.stopPropagation(),
-          onClick: (event) => {
-            event.stopPropagation();
-            setMenuOpen((open) => !open);
-          }
-        },
-        h(import_dsh_client_ui_primitives2.IconEllipsisOutlineRegular, null)
-      )
-    }
-  );
-  const canDrop = props.dragKind === "session" || props.dragKind === "folder" || pinned === true && props.dragKind === "pinned";
-  const className = [
-    "sa-group",
-    menuOpen ? "sa-menu-open" : "",
-    pinned === true ? "sa-pinned-group" : "",
-    props.dropTarget === group.key ? "sa-drop-target" : ""
-  ].filter((part) => part !== "").join(" ");
-  const head = h(
-    "div",
-    {
-      className,
-      role: "treeitem",
-      "aria-expanded": expanded,
-      draggable: ungrouped !== true && busy !== true,
-      onClick: toggle,
-      onDragStart: (event) => {
-        if (ungrouped === true) return;
-        event.stopPropagation();
-        if (typeof props.onDragStart === "function") props.onDragStart(group);
-      },
-      onDragOver: (event) => {
-        if (!canDrop) return;
-        event.preventDefault();
-        if (typeof props.onDragOver === "function") props.onDragOver(group.key);
-      },
-      onDragLeave: (event) => {
-        if (event.currentTarget.contains(event.relatedTarget)) return;
-        if (typeof props.onDragOver === "function") props.onDragOver(null);
-      },
-      onDrop: (event) => {
-        if (ungrouped === true && props.dragKind !== "session") return;
-        event.preventDefault();
-        if (typeof props.onDrop === "function") props.onDrop(group);
-      }
-    },
-    h(
-      "span",
-      { className: "sa-slot sa-folder" },
-      expanded ? h(import_dsh_client_ui_primitives2.IconFolderOpenRegular, null) : h(import_dsh_client_ui_primitives2.IconFolderCloseRegular, null)
-    ),
-    h(
-      "span",
-      { className: "sa-slot sa-chevron" },
-      h(import_dsh_client_ui_primitives2.IconTriangleRightFillRegular, { className: expanded ? "sa-arrow sa-arrow-open" : "sa-arrow" })
-    ),
-    h("span", { className: "sa-title" }, group.label),
-    ungrouped ? null : h(
-      "span",
-      { className: "sa-row-actions" },
-      menu(),
+      "div",
+      { className: "sa-card-body" },
       h(
-        import_dsh_client_ui_primitives2.Tooltip,
-        { label: t("newSession"), side: "bottom", align: "end", delayMs: 500, portal: true },
-        h(
-          "button",
-          {
-            className: "sa-icon-btn",
-            type: "button",
-            draggable: false,
-            "aria-label": t("newSessionIn", { name: group.label }),
-            onPointerDown: (event) => event.stopPropagation(),
-            onClick: (event) => {
-              event.stopPropagation();
-              if (typeof props.onNewSession === "function") props.onNewSession(group);
-            }
-          },
-          h(import_dsh_client_ui_primitives2.IconNewChatOutlineRegular, null)
-        )
-      )
-    )
-  );
-  let body = null;
-  if (expanded) {
-    if (sessions2.length === 0) body = h("div", { className: "sa-empty-group" }, t("folderEmpty"));
-    else
-      body = h(
         "div",
-        {
-          className: "sa-rows",
-          onDragOver: (event) => {
-            if (props.dragKind !== "session") return;
-            const element = event.target instanceof Element ? event.target.closest("[data-session-id]") : null;
-            event.preventDefault();
-            event.stopPropagation();
-            const id = element === null ? null : element.getAttribute("data-session-id");
-            if (typeof props.onDragOver === "function") props.onDragOver(id === null ? group.key : `row:${id}`);
-          },
-          onDrop: (event) => {
-            if (props.dragKind !== "session") return;
-            const element = event.target instanceof Element ? event.target.closest("[data-session-id]") : null;
-            event.preventDefault();
-            event.stopPropagation();
-            const id = element === null ? void 0 : element.getAttribute("data-session-id");
-            if (typeof props.onDropRow === "function") props.onDropRow(group, id);
-          }
-        },
-        sessions2.map(
-          (row) => h(SessionRow, {
-            key: row.id,
-            variant,
+        { className: "sa-card-head" },
+        variant === "sidebar" ? null : mark(),
+        h(
+          "span",
+          { className: "sa-card-title" },
+          h("span", { className: "sa-title" }, title),
+          archived === true ? h("span", { className: "sa-tag" }, t("archivedTag")) : null
+        ),
+        h(
+          "span",
+          { className: "sa-row-actions" },
+          h(
+            import_dsh_client_ui_primitives2.Tooltip,
+            {
+              label: pinned === true ? t("unpin") : t("pin"),
+              side: "bottom",
+              align: "end",
+              delayMs: 500,
+              portal: true
+            },
+            h(
+              "button",
+              {
+                className: "sa-icon-btn",
+                type: "button",
+                "aria-label": pinned === true ? t("unpin") : t("pin"),
+                onPointerDown: (event) => event.stopPropagation(),
+                onClick: togglePin2
+              },
+              h(import_dsh_client_ui_primitives2.IconPinOutlineRegular, null)
+            )
+          ),
+          h(SessionMenu, {
             row,
-            now,
-            pinned: false,
-            archived: props.archived instanceof Set && props.archived.has(row.id),
-            unread: unread.has(row.id),
-            automation: automation.has(row.id),
-            selected: selection.includes(row.id),
-            busy,
+            pinned: pinned === true,
+            archived: archived === true,
             t,
-            dropBefore: props.dropTarget === `row:${row.id}`,
-            onOpen: props.onOpen,
-            onSelect: props.onSelect,
-            onDelete: props.onDelete,
-            onPin: props.onPin,
-            onUnpin: props.onUnpin,
+            open: menuOpen,
+            onOpenChange: setMenuOpen,
+            onDelete: (target) => {
+              if (typeof props.onDelete === "function") props.onDelete(target);
+            },
+            onPin: (id) => {
+              if (typeof props.onPin === "function") props.onPin(id);
+            },
+            onUnpin: (id) => {
+              if (typeof props.onUnpin === "function") props.onUnpin(id);
+            },
             onArchive: props.onArchive,
             onUnarchive: props.onUnarchive,
-            onRename: props.onRename,
-            onDragStart: props.onSessionDragStart
+            onRename: props.onRename
           })
         )
-      );
-  }
-  return h("div", { className: "sa-block" }, head, body);
-}
-function PinnedEntry(props) {
-  const { entry, t, dragKind, dropTarget } = props;
-  const key = entry.kind === "folder" ? entry.group.key : entry.row.id;
-  const wrap = (draggable, onDragStart, children) => h(
-    "div",
-    {
-      className: [
-        "sa-pinned-entry",
-        entry.kind === "folder" ? "sa-pinned-folder-entry" : "",
-        props.dropBefore === true ? "sa-drop-before" : "",
-        props.dropAfter === true ? "sa-drop-after" : ""
-      ].filter((part) => part !== "").join(" "),
-      draggable,
-      "data-pinned-key": key,
-      onDragStart: draggable === true ? (event) => {
-        event.stopPropagation();
-        onDragStart();
-      } : void 0,
-      onDragOver: (event) => {
-        if (dragKind !== "pinned") return;
-        event.preventDefault();
-        event.stopPropagation();
-        const rect = event.currentTarget.getBoundingClientRect();
-        props.onPinHover(key, event.clientY > rect.top + rect.height / 2);
-      },
-      onDrop: (event) => {
-        if (dragKind !== "pinned") return;
-        event.preventDefault();
-        event.stopPropagation();
-        const rect = event.currentTarget.getBoundingClientRect();
-        props.onPinDrop(key, event.clientY > rect.top + rect.height / 2);
-      }
-    },
-    children
+      ),
+      h(
+        "div",
+        { className: "sa-card-sub" },
+        h("span", { className: "sa-card-ws", title: workspaceLabel }, workspaceLabel),
+        h("span", { className: "sa-card-time" }, relativeLabel(row.updatedAt, now, t))
+      )
+    )
   );
-  if (entry.kind === "folder") {
-    return wrap(
-      false,
-      () => {
-      },
-      h(Group, {
-        group: entry.group,
-        kind: entry.group.kind,
-        pinned: true,
-        now: props.now,
-        expanded: props.expanded.includes(entry.group.key),
-        selection: props.selection,
-        busy: props.busy,
+}
+function CardSection(props) {
+  return h(
+    "div",
+    { className: "sa-section" },
+    props.showLabel === false ? null : h("div", { className: "sa-section-label" }, props.label),
+    props.rows.map(
+      (row) => h(SessionCard, {
+        key: row.id,
         variant: props.variant,
-        t,
-        archived: props.archived,
-        unread: props.unread,
-        automation: props.automation,
-        dropTarget,
-        dragKind,
-        onToggle: props.onToggle,
+        row,
+        now: props.now,
+        workspaceLabel: props.workspaceLabels.get(row.id) ?? props.t("workspaceUnknown"),
+        pinned: props.pinnedIds.has(row.id),
+        archived: props.archived.has(row.id),
+        unread: props.unread.has(row.id),
+        automation: props.automation.has(row.id),
+        selected: props.selection.includes(row.id),
+        current: row.id === props.currentId,
+        selectMode: props.selectMode === true,
+        busy: props.busy,
+        t: props.t,
         onOpen: props.onOpen,
         onSelect: props.onSelect,
         onDelete: props.onDelete,
-        onNewSession: props.onNewSession,
-        onRenameWorkspace: props.onRenameWorkspace,
-        onDeleteWorkspace: props.onDeleteWorkspace,
-        onRenameFolder: props.onRenameFolder,
-        onDeleteFolder: props.onDeleteFolder,
         onPin: props.onPin,
         onUnpin: props.onUnpin,
-        onRename: props.onRename,
         onArchive: props.onArchive,
         onUnarchive: props.onUnarchive,
-        onDragStart: (group) => props.onPinnedDragStart(group.key),
-        onDragOver: props.onDragOver,
-        onDrop: (group) => props.onPinnedDrop(group.key),
-        onDropRow: (group, before) => props.onPinnedDropRow(group, before)
+        onRename: props.onRename
       })
-    );
-  }
-  const row = entry.row;
-  return wrap(props.busy !== true, () => props.onPinnedDragStart(entry.row.id), [
-    h(SessionRow, {
-      variant: props.variant,
-      row,
-      now: props.now,
-      pinned: true,
-      archived: props.archived instanceof Set && props.archived.has(row.id),
-      unread: props.unread instanceof Set && props.unread.has(row.id),
-      automation: props.automation instanceof Set && props.automation.has(row.id),
-      selected: props.selection.includes(row.id),
-      busy: props.busy,
-      t,
-      onOpen: props.onOpen,
-      onSelect: props.onSelect,
-      onDelete: props.onDelete,
-      onPin: props.onPin,
-      onUnpin: props.onUnpin,
-      onArchive: props.onArchive,
-      onUnarchive: props.onUnarchive,
-      onRename: props.onRename,
-      onDragStart: () => props.onPinnedDragStart(entry.row.id)
-    })
-  ]);
+    )
+  );
 }
 function SessionTree(props) {
   const t = props.t;
   const variant = props.variant === "sidebar" ? "sidebar" : "panel";
-  const groups = Array.isArray(props.groups) ? props.groups : [];
   const pinned = Array.isArray(props.pinned) ? props.pinned : [];
-  const expanded = Array.isArray(props.expanded) ? props.expanded : [];
+  const groups = Array.isArray(props.groups) ? props.groups : [];
   const selection = Array.isArray(props.selection) ? props.selection : [];
   const archived = props.archived instanceof Set ? props.archived : /* @__PURE__ */ new Set();
   const unread = props.unread instanceof Set ? props.unread : /* @__PURE__ */ new Set();
   const automation = props.automation instanceof Set ? props.automation : /* @__PURE__ */ new Set();
-  const busy = props.busy === true;
+  const workspaceLabels = props.workspaceLabels instanceof Map ? props.workspaceLabels : /* @__PURE__ */ new Map();
+  const currentId = props.currentId;
+  const pinnedIds = new Set(pinned.map((row) => row.id));
   const now = Date.now();
   const open = (id) => {
-    if (busy) return;
+    if (props.busy === true) return;
     if (typeof props.onOpen === "function") props.onOpen(id);
   };
   const select = (id) => {
-    if (busy) return;
+    if (props.busy === true) return;
     if (typeof props.onSelectionChange === "function") props.onSelectionChange(id);
   };
-  const [drag, setDrag] = react_default.useState(null);
-  const [dropTarget, setDropTarget] = react_default.useState(null);
-  const [pinHover, setPinHover] = react_default.useState(null);
-  const clearDrag = () => {
-    setDrag(null);
-    setDropTarget(null);
-    setPinHover(null);
-  };
-  const endDrop = (group) => {
-    const current = drag;
-    clearDrag();
-    if (current === null) return;
-    if (current.kind === "session") {
-      if (typeof props.onMoveSession === "function") props.onMoveSession(current.id, group.key);
-      return;
-    }
-    if (current.kind === "folder") {
-      if (typeof props.onMoveFolder === "function") props.onMoveFolder(current.key, group.key);
-    }
-  };
-  const endRowDrop = (group, before) => {
-    const current = drag;
-    clearDrag();
-    if (current === null || current.kind !== "session" || current.id === before) return;
-    if (typeof props.onMoveSession === "function") props.onMoveSession(current.id, group.key, before);
-  };
-  const pinnedDrop = (target) => {
-    const current = drag;
-    clearDrag();
-    if (current === null || current.key === target) return;
-    const folderKey = parseKey(target) !== null;
-    if (current.kind === "pinned") {
-      if (typeof props.onReorderPinned === "function") props.onReorderPinned(current.key, target);
-      return;
-    }
-    if (current.kind === "session" && folderKey) {
-      if (typeof props.onMoveSession === "function") props.onMoveSession(current.id, target);
-      return;
-    }
-    if (current.kind === "folder" && folderKey) {
-      if (typeof props.onMoveFolder === "function") props.onMoveFolder(current.key, target);
-    }
-  };
-  const pinDropAt = (key, after) => {
-    const current = drag;
-    clearDrag();
-    if (current === null || current.kind !== "pinned") return;
-    const keys = pinned.map((item) => item.kind === "folder" ? item.group.key : item.row.id);
-    const index = keys.indexOf(key);
-    const before = after ? keys[index + 1] : key;
-    if (before === current.key) return;
-    if (typeof props.onReorderPinned === "function") props.onReorderPinned(current.key, before);
-  };
-  const pinDropTail = () => {
-    const current = drag;
-    clearDrag();
-    if (current === null || current.kind !== "pinned") return;
-    if (typeof props.onReorderPinned === "function") props.onReorderPinned(current.key, void 0);
+  const shared = {
+    variant,
+    now,
+    currentId,
+    workspaceLabels,
+    pinnedIds,
+    archived,
+    unread,
+    automation,
+    selection,
+    selectMode: props.selectMode === true,
+    busy: props.busy === true,
+    t,
+    onOpen: open,
+    onSelect: select,
+    onDelete: props.onDelete,
+    onPin: props.onPin,
+    onUnpin: props.onUnpin,
+    onArchive: props.onArchive,
+    onUnarchive: props.onUnarchive,
+    onRename: props.onRename
   };
   return h(
     "div",
-    {
-      className: variant === "sidebar" ? "sa-tree sa-tree-sidebar" : "sa-tree",
-      role: "tree",
-      onDragEnd: clearDrag
-    },
-    pinned.length === 0 ? null : h(
-      "div",
-      { className: "sa-pinned" },
-      pinned.map(
-        (entry) => h(PinnedEntry, {
-          key: entry.kind === "folder" ? entry.group.key : entry.row.id,
-          entry,
-          now,
-          variant,
-          t,
-          expanded,
-          selection,
-          busy,
-          dropTarget,
-          dragKind: drag === null ? null : drag.kind,
-          archived,
-          automation,
-          onToggle: props.onToggle,
-          onOpen: open,
-          onSelect: select,
-          onDelete: props.onDelete,
-          onNewSession: props.onNewSession,
-          onRenameWorkspace: props.onRenameWorkspace,
-          onDeleteWorkspace: props.onDeleteWorkspace,
-          onRenameFolder: props.onRenameFolder,
-          onDeleteFolder: props.onDeleteFolder,
-          onPin: props.onPin,
-          onUnpin: props.onUnpin,
-          onArchive: props.onArchive,
-          onUnarchive: props.onUnarchive,
-          onRename: props.onRename,
-          dropBefore: pinHover !== null && drag !== null && drag.kind === "pinned" && pinHover.key === (entry.kind === "folder" ? entry.group.key : entry.row.id) && pinHover.after !== true,
-          dropAfter: pinHover !== null && drag !== null && drag.kind === "pinned" && pinHover.key === (entry.kind === "folder" ? entry.group.key : entry.row.id) && pinHover.after === true,
-          onPinHover: (key, after) => setPinHover({ key, after }),
-          onPinDrop: pinDropAt,
-          onDragOver: setDropTarget,
-          onPinnedDragStart: (key) => setDrag({ kind: "pinned", key }),
-          onPinnedDrop: pinnedDrop,
-          onPinnedDropRow: endRowDrop
-        })
-      ),
-      h("div", {
-        className: "sa-pinned-tail",
-        onDragOver: (event) => {
-          if (drag === null || drag.kind !== "pinned") return;
-          event.preventDefault();
-          setPinHover({ key: "", after: true });
-        },
-        onDrop: (event) => {
-          if (drag === null || drag.kind !== "pinned") return;
-          event.preventDefault();
-          pinDropTail();
-        }
-      })
-    ),
+    { className: variant === "sidebar" ? "sa-tree sa-tree-sidebar" : "sa-tree" },
+    pinned.length === 0 ? null : h(CardSection, {
+      ...shared,
+      label: t("pinnedSection"),
+      showLabel: props.hideFirstLabel !== true,
+      rows: pinned
+    }),
     groups.map(
-      (group) => h(Group, {
-        key: group.key === "" ? "ungrouped" : group.key,
-        group,
-        kind: group.kind,
-        pinned: false,
-        now,
-        expanded: expanded.includes(group.key),
-        selection,
-        busy,
-        variant,
-        t,
-        archived,
-        unread,
-        automation,
-        dropTarget,
-        dragKind: drag === null ? null : drag.kind,
-        onToggle: props.onToggle,
-        onOpen: open,
-        onSelect: select,
-        onDelete: props.onDelete,
-        onNewSession: props.onNewSession,
-        onRenameWorkspace: props.onRenameWorkspace,
-        onDeleteWorkspace: props.onDeleteWorkspace,
-        onRenameFolder: props.onRenameFolder,
-        onDeleteFolder: props.onDeleteFolder,
-        onPin: props.onPin,
-        onUnpin: props.onUnpin,
-        onRename: props.onRename,
-        onDragStart: (target) => {
-          if (target.id !== void 0) setDrag({ kind: "session", id: target.id });
-          else setDrag({ kind: "folder", key: target.key });
-        },
-        onSessionDragStart: (row) => setDrag({ kind: "session", id: row.id }),
-        onDragOver: setDropTarget,
-        onDrop: endDrop,
-        onDropRow: endRowDrop
+      (group, index) => h(CardSection, {
+        ...shared,
+        key: group.key,
+        label: group.label,
+        showLabel: !(props.hideFirstLabel === true && pinned.length === 0 && index === 0),
+        rows: group.rows
       })
     )
   );
@@ -1390,14 +698,14 @@ function SessionTree(props) {
 
 // src/client/stores/shell.js
 var SHELL_KEY = "session-admin.shell-override";
-function readStored() {
+function readStored2() {
   try {
     return localStorage.getItem(SHELL_KEY) === "1";
   } catch {
     return false;
   }
 }
-var store3 = createStore(readStored());
+var store3 = createStore(readStored2());
 function getShellOverride() {
   return store3.get();
 }
@@ -1447,47 +755,28 @@ function SessionAdminSection(props) {
   const workspaces = props.useWorkspaces((state) => state);
   const archivedIds = workspaces.archivedSessionIds;
   const goneIds = useVanished();
-  const treeState = useTree();
-  const layout = treeState.layout;
+  const pinnedIds = usePinned();
   const [query, setQuery] = react_default.useState("");
   const [selected, setSelected] = react_default.useState([]);
   const [confirming, setConfirming] = react_default.useState(null);
   const [busy, setBusy] = react_default.useState(false);
   const [notice, setNotice] = react_default.useState(null);
-  const [collapsed, setCollapsed] = react_default.useState([]);
   const [dialog, setDialog] = react_default.useState(null);
   const [showArchived, setShowArchived] = react_default.useState(false);
-  react_default.useEffect(() => {
-    if (!treeState.loaded && !treeState.loading) void refreshLayout();
-  }, [treeState.loaded, treeState.loading]);
   const archived = react_default.useMemo(() => new Set(archivedIds), [archivedIds]);
   const gone = react_default.useMemo(() => new Set(goneIds), [goneIds]);
-  const { rows } = react_default.useMemo(
+  const { rows, currentId } = react_default.useMemo(
     () => selectRows({ catalog, archivedIds, goneIds, showArchived }),
     [catalog, archivedIds, goneIds, showArchived]
   );
-  const warning = react_default.useMemo(() => {
-    if (treeState.error !== "") return t("treeFailed", { message: treeState.error });
-    return null;
-  }, [treeState.error, t]);
-  const workspaceInfo = react_default.useMemo(() => {
+  const workspaceLabels = react_default.useMemo(() => {
     const map = /* @__PURE__ */ new Map();
     for (const workspace of workspaces.items) {
       const label = workspace.title !== void 0 && workspace.title !== "" ? workspace.title : workspace.path;
-      map.set(workspace.workspaceId, { label, key: workspaceKey(workspace.workspaceId) });
+      for (const id of workspace.sessionIds) map.set(id, label);
     }
     return map;
   }, [workspaces.items]);
-  const base = react_default.useMemo(() => adoptWorkspaces(layout, [...workspaceInfo.keys()]), [layout, workspaceInfo]);
-  const defaultKey = react_default.useCallback(
-    (id) => {
-      for (const workspace of workspaces.items) {
-        if (workspace.sessionIds.includes(id)) return workspaceKey(workspace.workspaceId);
-      }
-      return "";
-    },
-    [workspaces.items]
-  );
   const needle = query.trim().toLowerCase();
   const matches = react_default.useCallback(
     (row) => {
@@ -1498,25 +787,19 @@ function SessionAdminSection(props) {
     },
     [needle]
   );
-  const model = react_default.useMemo(
-    () => buildTreeModel({
-      rows,
-      base,
-      workspaceInfo,
-      defaultKey,
-      needle,
-      t,
-      matches
-    }),
-    [rows, base, workspaceInfo, defaultKey, needle, t, matches]
-  );
-  const { groups, groupByKey, rowById, pinned, pinnedKeys, rest, visibleRows, selectable } = model;
+  const { pinned, groups, visibleRows, selectable } = buildCardList({
+    rows,
+    pinnedIds,
+    needle,
+    matches,
+    now: Date.now(),
+    t
+  });
   const visibleIds = react_default.useMemo(() => new Set(selectable.map((row) => row.id)), [selectable]);
   const selectedIds = selected.filter((id) => visibleIds.has(id));
   const allSelected = selectable.length > 0 && selectedIds.length === selectable.length;
   const archivableIds = selectedIds.filter((id) => !archived.has(id) && !gone.has(id));
   const unarchivableIds = selectedIds.filter((id) => archived.has(id) && !gone.has(id));
-  const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsed.includes(key));
   const toggle = (id) => {
     setSelected((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
   };
@@ -1527,22 +810,9 @@ function SessionAdminSection(props) {
     }
     setSelected((previous) => orderedUnique([...previous, ...selectable.map((row) => row.id)]));
   };
-  const toggleGroup = (key) => {
-    setCollapsed((previous) => previous.includes(key) ? previous.filter((value) => value !== key) : [...previous, key]);
-  };
   const openSession = (id) => {
     if (typeof props.openSession !== "function") return;
     props.openSession(id);
-  };
-  const persist = (next) => {
-    void saveLayout(next).then((state) => {
-      if (state.error !== "") setNotice({ kind: "error", text: t("treeFailed", { message: state.error }) });
-    });
-  };
-  const syncWorkspaceOrder = (next) => {
-    if (typeof props.syncWorkspaceOrder !== "function") return;
-    void Promise.resolve(props.syncWorkspaceOrder(workspaceOrder(next))).catch(() => {
-    });
   };
   const runDelete = async (ids) => {
     setBusy(true);
@@ -1556,7 +826,6 @@ function SessionAdminSection(props) {
     }
     markVanished(result.deleted);
     setSelected([]);
-    void refreshLayout();
     if (result.skipped.length === 0) {
       setNotice({ kind: "ok", text: t("noticeDeleted", { count: result.deleted.length }) });
       return;
@@ -1567,32 +836,13 @@ function SessionAdminSection(props) {
       text: `${t("noticeDeleted", { count: result.deleted.length })} ${t("noticeSkipped", { count: result.skipped.length, reasons })}`
     });
   };
-  const failureText = (result) => {
-    if (result === void 0 || result === null || result.ok !== false) return null;
-    const error = result.error;
-    if (error === void 0 || error === null) return t("noticeFailed", { message: "unknown" });
-    return t("noticeFailed", { message: error.message ?? String(error) });
+  const pin = (id) => {
+    togglePin(id);
+    if (typeof props.pinSession === "function") props.pinSession(id);
   };
-  const startSession = (group) => {
-    if (typeof props.startSession !== "function") return;
-    const parsed = parseKey(group.key);
-    if (parsed !== null && parsed.kind === "workspace") props.startSession(parsed.value);
-    else props.startSession();
-  };
-  const pin = (key) => {
-    persist(pinItem(base, key));
-    if (isSessionId(key) && typeof props.pinSession === "function") props.pinSession(key);
-  };
-  const unpin = (key) => {
-    persist(unpinItem(base, key));
-    if (isSessionId(key) && typeof props.unpinSession === "function") props.unpinSession(key);
-  };
-  const moveSession = (id, key, before) => {
-    const parsed = parseKey(key);
-    if (parsed === null && key !== "") return;
-    const group = groupByKey.get(key);
-    const order = group === void 0 ? [] : group.sessions.map((row) => row.id);
-    persist(placeSession(base, id, key, before, defaultKey(id), order));
+  const unpin = (id) => {
+    togglePin(id);
+    if (typeof props.unpinSession === "function") props.unpinSession(id);
   };
   const activeRefusal = (error) => {
     if (!(error instanceof Error) || error.name !== "WorkspaceArchiveError") return false;
@@ -1688,42 +938,9 @@ function SessionAdminSection(props) {
     setSelected([]);
     setNotice({ kind: "ok", text: t("noticeUnarchivedCount", { count: done }) });
   };
-  const moveFolder = (moved, before) => {
-    const next = reorderFolders(base, moved, before);
-    persist(next);
-    syncWorkspaceOrder(next);
-  };
-  const reorderPinnedEntry = (moved, before) => persist(reorderPinned(base, moved, before));
-  const renameWorkspace = async (dialogState) => {
-    const title = dialogState.value.trim();
-    if (title === "" || typeof props.renameWorkspace !== "function") return;
-    setDialog(null);
-    setNotice(null);
-    try {
-      const message = failureText(await props.renameWorkspace(dialogState.workspaceId, title));
-      if (message !== null) setNotice({ kind: "error", text: message });
-    } catch (error) {
-      setNotice({ kind: "error", text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }) });
-    }
-  };
-  const deleteWorkspace = async (dialogState) => {
-    if (typeof props.deleteWorkspace !== "function") return;
-    setDialog(null);
-    setNotice(null);
-    try {
-      const message = failureText(await props.deleteWorkspace(dialogState.workspaceId));
-      if (message !== null) setNotice({ kind: "error", text: message });
-    } catch (error) {
-      setNotice({ kind: "error", text: t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }) });
-    }
-  };
   const submitDialog = () => {
     if (dialog === null) return;
     const value = typeof dialog.value === "string" ? dialog.value.trim() : "";
-    if (dialog.kind === "renameWorkspace") {
-      void renameWorkspace(dialog);
-      return;
-    }
     if (dialog.kind === "renameSession") {
       setDialog(null);
       setNotice(null);
@@ -1740,36 +957,12 @@ function SessionAdminSection(props) {
       });
       return;
     }
-    if (dialog.kind === "deleteWorkspace") {
-      void deleteWorkspace(dialog);
-      return;
-    }
     if (dialog.kind === "archive") {
       setDialog(null);
       void archiveRow(dialog.sessionId, true);
       return;
     }
     setDialog(null);
-    setNotice(null);
-    if (dialog.kind === "newFolder") {
-      if (value === "") return;
-      if (base.folders.includes(value)) {
-        setNotice({ kind: "error", text: t("folderExists", { name: value }) });
-        return;
-      }
-      persist(addFolder(base, value));
-      return;
-    }
-    if (dialog.kind === "renameFolder") {
-      if (value === "" || value === dialog.name) return;
-      if (base.folders.includes(value)) {
-        setNotice({ kind: "error", text: t("folderExists", { name: value }) });
-        return;
-      }
-      persist(renameFolder(base, dialog.name, value));
-      return;
-    }
-    if (dialog.kind === "deleteFolder") persist(removeFolder(base, dialog.name));
   };
   const header = h(
     "div",
@@ -1788,16 +981,6 @@ function SessionAdminSection(props) {
       "aria-label": t("search"),
       onChange: (event) => setQuery(event.target.value)
     }),
-    h(
-      "button",
-      {
-        className: "sa-btn",
-        type: "button",
-        disabled: busy || treeState.saving,
-        onClick: () => setDialog({ kind: "newFolder", value: "" })
-      },
-      t("newFolder")
-    ),
     h(
       "button",
       {
@@ -1880,33 +1063,21 @@ function SessionAdminSection(props) {
   );
   const dialogTitle = (() => {
     if (dialog === null) return "";
-    if (dialog.kind === "renameWorkspace") return t("renameWorkspaceTitle");
     if (dialog.kind === "renameSession") return t("renameSessionTitle");
-    if (dialog.kind === "deleteWorkspace") return t("deleteWorkspaceTitle");
-    if (dialog.kind === "newFolder") return t("newFolderTitle");
-    if (dialog.kind === "renameFolder") return t("renameFolderTitle");
-    if (dialog.kind === "archive") return t("archiveConfirmTitle");
-    return t("deleteFolderTitle");
+    return t("archiveConfirmTitle");
   })();
   const dialogBody = (() => {
     if (dialog === null) return null;
-    if (dialog.kind === "deleteWorkspace") {
-      return h("p", { className: "sa-dialog-body" }, t("deleteWorkspaceBody", { name: dialog.label }));
-    }
-    if (dialog.kind === "deleteFolder") {
-      return h("p", { className: "sa-dialog-body" }, t("deleteFolderBody", { name: dialog.name }));
-    }
     if (dialog.kind === "archive") {
       return h("p", { className: "sa-dialog-body" }, t("archiveConfirmBody", { title: dialog.label }));
     }
-    const label = dialog.kind === "renameFolder" || dialog.kind === "newFolder" ? t("folderName") : dialog.kind === "renameSession" ? t("renameSessionTitle") : t("renameWorkspaceTitle");
     return h("input", {
       className: "sa-search",
       type: "text",
       autoFocus: true,
       value: dialog.value ?? "",
-      placeholder: t("folderName"),
-      "aria-label": label,
+      placeholder: t("renameSessionTitle"),
+      "aria-label": t("renameSessionTitle"),
       onChange: (event) => setDialog({ ...dialog, value: event.target.value }),
       onKeyDown: (event) => {
         if (event.key === "Enter") submitDialog();
@@ -1914,13 +1085,7 @@ function SessionAdminSection(props) {
       }
     });
   })();
-  const dialogConfirmLabel = (() => {
-    if (dialog === null) return t("confirmDelete");
-    if (dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder" || dialog.kind === "renameSession") return t("save");
-    if (dialog.kind === "newFolder") return t("create");
-    if (dialog.kind === "archive") return t("archiveConfirmAction");
-    return t("confirmDelete");
-  })();
+  const dialogConfirmLabel = dialog !== null && dialog.kind === "archive" ? t("archiveConfirmAction") : t("save");
   const dialogView = dialog === null ? null : h(
     "div",
     { className: "sa-mask", onClick: () => setDialog(null) },
@@ -1938,68 +1103,40 @@ function SessionAdminSection(props) {
         "div",
         { className: "sa-dialog-actions" },
         h("button", { className: "sa-btn", type: "button", onClick: () => setDialog(null) }, t("cancel")),
-        h(
-          "button",
-          {
-            className: dialog.kind === "deleteWorkspace" || dialog.kind === "deleteFolder" ? "sa-btn sa-btn-danger-solid" : "sa-btn sa-btn-primary",
-            type: "button",
-            onClick: submitDialog
-          },
-          dialogConfirmLabel
-        )
+        h("button", { className: "sa-btn sa-btn-primary", type: "button", onClick: submitDialog }, dialogConfirmLabel)
       )
     )
   );
   const noticeLine = notice === null ? null : h("p", { className: notice.kind === "error" ? "sa-notice sa-notice-error" : "sa-notice sa-notice-ok" }, notice.text);
-  const warningLine = warning === null ? null : h(
-    "p",
-    { className: "sa-notice sa-notice-error" },
-    warning,
-    " ",
-    h(
-      "button",
-      { className: "sa-btn", type: "button", onClick: () => void refreshLayout() },
-      t("retry")
-    )
-  );
   let body;
   if (rows.length === 0) {
     body = h("div", { className: "sa-empty" }, t("empty"));
-  } else if (visibleRows.length === 0 && pinned.length === 0) {
+  } else if (visibleRows.length === 0) {
     body = h("div", { className: "sa-empty" }, t("noMatch"));
   } else {
     body = h(SessionTree, {
       variant: "panel",
-      groups: rest,
+      currentId,
       pinned,
-      expanded: expandedKeys,
+      groups,
+      workspaceLabels,
       selection: selectedIds,
-      busy: busy || treeState.saving,
-      onOpen: openSession,
-      onToggle: toggleGroup,
-      onSelectionChange: toggle,
+      busy,
       archived,
+      unread: /* @__PURE__ */ new Set(),
+      automation: /* @__PURE__ */ new Set(),
+      onOpen: openSession,
+      onSelectionChange: toggle,
       onDelete: (row) => setConfirming([row.id]),
       onArchive: (id) => void archiveRow(id, false),
       onUnarchive: (id) => void unarchiveRow(id),
-      onNewSession: startSession,
-      onRenameWorkspace: (group) => {
-        const parsed = parseKey(group.key);
-        if (parsed === null) return;
-        setDialog({ kind: "renameWorkspace", workspaceId: parsed.value, label: group.label, value: group.label });
-      },
-      onDeleteWorkspace: (group) => {
-        const parsed = parseKey(group.key);
-        if (parsed === null) return;
-        setDialog({ kind: "deleteWorkspace", workspaceId: parsed.value, label: group.label });
-      },
-      onRenameFolder: (group) => setDialog({ kind: "renameFolder", name: group.label, value: group.label }),
-      onDeleteFolder: (group) => setDialog({ kind: "deleteFolder", name: group.label }),
+      onRename: (row) => setDialog({
+        kind: "renameSession",
+        sessionId: row.id,
+        value: typeof row.title === "string" ? row.title : ""
+      }),
       onPin: pin,
       onUnpin: unpin,
-      onMoveSession: moveSession,
-      onMoveFolder: moveFolder,
-      onReorderPinned: reorderPinnedEntry,
       t
     });
   }
@@ -2010,7 +1147,6 @@ function SessionAdminSection(props) {
     h(SidebarSwitch, { t }),
     toolbar,
     confirmBar,
-    warningLine,
     noticeLine,
     body,
     dialogView,
@@ -2189,14 +1325,14 @@ function useAutomationSessionIds() {
 
 // src/client/stores/panels.js
 var PANELS_KEY = "session-admin.panels-visible";
-function readStored2() {
+function readStored3() {
   try {
     return localStorage.getItem(PANELS_KEY) !== "0";
   } catch {
     return true;
   }
 }
-var store5 = createStore(readStored2());
+var store5 = createStore(readStored3());
 function setPanelsVisible(next) {
   if (next === store5.get()) return;
   store5.set(next);
@@ -2218,13 +1354,11 @@ function SidebarWorkspaces(props) {
   const goneIds = useVanished();
   const statusHook = typeof props.useSessionStatus === "function" ? props.useSessionStatus : () => void 0;
   const statuses = statusHook((state) => state);
-  const treeState = useTree();
-  const layout = treeState.layout;
-  const [collapsedGroups, setCollapsedGroups] = react_default.useState([]);
+  const pinnedIds = usePinned();
   const [query, setQuery] = react_default.useState("");
   const [searchExpanded, setSearchExpanded] = react_default.useState(false);
-  const [orderBy, setOrderBy] = react_default.useState("manual");
-  const [viewOpen, setViewOpen] = react_default.useState(false);
+  const [selectMode, setSelectMode] = react_default.useState(false);
+  const [selection, setSelection] = react_default.useState([]);
   const [dialog, setDialog] = react_default.useState(null);
   const [browse, setBrowse] = react_default.useState(null);
   const [notice, setNotice] = react_default.useState("");
@@ -2252,9 +1386,41 @@ function SidebarWorkspaces(props) {
     return () => {
       shell.removeAttribute("data-session-admin-sidebar");
       shell.removeAttribute("data-session-admin-panels");
+      shell.removeAttribute("data-session-admin-selecting");
       shellRef.current = null;
     };
   }, []);
+  react_default.useEffect(() => {
+    const shell = shellRef.current;
+    if (shell === null) return;
+    if (selectMode !== true || wide === false) {
+      shell.removeAttribute("data-session-admin-selecting");
+      return;
+    }
+    const labels = /* @__PURE__ */ new Set(["\u65B0\u5EFA\u4F1A\u8BDD", "\u65B0\u4F1A\u8BDD", "New session", "New chat"]);
+    let newSession = null;
+    for (const element of shell.querySelectorAll("button")) {
+      if (element.closest("[data-window-drag]") !== null) continue;
+      const label = (element.getAttribute("aria-label") ?? "").trim();
+      const text = (element.textContent ?? "").trim();
+      const named = labels.has(label) || labels.has(text) || typeof element.className === "string" && element.className.includes("newSession");
+      if (!named) continue;
+      if (window.getComputedStyle(element).position === "fixed") continue;
+      if (element.offsetHeight === 0) continue;
+      if (newSession === null || element.offsetHeight > newSession.offsetHeight) newSession = element;
+    }
+    if (newSession !== null) {
+      newSession.setAttribute("data-session-admin-new-session", "");
+      const style = window.getComputedStyle(newSession);
+      const top = Number.parseFloat(style.marginTop);
+      const bottom = Number.parseFloat(style.marginBottom);
+      const height = newSession.offsetHeight;
+      const gap = Number.isFinite(bottom) ? bottom : 0;
+      if (height > 0) shell.style.setProperty("--sa-select-header-h", `${Math.round(height)}px`);
+      shell.style.setProperty("--sa-select-header-mb", `${Math.round(Number.isFinite(top) ? top : 0) + gap}px`);
+    }
+    shell.setAttribute("data-session-admin-selecting", "");
+  }, [selectMode, wide]);
   react_default.useEffect(() => {
     const shell = shellRef.current;
     if (shell === null) return;
@@ -2262,12 +1428,9 @@ function SidebarWorkspaces(props) {
     else shell.removeAttribute("data-session-admin-panels");
   }, [panelsVisible]);
   react_default.useEffect(() => {
-    if (!treeState.loaded && !treeState.loading) void refreshLayout();
-  }, [treeState.loaded, treeState.loading]);
-  react_default.useEffect(() => {
     if (searchExpanded) searchRef.current?.focus({ preventScroll: true });
   }, [searchExpanded]);
-  const { rows } = react_default.useMemo(
+  const { rows, currentId } = react_default.useMemo(
     () => selectRows({
       catalog,
       archivedIds: workspaces.archivedSessionIds,
@@ -2276,24 +1439,14 @@ function SidebarWorkspaces(props) {
     }),
     [catalog, workspaces.archivedSessionIds, goneIds]
   );
-  const workspaceInfo = react_default.useMemo(() => {
+  const workspaceLabels = react_default.useMemo(() => {
     const map = /* @__PURE__ */ new Map();
     for (const workspace of workspaces.items) {
       const label = workspace.title !== void 0 && workspace.title !== "" ? workspace.title : workspace.path;
-      map.set(workspace.workspaceId, { label, key: workspaceKey(workspace.workspaceId) });
+      for (const id of workspace.sessionIds) map.set(id, label);
     }
     return map;
   }, [workspaces.items]);
-  const base = react_default.useMemo(() => adoptWorkspaces(layout, [...workspaceInfo.keys()]), [layout, workspaceInfo]);
-  const defaultKey = react_default.useCallback(
-    (id) => {
-      for (const workspace of workspaces.items) {
-        if (workspace.sessionIds.includes(id)) return workspaceKey(workspace.workspaceId);
-      }
-      return "";
-    },
-    [workspaces.items]
-  );
   const needle = query.trim().toLowerCase();
   const matches = react_default.useCallback(
     (row) => {
@@ -2304,20 +1457,14 @@ function SidebarWorkspaces(props) {
     },
     [needle]
   );
-  const model = react_default.useMemo(
-    () => buildTreeModel({
-      rows,
-      base,
-      workspaceInfo,
-      defaultKey,
-      needle,
-      t,
-      matches,
-      orderBy
-    }),
-    [rows, base, workspaceInfo, defaultKey, needle, t, matches, orderBy]
-  );
-  const { groupByKey, pinned, rest, visibleRows, rowById } = model;
+  const { pinned, groups, visibleRows } = buildCardList({
+    rows,
+    pinnedIds,
+    needle,
+    matches,
+    now: Date.now(),
+    t
+  });
   const unread = react_default.useMemo(() => {
     const ids = /* @__PURE__ */ new Set();
     for (const row of rows) {
@@ -2326,70 +1473,27 @@ function SidebarWorkspaces(props) {
     }
     return ids;
   }, [rows, statuses]);
-  const expandedKeys = [...groupByKey.keys()].filter((key) => !collapsedGroups.includes(key));
-  const persist = (next) => {
-    void saveLayout(next).then((state) => {
-      if (state.error !== "") console.warn("[session-admin] layout save failed:", state.error);
-    });
-  };
-  const syncWorkspaceOrder = (next) => {
-    if (typeof props.syncWorkspaceOrder !== "function") return;
-    void Promise.resolve(props.syncWorkspaceOrder(workspaceOrder(next))).catch(() => {
-    });
-  };
   const openSession = (id) => {
     if (typeof props.openSession === "function") props.openSession(id);
   };
-  const startSession = (group) => {
-    if (typeof props.startSession !== "function") return;
-    if (group !== void 0) {
-      const parsed = parseKey(group.key);
-      if (parsed !== null && parsed.kind === "workspace") {
-        props.startSession(parsed.value);
-        return;
-      }
-    }
-    props.startSession();
-  };
-  const toggleGroup = (key) => {
-    setCollapsedGroups(
-      (previous) => previous.includes(key) ? previous.filter((value) => value !== key) : [...previous, key]
-    );
-  };
-  const moveSession = (id, key, before) => {
-    const parsed = parseKey(key);
-    if (parsed === null && key !== "") return;
-    const group = groupByKey.get(key);
-    const order = group === void 0 ? [] : group.sessions.map((row) => row.id);
-    persist(placeSession(base, id, key, before, defaultKey(id), order));
-  };
-  const moveFolder = (moved, before) => {
-    const next = reorderFolders(base, moved, before);
-    persist(next);
-    syncWorkspaceOrder(next);
-  };
-  const pin = (key) => {
-    persist(pinItem(base, key));
-    if (isSessionId(key) && typeof props.pinSession === "function") void props.pinSession(key);
-  };
-  const unpin = (key) => {
-    persist(unpinItem(base, key));
-    if (isSessionId(key) && typeof props.unpinSession === "function") void props.unpinSession(key);
-  };
-  const resetLayout = () => {
-    const ids = workspaces.items.map((item) => item.workspaceId);
-    persist(adoptWorkspaces(emptyLayout(), ids));
-  };
-  const activeRefusal = (error) => error instanceof Error && error.name === "WorkspaceArchiveError" && error.rpcError !== void 0 && error.rpcError !== null && error.rpcError.code === "workspace/session-active";
+  const rowById = react_default.useMemo(() => new Map(rows.map((row) => [row.id, row])), [rows]);
   const titleOf = (id) => {
     const row = rowById.get(id);
     return row === void 0 || typeof row.title !== "string" || row.title.trim() === "" ? t("unnamed") : row.title;
   };
+  const pin = (id) => {
+    togglePin(id);
+    if (typeof props.pinSession === "function") void props.pinSession(id);
+  };
+  const unpin = (id) => {
+    togglePin(id);
+    if (typeof props.unpinSession === "function") void props.unpinSession(id);
+  };
+  const activeRefusal = (error) => error instanceof Error && error.name === "WorkspaceArchiveError" && error.rpcError !== void 0 && error.rpcError !== null && error.rpcError.code === "workspace/session-active";
   const archiveRow = async (id, stopActivity) => {
     if (typeof props.archiveSession !== "function") return;
     try {
       await props.archiveSession(id, stopActivity === true ? { stopActivity: true } : void 0);
-      await refreshLayout();
     } catch (error) {
       if (activeRefusal(error)) {
         setDialog({ kind: "archive", sessionId: id, title: titleOf(id) });
@@ -2402,30 +1506,8 @@ function SidebarWorkspaces(props) {
     if (typeof props.unarchiveSession !== "function") return;
     try {
       await props.unarchiveSession(id);
-      await refreshLayout();
     } catch (error) {
       console.warn("[session-admin] unarchive failed:", error);
-    }
-  };
-  const adopt = async (path) => {
-    if (typeof path !== "string" || path === "") return;
-    setBrowse(null);
-    setBusy(true);
-    const result = await props.createWorkspace(path);
-    setBusy(false);
-    const ok = result !== void 0 && result !== null && result.ok !== false;
-    if (ok) {
-      const workspaceId = result?.value?.workspace?.workspaceId;
-      if (typeof workspaceId === "string" && workspaceId !== "") {
-        const next = frontFolder(base, workspaceKey(workspaceId));
-        persist(next);
-        syncWorkspaceOrder(next);
-      }
-    }
-    if (!ok) {
-      const detail = result?.error?.message ?? "";
-      setNotice(detail === "" ? t("createWorkspaceFailed") : `${t("createWorkspaceFailed")}: ${detail}`);
-      console.warn("[session-admin] create workspace failed:", path, result);
     }
   };
   const loadDirectory = async (path) => {
@@ -2445,11 +1527,45 @@ function SidebarWorkspaces(props) {
   const addWorkspace = async () => {
     await loadDirectory(void 0);
   };
-  const createWorkspace = async (path) => {
-    if (typeof props.createWorkspace !== "function") return false;
+  const adopt = async (path) => {
+    if (typeof path !== "string" || path === "") return;
+    setBrowse(null);
+    setBusy(true);
     const result = await props.createWorkspace(path);
-    if (result === void 0 || result === null) return false;
-    return result.ok !== false;
+    setBusy(false);
+    const ok = result !== void 0 && result !== null && result.ok !== false;
+    if (!ok) {
+      const detail = result?.error?.message ?? "";
+      setNotice(detail === "" ? t("createWorkspaceFailed") : `${t("createWorkspaceFailed")}: ${detail}`);
+      console.warn("[session-admin] create workspace failed:", path, result);
+    }
+  };
+  const exitSelect = () => {
+    setSelectMode(false);
+    setSelection([]);
+  };
+  const toggleSelect = (id) => {
+    setSelection((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
+  };
+  const pinSelected = () => {
+    for (const id of selection) {
+      if (pinnedIds.includes(id)) continue;
+      if (typeof props.pinSession === "function") props.pinSession(id);
+    }
+    exitSelect();
+  };
+  const deleteSelected = async () => {
+    if (selection.length === 0) return;
+    setBusy(true);
+    const result = await postDelete(selection);
+    setBusy(false);
+    if (!result.ok) {
+      setNotice(t("noticeFailed", { message: result.error?.message ?? "" }));
+      console.warn("[session-admin] delete failed:", result.error);
+      return;
+    }
+    markVanished(result.deleted);
+    exitSelect();
   };
   const confirmDialog = async () => {
     if (dialog === null) return;
@@ -2457,36 +1573,6 @@ function SidebarWorkspaces(props) {
     setDialog(null);
     if (current.kind === "archive") {
       await archiveRow(current.sessionId, true);
-      return;
-    }
-    if (current.kind === "renameWorkspace") {
-      const value = typeof current.value === "string" ? current.value.trim() : "";
-      if (value === "" || typeof props.renameWorkspace !== "function") return;
-      setBusy(true);
-      setNotice("");
-      try {
-        const result2 = await props.renameWorkspace(current.workspaceId, value);
-        if (result2 !== void 0 && result2 !== null && result2.ok === false) {
-          setNotice(t("noticeFailed", { message: result2.error?.message ?? "" }));
-          console.warn("[session-admin] rename workspace failed:", result2.error);
-        }
-      } catch (error) {
-        setNotice(t("noticeFailed", { message: error instanceof Error ? error.message : String(error) }));
-        console.warn("[session-admin] rename workspace failed:", error);
-      }
-      setBusy(false);
-      return;
-    }
-    if (current.kind === "deleteWorkspace") {
-      if (typeof props.deleteWorkspace !== "function") return;
-      setBusy(true);
-      const result2 = await props.deleteWorkspace(current.workspaceId);
-      setBusy(false);
-      if (result2 !== void 0 && result2 !== null && result2.ok === false) {
-        console.warn("[session-admin] delete workspace failed:", result2.error);
-      } else {
-        await refreshLayout();
-      }
       return;
     }
     if (current.kind === "renameSession") {
@@ -2506,17 +1592,6 @@ function SidebarWorkspaces(props) {
       setBusy(false);
       return;
     }
-    if (current.kind === "renameFolder") {
-      const value = typeof current.value === "string" ? current.value.trim() : "";
-      if (value === "" || value === current.name) return;
-      if (base.folders.includes(value)) return;
-      persist(renameFolder(base, current.name, value));
-      return;
-    }
-    if (current.kind === "deleteFolder") {
-      persist(removeFolder(base, current.name));
-      return;
-    }
     setBusy(true);
     const result = await postDelete([current.sessionId]);
     setBusy(false);
@@ -2525,48 +1600,32 @@ function SidebarWorkspaces(props) {
       return;
     }
     markVanished(result.deleted);
-    await refreshLayout();
   };
-  const viewMenu = h(import_dsh_client_ui_primitives3.Menu, {
-    open: viewOpen,
-    onClose: () => setViewOpen(false),
-    portal: true,
-    closeOnPointerLeave: true,
-    dense: true,
-    align: "end",
-    selectedIds: [orderBy],
-    items: [
-      { type: "label", id: "order-by", text: t("orderBy") },
-      { id: "manual", label: t("orderManual"), icon: h(import_dsh_client_ui_primitives3.IconChevronsUpDownOutlineRegular, null) },
-      { id: "updated", label: t("orderUpdated"), icon: h(import_dsh_client_ui_primitives3.IconClockOutlineRegular, null) },
-      { type: "label", id: "reset-label", text: t("resetSection") },
-      { id: "reset", label: t("resetLayout"), icon: h(import_dsh_client_ui_primitives3.IconRefreshOutlineRegular, null) }
-    ],
-    onSelect: (id) => {
-      if (id === "manual" || id === "updated") setOrderBy(id);
-      if (id === "reset") resetLayout();
-      setViewOpen(false);
-    },
-    anchor: h(
-      import_dsh_client_ui_primitives3.Tooltip,
-      { label: t("viewOptions"), side: "bottom", delayMs: 500, portal: true },
-      h(
-        "button",
-        {
-          className: "sa-ws-icon-btn",
-          type: "button",
-          "aria-label": t("viewOptions"),
-          onClick: () => setViewOpen((value) => !value)
-        },
-        h(import_dsh_client_ui_primitives3.IconSlidersTwoOutlineRegular, null)
-      )
+  const groupLabel = pinned.length > 0 ? t("pinnedSection") : groups[0]?.label ?? t("sectionSessions");
+  const selectBar = selectMode === false ? null : h(
+    "div",
+    { className: "sa-ws-header sa-ws-header-select" },
+    h(
+      "span",
+      { className: "sa-ws-label" },
+      selection.length === 0 ? t("selectChats") : t("selectedChats", { count: selection.length })
+    ),
+    h(
+      "button",
+      {
+        className: "sa-ws-select-close",
+        type: "button",
+        "aria-label": t("cancel"),
+        onClick: exitSelect
+      },
+      h(import_dsh_client_ui_primitives3.IconCloseFillRegular, { size: 12 })
     )
-  });
+  );
   const header = h(
     "div",
     { className: "sa-ws-header" },
-    searchExpanded ? null : h("span", { className: "sa-ws-label" }, t("sectionWorkspaces")),
-    h(
+    searchExpanded && selectMode === false ? null : h("span", { className: "sa-ws-label" }, groupLabel),
+    selectMode === true ? null : h(
       "div",
       { className: searchExpanded ? "sa-ws-search sa-ws-search-expanded" : "sa-ws-search" },
       h(
@@ -2611,7 +1670,26 @@ function SidebarWorkspaces(props) {
         h(import_dsh_client_ui_primitives3.IconCloseFillRegular, null)
       ) : null
     ),
-    searchExpanded ? null : h(
+    selectMode === true || searchExpanded ? null : h(
+      import_dsh_client_ui_primitives3.Tooltip,
+      { label: t("selectChats"), side: "bottom", delayMs: 500, portal: true },
+      h(
+        "button",
+        {
+          className: "sa-ws-search-btn",
+          type: "button",
+          "aria-label": t("selectChats"),
+          onClick: () => {
+            setQuery("");
+            setSearchExpanded(false);
+            setSelectMode(true);
+            setSelection([]);
+          }
+        },
+        h(import_dsh_client_ui_primitives3.IconChecklistOutlineRegular, null)
+      )
+    ),
+    selectMode === true || searchExpanded ? null : h(
       "div",
       { className: "sa-ws-actions" },
       h(
@@ -2634,7 +1712,6 @@ function SidebarWorkspaces(props) {
           h(import_dsh_client_ui_primitives3.IconPanelLeftOutlineRegular, null)
         )
       ),
-      viewMenu,
       h(
         import_dsh_client_ui_primitives3.Tooltip,
         { label: t("addWorkspace"), side: "bottom", delayMs: 500, portal: true },
@@ -2654,36 +1731,22 @@ function SidebarWorkspaces(props) {
   if (!wide) return null;
   const body = visibleRows.length === 0 ? h("div", { className: "sa-shell-empty" }, t(needle === "" ? "empty" : "noMatch")) : h(SessionTree, {
     variant: "sidebar",
-    groups: rest,
+    currentId,
     pinned,
+    groups,
+    workspaceLabels,
     archived: /* @__PURE__ */ new Set(),
     unread,
     automation,
-    expanded: expandedKeys,
-    selection: [],
+    selection,
+    selectMode,
     busy,
+    hideFirstLabel: true,
     t,
+    onSelectionChange: toggleSelect,
     onOpen: openSession,
-    onToggle: toggleGroup,
-    onSelectionChange: () => {
-    },
-    onNewSession: startSession,
     onPin: pin,
     onUnpin: unpin,
-    onRenameWorkspace: (group) => {
-      const parsed = parseKey(group.key);
-      if (parsed !== null && parsed.kind === "workspace") {
-        setDialog({ kind: "renameWorkspace", workspaceId: parsed.value, value: group.label });
-      }
-    },
-    onDeleteWorkspace: (group) => {
-      const parsed = parseKey(group.key);
-      if (parsed !== null && parsed.kind === "workspace") {
-        setDialog({ kind: "deleteWorkspace", workspaceId: parsed.value, name: group.label });
-      }
-    },
-    onRenameFolder: (group) => setDialog({ kind: "renameFolder", name: group.label, value: group.label }),
-    onDeleteFolder: (group) => setDialog({ kind: "deleteFolder", name: group.label }),
     onRename: (row) => setDialog({
       kind: "renameSession",
       sessionId: row.id,
@@ -2691,23 +1754,16 @@ function SidebarWorkspaces(props) {
     }),
     onArchive: (id) => void archiveRow(id, false),
     onUnarchive: (id) => void unarchiveRow(id),
-    onDelete: (row) => setDialog({ kind: "delete", sessionId: row.id, title: titleOf(row.id) }),
-    onMoveSession: moveSession,
-    onMoveFolder: moveFolder,
-    onReorderPinned: (moved, before) => persist(reorderPinned(base, moved, before))
+    onDelete: (row) => setDialog({ kind: "delete", sessionId: row.id, title: titleOf(row.id) })
   });
   const dialogTitle = (state) => {
     if (state.kind === "archive") return t("archiveConfirmTitle");
-    if (state.kind === "renameWorkspace") return t("renameWorkspaceTitle");
-    if (state.kind === "deleteWorkspace") return t("deleteWorkspaceTitle");
     if (state.kind === "renameSession") return t("renameSessionTitle");
-    if (state.kind === "renameFolder") return t("renameFolderTitle");
-    if (state.kind === "deleteFolder") return t("deleteFolderTitle");
     return t("confirmOneTitle", { title: state.title });
   };
   const dialogBody = (state) => {
     if (state.kind === "archive") return h("p", { className: "sa-dialog-body" }, t("archiveConfirmBody"));
-    if (state.kind === "renameWorkspace") {
+    if (state.kind === "renameSession") {
       return h("input", {
         className: "sa-input",
         type: "text",
@@ -2719,25 +1775,6 @@ function SidebarWorkspaces(props) {
           if (event.key === "Escape") setDialog(null);
         }
       });
-    }
-    if (state.kind === "renameSession" || state.kind === "renameFolder") {
-      return h("input", {
-        className: "sa-input",
-        type: "text",
-        value: state.value,
-        autoFocus: true,
-        onChange: (event) => setDialog({ ...state, value: event.target.value }),
-        onKeyDown: (event) => {
-          if (event.key === "Enter") void confirmDialog();
-          if (event.key === "Escape") setDialog(null);
-        }
-      });
-    }
-    if (state.kind === "deleteWorkspace") {
-      return h("p", { className: "sa-dialog-body" }, t("deleteWorkspaceBody", { name: state.name }));
-    }
-    if (state.kind === "deleteFolder") {
-      return h("p", { className: "sa-dialog-body" }, t("deleteFolderBody", { name: state.name }));
     }
     return h("p", { className: "sa-dialog-body" }, t("confirmOneBody"));
   };
@@ -2747,34 +1784,25 @@ function SidebarWorkspaces(props) {
     h(
       "div",
       { className: "sa-dialog", role: "dialog", "aria-modal": "true" },
-      h(
-        "div",
-        { className: "sa-dialog-title" },
-        dialogTitle(dialog)
-      ),
+      h("div", { className: "sa-dialog-title" }, dialogTitle(dialog)),
       dialogBody(dialog),
       h(
         "div",
         { className: "sa-dialog-actions" },
         h(
           "button",
-          {
-            className: "sa-btn",
-            type: "button",
-            disabled: busy,
-            onClick: () => setDialog(null)
-          },
+          { className: "sa-btn", type: "button", disabled: busy, onClick: () => setDialog(null) },
           t("cancel")
         ),
         h(
           "button",
           {
-            className: dialog.kind === "delete" || dialog.kind === "deleteWorkspace" || dialog.kind === "deleteFolder" ? "sa-btn sa-btn-danger-solid" : "sa-btn sa-btn-primary",
+            className: dialog.kind === "delete" ? "sa-btn sa-btn-danger-solid" : "sa-btn sa-btn-primary",
             type: "button",
             disabled: busy,
             onClick: () => void confirmDialog()
           },
-          dialog.kind === "archive" ? t("archiveConfirmAction") : dialog.kind === "renameWorkspace" || dialog.kind === "renameFolder" || dialog.kind === "renameSession" ? t("save") : t("confirmDelete")
+          dialog.kind === "archive" ? t("archiveConfirmAction") : dialog.kind === "renameSession" ? t("save") : t("confirmDelete")
         )
       )
     )
@@ -2849,7 +1877,48 @@ function SidebarWorkspaces(props) {
     )
   );
   const noticeView = notice === "" ? null : h("div", { className: "sa-shell-empty" }, notice);
-  return h("div", { className: "sa-sidebar-tree", ref: treeRef }, header, noticeView, body, dialogView, pickerView);
+  const bulkView = selectMode === false ? null : h(
+    "div",
+    { className: "sa-bulk" },
+    h(
+      "button",
+      {
+        className: "sa-bulk-btn",
+        type: "button",
+        disabled: busy || selection.length === 0,
+        onClick: pinSelected
+      },
+      t("pin")
+    ),
+    h(
+      "button",
+      {
+        className: "sa-bulk-btn sa-bulk-btn-danger",
+        type: "button",
+        disabled: busy || selection.length === 0,
+        onClick: () => void deleteSelected()
+      },
+      t("delete")
+    )
+  );
+  return h(
+    "div",
+    {
+      className: "sa-sidebar-tree",
+      ref: treeRef,
+      onKeyDown: (event) => {
+        if (event.key !== "Escape" || selectMode !== true) return;
+        exitSelect();
+      }
+    },
+    selectBar,
+    header,
+    noticeView,
+    body,
+    bulkView,
+    dialogView,
+    pickerView
+  );
 }
 
 // src/client/nav-icon.js
@@ -2960,58 +2029,39 @@ var CSS = `
 .sa-btn-danger-solid { border-color: transparent; background: var(--dsw-alias-state-error-primary); color: var(--dsw-alias-bg-base); }
 .sa-btn-danger-solid:hover:not(:disabled) { background: var(--dsw-alias-state-error-primary); opacity: 0.9; }
 .sa-count { font-size: 12px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
-.sa-tree { display: flex; flex-direction: column; gap: 2px; padding: 2px 0; }
-.sa-block { display: flex; flex-direction: column; }
-.sa-group { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px; border-radius: var(--dsw-radius-md); cursor: pointer; user-select: none; color: var(--dsw-alias-label-primary); }
-.sa-group:hover, .sa-group.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-tree { display: flex; flex-direction: column; gap: 4px; padding: 2px 0; }
+.sa-section { display: flex; flex-direction: column; gap: 2px; }
+.sa-section-label { padding: 10px 8px 4px; font-size: 11px; line-height: 16px; font-weight: 500; color: var(--dsw-alias-label-tertiary); }
+.sa-card { display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-primary); cursor: pointer; }
+.sa-card:hover, .sa-card.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-card.sa-current { background: var(--dsw-alias-interactive-bg-active, var(--dsw-alias-interactive-bg-hover)); }
+.sa-card.sa-selected { background: var(--dsw-alias-interactive-bg-hover); box-shadow: inset 2px 0 0 0 var(--dsw-alias-state-business-primary); }
+.sa-card:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: -1px; }
+.sa-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.sa-card-head { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.sa-card-title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.sa-card-sub { display: flex; align-items: center; gap: 6px; min-width: 0; padding-left: 22px; font-size: 11px; line-height: 15px; color: var(--dsw-alias-label-tertiary); }
+.sa-card-ws { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sa-card-time { flex: none; font-size: 10px; line-height: 15px; color: var(--dsw-alias-label-tertiary); }
 .sa-slot { width: 16px; height: 20px; flex: none; display: inline-flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-tertiary); }
-.sa-group .sa-chevron { display: none; }
-.sa-group:hover .sa-chevron { display: inline-flex; }
-.sa-group:hover .sa-folder { display: none; }
-.sa-arrow { transition: transform 0.15s var(--ds-ease-in-out); }
-.sa-arrow-open { transform: rotate(90deg); }
-.sa-title { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; line-height: 20px; }
+.sa-title { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; line-height: 20px; }
 .sa-row-actions { flex: none; display: none; align-items: center; gap: 12px; }
-.sa-group:hover .sa-row-actions, .sa-group.sa-menu-open .sa-row-actions, .sa-session:hover .sa-row-actions, .sa-session.sa-menu-open .sa-row-actions { display: inline-flex; }
+.sa-card:hover .sa-row-actions, .sa-card.sa-menu-open .sa-row-actions { display: inline-flex; }
 .sa-icon-btn { width: 16px; height: 16px; padding: 0; border: none; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-tertiary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .sa-icon-btn:hover { color: var(--dsw-alias-label-primary); }
-.sa-rows { display: flex; flex-direction: column; }
-.sa-session { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px 0 10px; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-primary); }
-.sa-session:hover, .sa-session.sa-menu-open { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-session.sa-selected { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-check { flex: none; width: 14px; height: 14px; margin: 0; accent-color: var(--dsw-alias-state-business-primary); cursor: pointer; }
-.sa-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 0; border: none; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.sa-open:disabled { cursor: default; opacity: 0.6; }
-.sa-open .sa-title { flex: 0 1 auto; }
+.sa-check { flex: none; width: 14px; height: 14px; margin: 3px 0 0; accent-color: var(--dsw-alias-state-business-primary); cursor: pointer; }
 .sa-dot { flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--dsw-alias-state-business-primary); }
 .sa-dot-done { background: var(--dsw-alias-state-warn-primary); }
 .sa-time { flex: none; color: var(--dsw-alias-label-tertiary); font-size: 10px; line-height: 16px; }
 .sa-time-dot { display: inline-flex; align-items: center; justify-content: flex-end; min-width: 20px; }
-.sa-session:hover .sa-time:not(.sa-time-dot), .sa-session.sa-menu-open .sa-time:not(.sa-time-dot) { display: none; }
-.sa-pinned { display: flex; flex-direction: column; gap: 2px; padding-bottom: 2px; }
-.sa-pinned-entry { display: flex; flex-direction: column; }
-.sa-pinned-row { padding-left: 10px; }
 .sa-pin { color: var(--dsw-alias-label-secondary); }
-.sa-group.sa-drop-target { background: var(--dsw-alias-interactive-bg-hover); outline: 1px dashed var(--dsw-alias-state-business-primary); outline-offset: -1px; }
-.sa-pinned-entry.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
-.sa-pinned-entry.sa-drop-after { box-shadow: inset 0 -2px 0 0 var(--dsw-alias-state-business-primary); }
-.sa-pinned-tail { height: 6px; }
-.sa-pinned-tail:hover { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
-.sa-btn-active { background: var(--dsw-alias-interactive-bg-hover); border-color: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-state-business-primary); }
 .sa-tag { flex: none; padding: 0 6px; border-radius: var(--dsw-radius-sm, 4px); font-size: 10px; line-height: 16px; color: var(--dsw-alias-label-tertiary); background: var(--dsw-alias-interactive-bg-hover); }
-.sa-session.sa-archived .sa-title { color: var(--dsw-alias-label-tertiary); }
-.sa-session.sa-drop-before { box-shadow: inset 0 2px 0 0 var(--dsw-alias-state-business-primary); }
-.sa-group[draggable="true"], .sa-session[draggable="true"] { cursor: grab; }
-.sa-empty-group { padding: 4px 8px 8px 30px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-tertiary); }
-.sa-tree-sidebar { padding: 0; gap: 0; }
-.sa-tree-sidebar .sa-session-sidebar { width: 100%; padding: 0 8px 0 10px; border: none; background: transparent; font: inherit; text-align: left; cursor: pointer; }
-.sa-tree-sidebar .sa-session-sidebar:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-tree-sidebar .sa-session-sidebar:disabled { cursor: default; opacity: 0.6; }
-.sa-tree-sidebar .sa-time { font-size: 10px; }
-.sa-sidebar-tree { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; padding: 0 2px; box-sizing: border-box; }
-.sa-sidebar-tree .sa-tree { gap: 2px; }
+.sa-card.sa-archived .sa-title { color: var(--dsw-alias-label-tertiary); }
+.sa-card[aria-disabled="true"] { cursor: default; }
+.sa-tree-sidebar { padding: 0; gap: 2px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.sa-sidebar-tree { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; padding: 0 2px; box-sizing: border-box; }
 .sa-sidebar-tree .sa-shell-empty { padding: 12px 8px; font-size: 12px; color: var(--dsw-alias-label-tertiary); }
-.sa-sidebar-tree .sa-ws-header { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 36px; margin: 2px 0 4px; padding: 0 4px 0 8px; color: var(--dsw-alias-label-tertiary); box-sizing: border-box; }
+.sa-sidebar-tree .sa-ws-header { display: flex; flex: none; align-items: center; justify-content: flex-end; gap: 4px; height: 36px; margin: 2px 0 4px; padding: 0 4px 0 8px; color: var(--dsw-alias-label-tertiary); box-sizing: border-box; }
 .sa-sidebar-tree .sa-ws-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 18px; font-weight: 500; }
 .sa-sidebar-tree .sa-ws-actions { display: flex; align-items: center; gap: 2px; }
 .sa-sidebar-tree .sa-ws-icon-btn,
@@ -3024,12 +2074,26 @@ var CSS = `
 .sa-sidebar-tree .sa-ws-search-expanded { flex: 1 1 auto; max-width: 100%; height: 30px; border: 0.5px solid var(--dsw-alias-border-l4); border-radius: var(--dsw-radius-md); padding: 0 2px 0 0; }
 .sa-sidebar-tree .sa-ws-search-input { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0 0 0 6px; border: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 13px; line-height: 18px; outline: none; }
 .sa-sidebar-tree .sa-ws-search-input::placeholder { color: var(--dsw-alias-label-tertiary); }
+.sa-sidebar-tree .sa-section-label { padding: 8px 6px 3px; font-size: 11px; }
+.sa-sidebar-tree .sa-card { width: 100%; box-sizing: border-box; padding: 5px 6px; display: grid; grid-template-columns: 16px minmax(0, 1fr); column-gap: 6px; align-items: start; }
+.sa-sidebar-tree .sa-card-body { min-width: 0; }
+.sa-sidebar-tree .sa-slot { width: 16px; }
+.sa-sidebar-tree .sa-card-sub { padding-left: 0; font-size: 11px; line-height: 14px; }
+.sa-sidebar-tree .sa-title { font-size: 13px; line-height: 18px; }
+.sa-sidebar-tree .sa-time { font-size: 10px; line-height: 14px; }
+.sa-sidebar-tree .sa-check-ring { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 16px; height: 16px; margin: 3px 0 0; border: 1.5px solid var(--dsw-alias-border-l3); border-radius: 50%; box-sizing: border-box; color: var(--dsw-alias-label-on-accent, #fff); font-size: 10px; line-height: 1; cursor: pointer; }
+.sa-sidebar-tree .sa-check-ring-on { border-color: var(--dsw-alias-state-business-primary); background: var(--dsw-alias-state-business-primary); }
+.sa-sidebar-tree .sa-check-ring-on::after { content: '\u2713'; }
+.sa-sidebar-tree .sa-ws-header-select { display: flex; flex: none; align-items: center; justify-content: space-between; box-sizing: border-box; height: var(--sa-select-header-h, 38px); margin: var(--sa-select-header-mt, 0) 0 var(--sa-select-header-mb, 0); padding: 0 10px; }
+.sa-sidebar-tree .sa-ws-header-select .sa-ws-label { font-size: 14px; font-weight: 500; color: var(--dsw-alias-label-primary); }
+.sa-sidebar-tree .sa-ws-select-close { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 26px; height: 26px; padding: 0; border: 0.5px solid var(--dsw-alias-border-l4); border-radius: 50%; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.sa-sidebar-tree .sa-ws-select-close:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+.sa-sidebar-tree .sa-bulk { display: flex; gap: 8px; flex: none; padding: 8px 4px 10px; border-top: 0.5px solid var(--dsw-alias-border-l4); }
+.sa-sidebar-tree .sa-bulk-btn { flex: 1 1 0; height: 32px; padding: 0; border: 0; border-radius: var(--dsw-radius-md); background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); font: inherit; font-size: 13px; cursor: pointer; }
+.sa-sidebar-tree .sa-bulk-btn:hover { background: var(--dsw-alias-interactive-bg-active, var(--dsw-alias-interactive-bg-hover)); }
+.sa-sidebar-tree .sa-bulk-btn:disabled { opacity: 0.45; cursor: default; }
+[data-session-admin-sidebar][data-session-admin-selecting] [data-session-admin-new-session] { display: none; }
 [data-session-admin-sidebar]:not([data-session-admin-panels]) > nav { display: none; }
-.sa-sidebar-tree .sa-group { height: 32px; padding: 0 8px; }
-.sa-sidebar-tree .sa-session { width: 100%; box-sizing: border-box; height: 32px; padding: 0 8px 0 10px; }
-.sa-sidebar-tree .sa-title { font-size: 14px; line-height: 20px; }
-.sa-sidebar-tree .sa-time { font-size: 11px; line-height: 15px; }
-@media (prefers-reduced-motion: reduce) { .sa-arrow { transition: none; } }
 .sa-btn-primary { border-color: transparent; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-bg-base); }
 .sa-btn-primary:hover:not(:disabled) { background: var(--dsw-alias-state-business-primary); opacity: 0.9; }
 .sa-empty { padding: 24px 12px; text-align: center; font-size: 13px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
@@ -3119,17 +2183,6 @@ function apply(ctx) {
     void Promise.resolve(workspace.openSession(id)).catch(() => {
     });
   };
-  const startSession = (workspaceId) => {
-    const workspace = ctx.get("uiWorkspace");
-    if (workspace === void 0 || workspace === null) return;
-    void Promise.resolve(workspace.startSession(workspaceId, { clearPreviousDraft: false })).catch(() => {
-    });
-  };
-  const renameWorkspace = (workspaceId, title) => {
-    const workspaces = ctx.get("workspaces");
-    if (workspaces === void 0 || workspaces === null) return Promise.resolve();
-    return workspaces.rename(workspaceId, title);
-  };
   const renameSession = (sessionId, title) => {
     const sessions2 = ctx.get("sessions");
     const manager = sessions2?.manager;
@@ -3152,16 +2205,6 @@ function apply(ctx) {
     }
     return workspaces.create({ path });
   };
-  const deleteWorkspace = (workspaceId) => {
-    const workspaces = ctx.get("workspaces");
-    if (workspaces === void 0 || workspaces === null) return Promise.resolve();
-    return workspaces.delete(workspaceId);
-  };
-  const syncWorkspaceOrder = async (ids) => {
-    const workspaces = ctx.get("workspaces");
-    if (workspaces === void 0 || workspaces === null || typeof workspaces.insertBefore !== "function") return;
-    for (const id of ids) await workspaces.insertBefore(id, void 0);
-  };
   ctx.slots.inject(
     "settings.section",
     () => ctx.slots.register(
@@ -3175,12 +2218,8 @@ function apply(ctx) {
       (slotProps) => h(SessionAdminSection, {
         ...slotProps,
         openSession,
-        startSession,
-        renameWorkspace,
-        deleteWorkspace,
         archiveSession,
         unarchiveSession,
-        syncWorkspaceOrder,
         pinSession,
         unpinSession,
         renameSession
@@ -3226,15 +2265,11 @@ function apply(ctx) {
           (slotProps) => h(SidebarWorkspaces, {
             ...slotProps,
             openSession,
-            startSession,
-            syncWorkspaceOrder,
             pinSession,
             unpinSession,
             renameSession,
             archiveSession,
             unarchiveSession,
-            renameWorkspace,
-            deleteWorkspace,
             createWorkspace,
             listDirectory
           })
