@@ -294,7 +294,7 @@ export function SidebarWorkspaces(props) {
 	const pinSelected = () => {
 		for (const id of selection) {
 			if (pinnedIds.includes(id)) continue;
-			if (typeof props.pinSession === 'function') props.pinSession(id);
+			pin(id);
 		}
 		exitSelect();
 	};
