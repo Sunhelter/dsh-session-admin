@@ -44,9 +44,10 @@ function statusDot(row, t, unread) {
 /**
  * @param row - catalog summary.
  * @param t - locale bind.
- * @returns the row title.
+ * @returns the row title; a blank Session is the focused New Session row.
  */
 function rowTitle(row, t) {
+	if (row.blank === true) return t('blankSession');
 	return row.title !== undefined && row.title.trim() !== '' ? row.title : t('unnamed');
 }
 

@@ -15,6 +15,17 @@ import { buildCardList, selectRows } from '../tree-model.js';
 import { SessionTree } from './session-tree.js';
 
 /**
+ * @param row - catalog summary, possibly a blank focused Session.
+ * @param t - locale bind.
+ * @returns the display title.
+ */
+function rowLabel(row, t) {
+	if (row === undefined) return t('unnamed');
+	if (row.blank === true) return t('blankSession');
+	return row.title !== undefined && row.title !== '' ? row.title : t('unnamed');
+}
+
+/**
  * @param props - slot props: locale seat, session catalog, workspace snapshot,
  *   plus navigation and Session actions (`openSession`, `renameSession`,
  *   `pinSession`, `unpinSession`, `archiveSession`, `unarchiveSession`).
@@ -160,7 +171,7 @@ export function SessionAdminSection(props) {
 		} catch (error) {
 			if (stopActivity !== true && activeRefusal(error)) {
 				const row = catalog.byId[id];
-				const title = row !== undefined && row.title !== undefined && row.title !== '' ? row.title : t('unnamed');
+				const title = rowLabel(row, t);
 				setDialog({ kind: 'archive', sessionId: id, label: title });
 			} else {
 				setNotice({
@@ -343,7 +354,7 @@ export function SessionAdminSection(props) {
 	const confirmingTitle = (() => {
 		if (confirming === null || confirming.length !== 1) return '';
 		const row = catalog.byId[confirming[0]];
-		return row !== undefined && row.title !== undefined && row.title !== '' ? row.title : t('unnamed');
+		return rowLabel(row, t);
 	})();
 
 	const confirmBar =

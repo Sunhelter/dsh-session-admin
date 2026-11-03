@@ -35,9 +35,10 @@ export function selectRows(options) {
 	for (const id of catalog.ids) {
 		const row = catalog.byId[id];
 		if (row === undefined) continue;
-		// A blank Session has no turns yet; the shipped sidebar keeps it out of the
-		// history list until the first message gives it a title.
-		if (row.blank === true) continue;
+		// A blank Session is the focused New Session placeholder: the shipped
+		// sidebar draws that one row and keeps every other blank Session out of
+		// history until its first turn gives it a title.
+		if (row.blank === true && id !== currentId) continue;
 		if (gone.has(id)) continue;
 		if (archived.has(id) && showArchived !== true) continue;
 		rows.push(row);

@@ -93,13 +93,33 @@ export function apply(ctx) {
 		return manager.rename(sessionId, title);
 	};
 
-	/** List one directory level for the in-app picker (browse backends only). */
-	const listDirectory = (path) => {
+	/**
+	 * The shipped "add workspace" dialog lives in a slot owned by the entry we
+	 * shadow, so `renderSlot` never reaches us. Take the registered occupant and
+	 * feed it the props the slot would have injected: the workspace service's
+	 * browse primitives and the dialog's own dictionary.
+	 * @returns the dialog component plus its props, or undefined when no
+	 *   directory picker plugin is installed.
+	 */
+	const getDirectoryFlow = () => {
 		const workspace = ctx.get('uiWorkspace');
 		if (workspace === undefined || workspace === null || typeof workspace.listDirectory !== 'function') {
-			return Promise.reject(new Error('directory browsing is unavailable'));
+			return undefined;
 		}
-		return workspace.listDirectory(path);
+		const slots = ['conversation.hero.workspace.directoryFlow', 'sidebar.workspaces.directoryFlow'];
+		for (const name of slots) {
+			const entries =
+				typeof ctx.slots.entriesOfSlot === 'function' ? ctx.slots.entriesOfSlot(name) : ctx.slots.entries(name);
+			const entry = entries[0];
+			if (entry === undefined || typeof entry.component !== 'function') continue;
+			return {
+				Component: entry.component,
+				listDirectory: (path, signal) => workspace.listDirectory(path, signal),
+				createDirectory: (path, folder) => workspace.createDirectory(path, folder),
+				t: ctx.locale.bind('directory-browser'),
+			};
+		}
+		return undefined;
 	};
 
 	/** Adopt an existing directory as a Workspace; the controller merges it into the snapshot. */
@@ -109,6 +129,13 @@ export function apply(ctx) {
 			return Promise.resolve(undefined);
 		}
 		return workspaces.create({ path });
+	};
+
+	/** Open a blank Session inside a Workspace, the way the shipped sidebar does after a pick. */
+	const startSession = (workspaceId) => {
+		const workspace = ctx.get('uiWorkspace');
+		if (workspace === undefined || workspace === null || typeof workspace.startSession !== 'function') return;
+		workspace.startSession(workspaceId, { clearPreviousDraft: false });
 	};
 
 	ctx.slots.inject('settings.section', () =>
@@ -190,7 +217,8 @@ export function apply(ctx) {
 							archiveSession,
 							unarchiveSession,
 							createWorkspace,
-							listDirectory,
+							startSession,
+							getDirectoryFlow,
 						}),
 				),
 			);

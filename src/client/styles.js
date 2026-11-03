@@ -112,18 +112,6 @@ export const CSS = `
 .sa-item-danger:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); }
 .sa-item-danger:focus-visible:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); outline: none; }
 .sa-mask { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; background: var(--dsw-alias-bg-mask-1); backdrop-filter: var(--dsw-mask-blur); }
-.sa-picker { width: min(460px, calc(100vw - 64px)); }
-.sa-picker-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
-.sa-picker-crumbs { display: flex; flex-wrap: wrap; gap: 2px; max-height: 54px; overflow-y: auto; }
-.sa-picker-crumb { padding: 0 4px; border: 0; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; line-height: 18px; cursor: pointer; }
-.sa-picker-crumb:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
-.sa-picker-crumb-current { color: var(--dsw-alias-label-primary); }
-.sa-picker-list { display: flex; flex-direction: column; max-height: 240px; overflow-y: auto; }
-.sa-picker-row { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 6px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
-.sa-picker-row:hover { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-picker-folder { flex: none; width: 12px; color: var(--dsw-alias-label-tertiary); }
-.sa-picker-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sa-picker-status { padding: 6px 4px; font-size: 12px; color: var(--dsw-alias-label-tertiary); }
 .sa-input { width: 100%; height: 30px; box-sizing: border-box; padding: 0 10px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-1); color: inherit; font: inherit; font-size: 13px; }
 .sa-dialog { width: 380px; max-width: calc(100vw - 48px); padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--dsw-radius-lg); background: var(--dsw-alias-bg-layer-2); box-shadow: var(--dsw-elevation-prominent); color: var(--dsw-alias-label-primary); }
 .sa-dialog-title { font-size: 15px; line-height: 22px; font-weight: 600; }

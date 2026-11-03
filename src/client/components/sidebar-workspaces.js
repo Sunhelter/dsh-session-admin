@@ -25,7 +25,7 @@ import { SessionTree } from './session-tree.js';
  * @param props - `sidebar.workspaces` seat props (`wide`, `expandSidebar`) plus
  *   the actions wired in `apply.js`: `openSession`, `pinSession`,
  *   `unpinSession`, `archiveSession`, `unarchiveSession`, `renameSession`,
- *   `createWorkspace`, `listDirectory`.
+ *   `createWorkspace`, `startSession`, `getDirectoryFlow`.
  * @returns the header and card list region, or null in rail mode.
  */
 export function SidebarWorkspaces(props) {
@@ -43,7 +43,7 @@ export function SidebarWorkspaces(props) {
 	const [selectMode, setSelectMode] = React.useState(false);
 	const [selection, setSelection] = React.useState([]);
 	const [dialog, setDialog] = React.useState(null);
-	const [browse, setBrowse] = React.useState(null);
+	const [flow, setFlow] = React.useState(null);
 	const [notice, setNotice] = React.useState('');
 	const [busy, setBusy] = React.useState(false);
 	const treeRef = React.useRef(null);
@@ -226,46 +226,48 @@ export function SidebarWorkspaces(props) {
 		}
 	};
 
-	/** Load one directory level of the in-app picker. */
-	const loadDirectory = async (path) => {
-		if (typeof props.listDirectory !== 'function') {
-			setBrowse({ error: t('directoryUnavailable') });
+	/**
+	 * Open the shipped directory dialog. Its occupant is handed in by `apply.js`
+	 * — the slot it lives in belongs to the entry we shadow — so this is the same
+	 * dialog the native sidebar shows, columns, path editing and folder creation
+	 * included.
+	 */
+	const addWorkspace = () => {
+		const api = typeof props.getDirectoryFlow === 'function' ? props.getDirectoryFlow() : undefined;
+		if (api === undefined) {
+			setNotice(t('directoryUnavailable'));
 			return;
 		}
-		setBrowse({ loading: true });
-		try {
-			const listing = await props.listDirectory(path);
-			setBrowse({ listing });
-		} catch (error) {
-			setBrowse({ error: t('directoryUnavailable') });
-			console.warn('[session-admin] list directory failed:', error);
-		}
+		setFlow({ api, busy: false });
 	};
 
 	/**
-	 * Open the directory dialog; a browse host has no OS chooser to call, and
-	 * asking it anyway leaves the request hanging, so skip straight to the
-	 * listing primitives.
-	 */
-	const addWorkspace = async () => {
-		await loadDirectory(undefined);
-	};
-
-	/**
-	 * Adopt one directory as a Workspace and close the picker.
+	 * Adopt the picked directory as a Workspace, close the dialog and open a
+	 * fresh Session there. Our list groups by Session rather than Workspace, so
+	 * without the Session the new Workspace leaves nothing to look at — this is
+	 * also what the shipped sidebar does after a pick.
 	 * @param path - absolute directory path.
 	 */
 	const adopt = async (path) => {
 		if (typeof path !== 'string' || path === '') return;
-		setBrowse(null);
-		setBusy(true);
-		const result = await props.createWorkspace(path);
-		setBusy(false);
-		const ok = result !== undefined && result !== null && result.ok !== false;
+		setFlow((current) => (current === null ? current : { ...current, busy: true }));
+		let result;
+		try {
+			result = await props.createWorkspace(path);
+		} catch (error) {
+			result = { ok: false, error: { message: error instanceof Error ? error.message : String(error) } };
+		}
+		setFlow(null);
+		const ok = result === undefined || result === null || result.ok !== false;
 		if (!ok) {
 			const detail = result?.error?.message ?? '';
 			setNotice(detail === '' ? t('createWorkspaceFailed') : `${t('createWorkspaceFailed')}: ${detail}`);
 			console.warn('[session-admin] create workspace failed:', path, result);
+			return;
+		}
+		const workspaceId = result?.workspace?.workspaceId ?? result?.workspaceId;
+		if (typeof workspaceId === 'string' && typeof props.startSession === 'function') {
+			props.startSession(workspaceId);
 		}
 	};
 
@@ -452,7 +454,7 @@ export function SidebarWorkspaces(props) {
 								className: 'sa-ws-icon-btn',
 								type: 'button',
 								'aria-label': t('addWorkspace'),
-								onClick: () => void addWorkspace(),
+								onClick: addWorkspace,
 							},
 							h(IconProjectAddOutlineRegular, null),
 						),
@@ -557,89 +559,20 @@ export function SidebarWorkspaces(props) {
 					),
 				);
 
-	const pickerView =
-		browse === null
+	// The shipped dialog paints its own modal mask; we only mount it and hand it
+	// the open/busy conversation plus the adopt callback.
+	const flowView =
+		flow === null
 			? null
-			: h(
-					'div',
-					{ className: 'sa-mask' },
-					h(
-						'div',
-						{ className: 'sa-dialog sa-picker', role: 'dialog', 'aria-modal': 'true' },
-						h('div', { className: 'sa-dialog-title' }, t('pickDirectory')),
-						browse.loading === true
-							? h('div', { className: 'sa-picker-status' }, t('loading'))
-							: browse.error !== undefined
-								? h('div', { className: 'sa-picker-status' }, browse.error)
-								: h(
-										'div',
-										{ className: 'sa-picker-body' },
-										h(
-											'div',
-											{ className: 'sa-picker-crumbs' },
-											browse.listing.crumbs.map((crumb, index) =>
-												h(
-													'button',
-													{
-														key: crumb.path,
-														className:
-															index === browse.listing.crumbs.length - 1
-																? 'sa-picker-crumb sa-picker-crumb-current'
-																: 'sa-picker-crumb',
-														type: 'button',
-														title: crumb.path,
-														onClick: () => void loadDirectory(crumb.path),
-													},
-													crumb.name === '' ? '/' : crumb.name,
-												),
-											),
-										),
-										h(
-											'div',
-											{ className: 'sa-picker-list' },
-											browse.listing.entries.map((entry) =>
-												h(
-													'button',
-													{
-														key: entry.path,
-														className: 'sa-picker-row',
-														type: 'button',
-														title: entry.path,
-														onClick: () => void loadDirectory(entry.path),
-													},
-													h('span', { className: 'sa-picker-folder' }, '▸'),
-													h('span', { className: 'sa-picker-name' }, entry.name),
-												),
-											),
-											browse.listing.entries.length === 0
-												? h('div', { className: 'sa-picker-status' }, t('noSubdirectories'))
-												: null,
-										),
-										browse.listing.truncated === true
-											? h('div', { className: 'sa-picker-status' }, t('directoryTruncated'))
-											: null,
-									),
-						h(
-							'div',
-							{ className: 'sa-dialog-actions' },
-							h(
-								'button',
-								{ className: 'sa-btn', type: 'button', disabled: busy, onClick: () => setBrowse(null) },
-								t('cancel'),
-							),
-							h(
-								'button',
-								{
-									className: 'sa-btn sa-btn-primary',
-									type: 'button',
-									disabled: busy || browse.loading === true || browse.error !== undefined,
-									onClick: () => void adopt(browse.listing.path),
-								},
-								t('chooseDirectory'),
-							),
-						),
-					),
-				);
+			: h(flow.api.Component, {
+					open: true,
+					busy: flow.busy,
+					listDirectory: flow.api.listDirectory,
+					createDirectory: flow.api.createDirectory,
+					t: flow.api.t,
+					onPicked: (path) => void adopt(path),
+					onCancel: () => setFlow(null),
+				});
 
 	const noticeView = notice === '' ? null : h('div', { className: 'sa-shell-empty' }, notice);
 
@@ -688,6 +621,6 @@ export function SidebarWorkspaces(props) {
 		body,
 		bulkView,
 		dialogView,
-		pickerView,
+		flowView,
 	);
 }

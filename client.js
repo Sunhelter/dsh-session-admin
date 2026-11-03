@@ -53,12 +53,7 @@ var zh = {
   completed: "\u5DF2\u5B8C\u6210",
   addWorkspace: "\u6DFB\u52A0\u5DE5\u4F5C\u533A",
   createWorkspaceFailed: "\u6DFB\u52A0\u5DE5\u4F5C\u533A\u5931\u8D25",
-  pickDirectory: "\u9009\u62E9\u5DE5\u4F5C\u533A\u76EE\u5F55",
-  chooseDirectory: "\u9009\u62E9\u6B64\u76EE\u5F55",
-  loading: "\u52A0\u8F7D\u4E2D\u2026",
-  noSubdirectories: "\u6CA1\u6709\u5B50\u76EE\u5F55\u3002",
-  directoryTruncated: "\u76EE\u5F55\u6761\u76EE\u8FC7\u591A\uFF0C\u53EA\u663E\u793A\u4E86\u4E00\u90E8\u5206\u3002",
-  directoryUnavailable: "\u5F53\u524D\u73AF\u5883\u4E0D\u80FD\u6D4F\u89C8\u76EE\u5F55\uFF0C\u8BF7\u76F4\u63A5\u586B\u8DEF\u5F84\u3002",
+  directoryUnavailable: "\u5F53\u524D\u73AF\u5883\u6CA1\u6709\u76EE\u5F55\u9009\u62E9\u5668\uFF0C\u65E0\u6CD5\u6DFB\u52A0\u5DE5\u4F5C\u533A\u3002",
   searchSessions: "\u641C\u7D22\u4F1A\u8BDD",
   searchPlaceholder: "\u641C\u7D22\u4F1A\u8BDD",
   toSessionList: "\u5207\u6362\u5230\u4F1A\u8BDD\u5217\u8868",
@@ -82,6 +77,7 @@ var zh = {
   empty: "\u6CA1\u6709\u53EF\u7BA1\u7406\u7684\u4F1A\u8BDD\u3002",
   noMatch: "\u6CA1\u6709\u5339\u914D\u7684\u4F1A\u8BDD\u3002",
   unnamed: "\u672A\u547D\u540D",
+  blankSession: "\u65B0\u4F1A\u8BDD",
   noticeDeleted: "\u5DF2\u5220\u9664 {count} \u4E2A\u4F1A\u8BDD\u3002",
   noticeSkipped: "\u8DF3\u8FC7 {count} \u4E2A\uFF1A{reasons}",
   noticeFailed: "\u5220\u9664\u5931\u8D25\uFF1A{message}",
@@ -129,12 +125,7 @@ var en = {
   completed: "Completed",
   addWorkspace: "Add workspace",
   createWorkspaceFailed: "Could not add the workspace",
-  pickDirectory: "Choose a workspace directory",
-  chooseDirectory: "Choose this directory",
-  loading: "Loading\u2026",
-  noSubdirectories: "No subdirectories.",
-  directoryTruncated: "This directory has more entries than shown.",
-  directoryUnavailable: "Directory browsing is unavailable here.",
+  directoryUnavailable: "No directory picker is available here.",
   searchSessions: "Search sessions",
   searchPlaceholder: "Search sessions",
   toSessionList: "Switch to the session list",
@@ -158,6 +149,7 @@ var en = {
   empty: "No sessions to manage.",
   noMatch: "No matching sessions.",
   unnamed: "Untitled",
+  blankSession: "New session",
   noticeDeleted: "Deleted {count} sessions.",
   noticeSkipped: "Skipped {count}: {reasons}",
   noticeFailed: "Delete failed: {message}",
@@ -320,7 +312,7 @@ function selectRows(options) {
   for (const id of catalog.ids) {
     const row = catalog.byId[id];
     if (row === void 0) continue;
-    if (row.blank === true) continue;
+    if (row.blank === true && id !== currentId) continue;
     if (gone.has(id)) continue;
     if (archived.has(id) && showArchived !== true) continue;
     rows.push(row);
@@ -388,6 +380,7 @@ function statusDot(row, t, unread) {
   return null;
 }
 function rowTitle(row, t) {
+  if (row.blank === true) return t("blankSession");
   return row.title !== void 0 && row.title.trim() !== "" ? row.title : t("unnamed");
 }
 function SessionMenu(props) {
@@ -693,6 +686,11 @@ function SessionTree(props) {
 }
 
 // src/client/components/section.js
+function rowLabel(row, t) {
+  if (row === void 0) return t("unnamed");
+  if (row.blank === true) return t("blankSession");
+  return row.title !== void 0 && row.title !== "" ? row.title : t("unnamed");
+}
 function SessionAdminSection(props) {
   const t = props.t;
   const catalog = props.useSessions((state) => state);
@@ -803,7 +801,7 @@ function SessionAdminSection(props) {
     } catch (error) {
       if (stopActivity !== true && activeRefusal(error)) {
         const row = catalog.byId[id];
-        const title = row !== void 0 && row.title !== void 0 && row.title !== "" ? row.title : t("unnamed");
+        const title = rowLabel(row, t);
         setDialog({ kind: "archive", sessionId: id, label: title });
       } else {
         setNotice({
@@ -975,7 +973,7 @@ function SessionAdminSection(props) {
   const confirmingTitle = (() => {
     if (confirming === null || confirming.length !== 1) return "";
     const row = catalog.byId[confirming[0]];
-    return row !== void 0 && row.title !== void 0 && row.title !== "" ? row.title : t("unnamed");
+    return rowLabel(row, t);
   })();
   const confirmBar = confirming === null ? null : h(
     "div",
@@ -1281,7 +1279,7 @@ function SidebarWorkspaces(props) {
   const [selectMode, setSelectMode] = react_default.useState(false);
   const [selection, setSelection] = react_default.useState([]);
   const [dialog, setDialog] = react_default.useState(null);
-  const [browse, setBrowse] = react_default.useState(null);
+  const [flow, setFlow] = react_default.useState(null);
   const [notice, setNotice] = react_default.useState("");
   const [busy, setBusy] = react_default.useState(false);
   const treeRef = react_default.useRef(null);
@@ -1423,34 +1421,34 @@ function SidebarWorkspaces(props) {
       console.warn("[session-admin] unarchive failed:", error);
     }
   };
-  const loadDirectory = async (path) => {
-    if (typeof props.listDirectory !== "function") {
-      setBrowse({ error: t("directoryUnavailable") });
+  const addWorkspace = () => {
+    const api = typeof props.getDirectoryFlow === "function" ? props.getDirectoryFlow() : void 0;
+    if (api === void 0) {
+      setNotice(t("directoryUnavailable"));
       return;
     }
-    setBrowse({ loading: true });
-    try {
-      const listing = await props.listDirectory(path);
-      setBrowse({ listing });
-    } catch (error) {
-      setBrowse({ error: t("directoryUnavailable") });
-      console.warn("[session-admin] list directory failed:", error);
-    }
-  };
-  const addWorkspace = async () => {
-    await loadDirectory(void 0);
+    setFlow({ api, busy: false });
   };
   const adopt = async (path) => {
     if (typeof path !== "string" || path === "") return;
-    setBrowse(null);
-    setBusy(true);
-    const result = await props.createWorkspace(path);
-    setBusy(false);
-    const ok = result !== void 0 && result !== null && result.ok !== false;
+    setFlow((current) => current === null ? current : { ...current, busy: true });
+    let result;
+    try {
+      result = await props.createWorkspace(path);
+    } catch (error) {
+      result = { ok: false, error: { message: error instanceof Error ? error.message : String(error) } };
+    }
+    setFlow(null);
+    const ok = result === void 0 || result === null || result.ok !== false;
     if (!ok) {
       const detail = result?.error?.message ?? "";
       setNotice(detail === "" ? t("createWorkspaceFailed") : `${t("createWorkspaceFailed")}: ${detail}`);
       console.warn("[session-admin] create workspace failed:", path, result);
+      return;
+    }
+    const workspaceId = result?.workspace?.workspaceId ?? result?.workspaceId;
+    if (typeof workspaceId === "string" && typeof props.startSession === "function") {
+      props.startSession(workspaceId);
     }
   };
   const exitSelect = () => {
@@ -1614,7 +1612,7 @@ function SidebarWorkspaces(props) {
             className: "sa-ws-icon-btn",
             type: "button",
             "aria-label": t("addWorkspace"),
-            onClick: () => void addWorkspace()
+            onClick: addWorkspace
           },
           h(import_dsh_client_ui_primitives3.IconProjectAddOutlineRegular, null)
         )
@@ -1700,75 +1698,15 @@ function SidebarWorkspaces(props) {
       )
     )
   );
-  const pickerView = browse === null ? null : h(
-    "div",
-    { className: "sa-mask" },
-    h(
-      "div",
-      { className: "sa-dialog sa-picker", role: "dialog", "aria-modal": "true" },
-      h("div", { className: "sa-dialog-title" }, t("pickDirectory")),
-      browse.loading === true ? h("div", { className: "sa-picker-status" }, t("loading")) : browse.error !== void 0 ? h("div", { className: "sa-picker-status" }, browse.error) : h(
-        "div",
-        { className: "sa-picker-body" },
-        h(
-          "div",
-          { className: "sa-picker-crumbs" },
-          browse.listing.crumbs.map(
-            (crumb, index) => h(
-              "button",
-              {
-                key: crumb.path,
-                className: index === browse.listing.crumbs.length - 1 ? "sa-picker-crumb sa-picker-crumb-current" : "sa-picker-crumb",
-                type: "button",
-                title: crumb.path,
-                onClick: () => void loadDirectory(crumb.path)
-              },
-              crumb.name === "" ? "/" : crumb.name
-            )
-          )
-        ),
-        h(
-          "div",
-          { className: "sa-picker-list" },
-          browse.listing.entries.map(
-            (entry) => h(
-              "button",
-              {
-                key: entry.path,
-                className: "sa-picker-row",
-                type: "button",
-                title: entry.path,
-                onClick: () => void loadDirectory(entry.path)
-              },
-              h("span", { className: "sa-picker-folder" }, "\u25B8"),
-              h("span", { className: "sa-picker-name" }, entry.name)
-            )
-          ),
-          browse.listing.entries.length === 0 ? h("div", { className: "sa-picker-status" }, t("noSubdirectories")) : null
-        ),
-        browse.listing.truncated === true ? h("div", { className: "sa-picker-status" }, t("directoryTruncated")) : null
-      ),
-      h(
-        "div",
-        { className: "sa-dialog-actions" },
-        h(
-          "button",
-          { className: "sa-btn", type: "button", disabled: busy, onClick: () => setBrowse(null) },
-          t("cancel")
-        ),
-        h(
-          "button",
-          {
-            className: "sa-btn sa-btn-primary",
-            type: "button",
-            disabled: busy || browse.loading === true || browse.error !== void 0,
-            onClick: () => void adopt(browse.listing.path)
-          },
-          t("chooseDirectory")
-        )
-      )
-    )
-  );
+  const flowView = flow === null ? null : h(flow.api.Component, {
+    open: true,
+    busy: flow.busy,
+    listDirectory: flow.api.listDirectory,
+    createDirectory: flow.api.createDirectory,
+    t: flow.api.t,
+    onPicked: (path) => void adopt(path),
+    onCancel: () => setFlow(null)
+  });
   const noticeView = notice === "" ? null : h("div", { className: "sa-shell-empty" }, notice);
   const bulkView = selectMode === false ? null : h(
     "div",
@@ -1810,7 +1748,7 @@ function SidebarWorkspaces(props) {
     body,
     bulkView,
     dialogView,
-    pickerView
+    flowView
   );
 }
 
@@ -2119,18 +2057,6 @@ var CSS = `
 .sa-item-danger:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); }
 .sa-item-danger:focus-visible:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-danger); outline: none; }
 .sa-mask { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; background: var(--dsw-alias-bg-mask-1); backdrop-filter: var(--dsw-mask-blur); }
-.sa-picker { width: min(460px, calc(100vw - 64px)); }
-.sa-picker-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
-.sa-picker-crumbs { display: flex; flex-wrap: wrap; gap: 2px; max-height: 54px; overflow-y: auto; }
-.sa-picker-crumb { padding: 0 4px; border: 0; border-radius: var(--dsw-radius-xs); background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-size: 12px; line-height: 18px; cursor: pointer; }
-.sa-picker-crumb:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
-.sa-picker-crumb-current { color: var(--dsw-alias-label-primary); }
-.sa-picker-list { display: flex; flex-direction: column; max-height: 240px; overflow-y: auto; }
-.sa-picker-row { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 6px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
-.sa-picker-row:hover { background: var(--dsw-alias-interactive-bg-hover); }
-.sa-picker-folder { flex: none; width: 12px; color: var(--dsw-alias-label-tertiary); }
-.sa-picker-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sa-picker-status { padding: 6px 4px; font-size: 12px; color: var(--dsw-alias-label-tertiary); }
 .sa-input { width: 100%; height: 30px; box-sizing: border-box; padding: 0 10px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-1); color: inherit; font: inherit; font-size: 13px; }
 .sa-dialog { width: 380px; max-width: calc(100vw - 48px); padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--dsw-radius-lg); background: var(--dsw-alias-bg-layer-2); box-shadow: var(--dsw-elevation-prominent); color: var(--dsw-alias-label-primary); }
 .sa-dialog-title { font-size: 15px; line-height: 22px; font-weight: 600; }
@@ -2198,12 +2124,24 @@ function apply(ctx) {
     }
     return manager.rename(sessionId, title);
   };
-  const listDirectory = (path) => {
+  const getDirectoryFlow = () => {
     const workspace = ctx.get("uiWorkspace");
     if (workspace === void 0 || workspace === null || typeof workspace.listDirectory !== "function") {
-      return Promise.reject(new Error("directory browsing is unavailable"));
+      return void 0;
     }
-    return workspace.listDirectory(path);
+    const slots = ["conversation.hero.workspace.directoryFlow", "sidebar.workspaces.directoryFlow"];
+    for (const name of slots) {
+      const entries = typeof ctx.slots.entriesOfSlot === "function" ? ctx.slots.entriesOfSlot(name) : ctx.slots.entries(name);
+      const entry = entries[0];
+      if (entry === void 0 || typeof entry.component !== "function") continue;
+      return {
+        Component: entry.component,
+        listDirectory: (path, signal) => workspace.listDirectory(path, signal),
+        createDirectory: (path, folder) => workspace.createDirectory(path, folder),
+        t: ctx.locale.bind("directory-browser")
+      };
+    }
+    return void 0;
   };
   const createWorkspace = (path) => {
     const workspaces = ctx.get("workspaces");
@@ -2211,6 +2149,11 @@ function apply(ctx) {
       return Promise.resolve(void 0);
     }
     return workspaces.create({ path });
+  };
+  const startSession = (workspaceId) => {
+    const workspace = ctx.get("uiWorkspace");
+    if (workspace === void 0 || workspace === null || typeof workspace.startSession !== "function") return;
+    workspace.startSession(workspaceId, { clearPreviousDraft: false });
   };
   ctx.slots.inject(
     "settings.section",
@@ -2278,7 +2221,8 @@ function apply(ctx) {
             archiveSession,
             unarchiveSession,
             createWorkspace,
-            listDirectory
+            startSession,
+            getDirectoryFlow
           })
         )
       );
