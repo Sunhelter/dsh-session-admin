@@ -1,7 +1,12 @@
 /**
  * The Session card list: a pinned section first, then one card per Session cut
  * into day-range buckets. A card carries the shipped row's first line (status
- * mark, title, relative time, hover actions) and the Workspace name under it.
+ * mark, title, hover actions) and, under it, the Workspace name and relative
+ * time.
+ *
+ * The left mark of a card is one of three things, in this order: the status dot
+ * (running, or finished-unread), the pin glyph, the Automation clock; a plain
+ * row keeps the empty slot so titles line up.
  *
  * Pure presentation — data and actions all arrive as props, so the settings
  * page and the sidebar share one component.
@@ -118,6 +123,7 @@ function SessionCard(props) {
 	const current = props.current === true;
 	const title = rowTitle(row, t);
 	const [menuOpen, setMenuOpen] = React.useState(false);
+	// An archived card cannot be opened or selected until it is unarchived.
 	const blocked = busy === true || archived === true;
 	const toggle = () => {
 		if (blocked) return;
@@ -144,6 +150,7 @@ function SessionCard(props) {
 		.filter((part) => part !== '')
 		.join(' ');
 
+	// One 16px slot: status dot first, then the pin, then the Automation clock.
 	const mark = () => {
 		if (dot !== null) return h('span', { className: 'sa-slot' }, dot);
 		if (pinned === true) {

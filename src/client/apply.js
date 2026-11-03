@@ -157,6 +157,12 @@ export function apply(ctx) {
 	 * aside the moment it turns off. `priority: -1` outranks ui-workspace's own
 	 * entry; the sidebar shell keeps its brand row, new-session button, footer and
 	 * settings seats, so nothing has to be re-declared here.
+	 *
+	 * `sidebar` is a single seat: same-priority duplicate registrations throw, and
+	 * only static boot plugins pick their own priority (dynamic packages get one
+	 * assigned). The shell cannot be re-declared either — `renderSlot` is only
+	 * passed to registrations that declare `children`, and ui-sidebar already
+	 * declared the eight sidebar children, so a second declaration would fail.
 	 */
 	let disposeSidebar;
 	const syncSidebar = () => {

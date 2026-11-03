@@ -11,6 +11,9 @@
  * shared module table (React) reach the code while `module.exports` still
  * carries `{ inject, apply }`.
  *
+ * The Host's HMR watches `client.js` itself (mtime / ctime / size), so editing
+ * `src/client/` without rebuilding leaves the running page on the old code.
+ *
  * Usage: `node build.mjs` (one shot) or `node build.mjs --watch`.
  */
 import { build } from 'esbuild';
@@ -51,6 +54,11 @@ const options = {
 	format: 'cjs',
 	platform: 'browser',
 	target: 'es2022',
+	// Both entries come from the Host's shared module table: React is handed to
+	// the factory, and the primitives package is a static Web module (icons,
+	// Menu, Tooltip, relativeTime) that must not be bundled or added to
+	// `dsh.client.inject`. An older Web build without it makes `require` throw at
+	// materialization — the fallback is disabling the plugin.
 	external: ['react', '@deepseek-ai/dsh-client-ui-primitives'],
 	legalComments: 'none',
 	logLevel: 'warning',

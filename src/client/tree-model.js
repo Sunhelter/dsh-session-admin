@@ -21,6 +21,8 @@ export function selectRows(options) {
 	const { catalog, archivedIds, goneIds, showArchived } = options;
 	const archived = new Set(archivedIds);
 	const gone = new Set(goneIds);
+	// The Session the main view retains is the current one; its card keeps a
+	// permanent highlight so it can be found again after switching away.
 	let currentId;
 	for (const id of catalog.ids) {
 		const row = catalog.byId[id];

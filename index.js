@@ -7,6 +7,8 @@
  * Agent still owns the log. The Workspace registry keeps its launch-time
  * header index in memory, so the sidebar drops a deleted row only after the
  * host restarts; this plugin's own settings page refreshes immediately.
+ * `workspace.json` still lists the id until the next workspace mutation —
+ * nothing here rewrites that file.
  *
  * Two callers share one operation: the settings page posts to the plugin route
  * (same-origin, admitted by Connection's trust check) and the `session_admin`

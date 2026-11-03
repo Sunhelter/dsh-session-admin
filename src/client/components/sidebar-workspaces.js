@@ -349,6 +349,8 @@ export function SidebarWorkspaces(props) {
 
 	const groupLabel = pinned.length > 0 ? t('pinnedSection') : (groups[0]?.label ?? t('sectionSessions'));
 
+	// Select mode reuses the shipped new-session row: same height, our label and
+	// close button.
 	const selectBar =
 		selectMode === false
 			? null
@@ -372,6 +374,7 @@ export function SidebarWorkspaces(props) {
 					),
 				);
 
+	// Header: group label, search, select-mode entry, panel toggle, add workspace.
 	const header = h(
 		'div',
 		{ className: 'sa-ws-header' },
@@ -492,6 +495,7 @@ export function SidebarWorkspaces(props) {
 				),
 	);
 
+	// Rail mode hides this region natively; there is nothing to draw.
 	if (!wide) return null;
 
 	const body =
@@ -674,6 +678,7 @@ export function SidebarWorkspaces(props) {
 
 	const noticeView = notice === '' ? null : h('div', { className: 'sa-shell-empty' }, notice);
 
+	// Bulk bar: pin and delete, only while selection is on.
 	const bulkView =
 		selectMode === false
 			? null
