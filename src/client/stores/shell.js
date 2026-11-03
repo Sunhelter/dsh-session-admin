@@ -2,9 +2,10 @@
  * The "replace the native sidebar" preference.
  *
  * It is a browser-local view preference, not plugin configuration: it lives in
- * `localStorage`, it is per browser, and the settings page and the sidebar
+ * `localStorage`, it is per browser, and the brand-row toggle and the sidebar
  * registration both read this one store so a toggle takes effect without a
- * page reload.
+ * page reload. Absent a stored choice the custom sidebar is on: the plugin's
+ * whole point is that list.
  */
 import { createStore } from './create-store.js';
 
@@ -12,14 +13,16 @@ import { createStore } from './create-store.js';
 export const SHELL_KEY = 'session-admin.shell-override';
 
 /**
- * Read the stored preference.
+ * Read the stored preference, defaulting to the custom sidebar.
  * @returns whether the custom sidebar is enabled.
  */
 function readStored() {
 	try {
-		return localStorage.getItem(SHELL_KEY) === '1';
+		const stored = localStorage.getItem(SHELL_KEY);
+		return stored === null ? true : stored === '1';
 	} catch {
-		return false;
+		/* private mode: never stored, so keep the default */
+		return true;
 	}
 }
 

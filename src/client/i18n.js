@@ -26,8 +26,8 @@ export const zh = {
 	directoryUnavailable: '当前环境不能浏览目录，请直接填路径。',
 	searchSessions: '搜索会话',
 	searchPlaceholder: '搜索会话',
-	showPanels: '显示面板入口',
-	hidePanels: '隐藏面板入口',
+	toSessionList: '切换到会话列表',
+	toNativeSidebar: '切回原生侧边栏',
 	selectAll: '全选',
 	selectChats: '选择对话',
 	selectedChats: '已选择 {count} 个对话',
@@ -77,8 +77,6 @@ export const zh = {
 	'time.days': '{n}天',
 	'time.months': '{n}个月',
 	'time.years': '{n}年',
-	shell: '替换原生工作区区域',
-	shellDesc: '用本插件的会话卡片列表替换左侧栏的工作区区域；品牌行、新会话按钮和底部保留原生。',
 };
 
 /** English dictionary. */
@@ -106,8 +104,8 @@ export const en = {
 	directoryUnavailable: 'Directory browsing is unavailable here.',
 	searchSessions: 'Search sessions',
 	searchPlaceholder: 'Search sessions',
-	showPanels: 'Show panel entries',
-	hidePanels: 'Hide panel entries',
+	toSessionList: 'Switch to the session list',
+	toNativeSidebar: 'Back to the native sidebar',
 	selectAll: 'Select all',
 	selectChats: 'Select chats',
 	selectedChats: '{count} selected',
@@ -157,6 +155,4 @@ export const en = {
 	'time.days': '{n}d',
 	'time.months': '{n}mo',
 	'time.years': '{n}y',
-	shell: 'Replace the native workspace region',
-	shellDesc: 'Swaps the sidebar’s workspace region for this plugin’s Session card list; the brand row, new-session button and footer stay native.',
 };

@@ -13,7 +13,6 @@ import { markVanished, useVanished } from '../stores/vanished.js';
 import { togglePin, usePinned } from '../stores/pins.js';
 import { buildCardList, selectRows } from '../tree-model.js';
 import { SessionTree } from './session-tree.js';
-import { SidebarSwitch } from './pref-switch.js';
 
 /**
  * @param props - slot props: locale seat, session catalog, workspace snapshot,
@@ -478,7 +477,6 @@ export function SessionAdminSection(props) {
 		'div',
 		{ className: 'sa-root' },
 		header,
-		h(SidebarSwitch, { t }),
 		toolbar,
 		confirmBar,
 		noticeLine,

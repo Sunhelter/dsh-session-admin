@@ -8,6 +8,7 @@ import { SessionAdminSection } from './components/section.js';
 import { SessionDeleteMenuItem } from './components/menu-item.js';
 import { SessionAdminOverlay } from './components/overlay.js';
 import { SidebarWorkspaces } from './components/sidebar-workspaces.js';
+import { installLogoToggle } from './logo-toggle.js';
 import { installSettingsNavIcon } from './nav-icon.js';
 import { bindAutomation } from './stores/automation.js';
 import { getShellOverride, subscribeShell } from './stores/shell.js';
@@ -34,6 +35,10 @@ export function apply(ctx) {
 	}, 'session-admin: styles');
 	const t = ctx.locale.bind(NS);
 	installSettingsNavIcon(ctx, () => t('nav'));
+	installLogoToggle(ctx, () => ({
+		toSessionList: t('toSessionList'),
+		toNativeSidebar: t('toNativeSidebar'),
+	}));
 	bindAutomation(ctx);
 
 	/** Archive one Session; a running one is refused by the host. */

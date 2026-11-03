@@ -61,8 +61,8 @@ var zh = {
   directoryUnavailable: "\u5F53\u524D\u73AF\u5883\u4E0D\u80FD\u6D4F\u89C8\u76EE\u5F55\uFF0C\u8BF7\u76F4\u63A5\u586B\u8DEF\u5F84\u3002",
   searchSessions: "\u641C\u7D22\u4F1A\u8BDD",
   searchPlaceholder: "\u641C\u7D22\u4F1A\u8BDD",
-  showPanels: "\u663E\u793A\u9762\u677F\u5165\u53E3",
-  hidePanels: "\u9690\u85CF\u9762\u677F\u5165\u53E3",
+  toSessionList: "\u5207\u6362\u5230\u4F1A\u8BDD\u5217\u8868",
+  toNativeSidebar: "\u5207\u56DE\u539F\u751F\u4FA7\u8FB9\u680F",
   selectAll: "\u5168\u9009",
   selectChats: "\u9009\u62E9\u5BF9\u8BDD",
   selectedChats: "\u5DF2\u9009\u62E9 {count} \u4E2A\u5BF9\u8BDD",
@@ -111,9 +111,7 @@ var zh = {
   "time.hours": "{n}\u5C0F\u65F6",
   "time.days": "{n}\u5929",
   "time.months": "{n}\u4E2A\u6708",
-  "time.years": "{n}\u5E74",
-  shell: "\u66FF\u6362\u539F\u751F\u5DE5\u4F5C\u533A\u533A\u57DF",
-  shellDesc: "\u7528\u672C\u63D2\u4EF6\u7684\u4F1A\u8BDD\u5361\u7247\u5217\u8868\u66FF\u6362\u5DE6\u4FA7\u680F\u7684\u5DE5\u4F5C\u533A\u533A\u57DF\uFF1B\u54C1\u724C\u884C\u3001\u65B0\u4F1A\u8BDD\u6309\u94AE\u548C\u5E95\u90E8\u4FDD\u7559\u539F\u751F\u3002"
+  "time.years": "{n}\u5E74"
 };
 var en = {
   nav: "Sessions",
@@ -139,8 +137,8 @@ var en = {
   directoryUnavailable: "Directory browsing is unavailable here.",
   searchSessions: "Search sessions",
   searchPlaceholder: "Search sessions",
-  showPanels: "Show panel entries",
-  hidePanels: "Hide panel entries",
+  toSessionList: "Switch to the session list",
+  toNativeSidebar: "Back to the native sidebar",
   selectAll: "Select all",
   selectChats: "Select chats",
   selectedChats: "{count} selected",
@@ -189,9 +187,7 @@ var en = {
   "time.hours": "{n}h",
   "time.days": "{n}d",
   "time.months": "{n}mo",
-  "time.years": "{n}y",
-  shell: "Replace the native workspace region",
-  shellDesc: "Swaps the sidebar\u2019s workspace region for this plugin\u2019s Session card list; the brand row, new-session button and footer stay native."
+  "time.years": "{n}y"
 };
 
 // src/client/api.js
@@ -696,58 +692,6 @@ function SessionTree(props) {
   );
 }
 
-// src/client/stores/shell.js
-var SHELL_KEY = "session-admin.shell-override";
-function readStored2() {
-  try {
-    return localStorage.getItem(SHELL_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-var store3 = createStore(readStored2());
-function getShellOverride() {
-  return store3.get();
-}
-function setShellOverride(next) {
-  if (next === store3.get()) return;
-  store3.set(next);
-  try {
-    localStorage.setItem(SHELL_KEY, next ? "1" : "0");
-  } catch {
-  }
-}
-function subscribeShell(listener) {
-  return store3.subscribe(listener);
-}
-function useShellOverride() {
-  return store3.useValue();
-}
-
-// src/client/components/pref-switch.js
-function SidebarSwitch(props) {
-  const t = props.t;
-  const enabled = useShellOverride();
-  return h(
-    "div",
-    { className: "sa-pref" },
-    h(
-      "div",
-      { className: "sa-pref-text" },
-      h("div", { className: "sa-pref-label" }, t("shell")),
-      h("div", { className: "sa-pref-desc" }, t("shellDesc"))
-    ),
-    h("button", {
-      className: "sa-switch",
-      type: "button",
-      role: "switch",
-      "aria-checked": enabled,
-      "aria-label": t("shell"),
-      onClick: () => setShellOverride(!enabled)
-    })
-  );
-}
-
 // src/client/components/section.js
 function SessionAdminSection(props) {
   const t = props.t;
@@ -1144,7 +1088,6 @@ function SessionAdminSection(props) {
     "div",
     { className: "sa-root" },
     header,
-    h(SidebarSwitch, { t }),
     toolbar,
     confirmBar,
     noticeLine,
@@ -1155,12 +1098,12 @@ function SessionAdminSection(props) {
 }
 
 // src/client/stores/overlay.js
-var store4 = createStore(null);
+var store3 = createStore(null);
 function setOverlay(next) {
-  store4.set(next);
+  store3.set(next);
 }
 function useOverlay() {
-  return store4.useValue();
+  return store3.useValue();
 }
 
 // src/client/components/menu-item.js
@@ -1323,28 +1266,6 @@ function useAutomationSessionIds() {
   return sessions.useValue();
 }
 
-// src/client/stores/panels.js
-var PANELS_KEY = "session-admin.panels-visible";
-function readStored3() {
-  try {
-    return localStorage.getItem(PANELS_KEY) !== "0";
-  } catch {
-    return true;
-  }
-}
-var store5 = createStore(readStored3());
-function setPanelsVisible(next) {
-  if (next === store5.get()) return;
-  store5.set(next);
-  try {
-    localStorage.setItem(PANELS_KEY, next ? "1" : "0");
-  } catch {
-  }
-}
-function usePanelsVisible() {
-  return store5.useValue();
-}
-
 // src/client/components/sidebar-workspaces.js
 function SidebarWorkspaces(props) {
   const t = props.t;
@@ -1366,7 +1287,6 @@ function SidebarWorkspaces(props) {
   const treeRef = react_default.useRef(null);
   const shellRef = react_default.useRef(null);
   const searchRef = react_default.useRef(null);
-  const panelsVisible = usePanelsVisible();
   const automation = useAutomationSessionIds();
   react_default.useEffect(() => {
     let current = treeRef.current;
@@ -1385,7 +1305,6 @@ function SidebarWorkspaces(props) {
     shell.setAttribute("data-session-admin-sidebar", "");
     return () => {
       shell.removeAttribute("data-session-admin-sidebar");
-      shell.removeAttribute("data-session-admin-panels");
       shell.removeAttribute("data-session-admin-selecting");
       shellRef.current = null;
     };
@@ -1421,12 +1340,6 @@ function SidebarWorkspaces(props) {
     }
     shell.setAttribute("data-session-admin-selecting", "");
   }, [selectMode, wide]);
-  react_default.useEffect(() => {
-    const shell = shellRef.current;
-    if (shell === null) return;
-    if (panelsVisible) shell.setAttribute("data-session-admin-panels", "");
-    else shell.removeAttribute("data-session-admin-panels");
-  }, [panelsVisible]);
   react_default.useEffect(() => {
     if (searchExpanded) searchRef.current?.focus({ preventScroll: true });
   }, [searchExpanded]);
@@ -1694,26 +1607,6 @@ function SidebarWorkspaces(props) {
       { className: "sa-ws-actions" },
       h(
         import_dsh_client_ui_primitives3.Tooltip,
-        {
-          label: t(panelsVisible ? "hidePanels" : "showPanels"),
-          side: "bottom",
-          delayMs: 500,
-          portal: true
-        },
-        h(
-          "button",
-          {
-            className: "sa-ws-icon-btn",
-            type: "button",
-            "aria-label": t(panelsVisible ? "hidePanels" : "showPanels"),
-            "aria-pressed": panelsVisible,
-            onClick: () => setPanelsVisible(!panelsVisible)
-          },
-          h(import_dsh_client_ui_primitives3.IconPanelLeftOutlineRegular, null)
-        )
-      ),
-      h(
-        import_dsh_client_ui_primitives3.Tooltip,
         { label: t("addWorkspace"), side: "bottom", delayMs: 500, portal: true },
         h(
           "button",
@@ -1921,6 +1814,121 @@ function SidebarWorkspaces(props) {
   );
 }
 
+// src/client/stores/shell.js
+var SHELL_KEY = "session-admin.shell-override";
+function readStored2() {
+  try {
+    const stored = localStorage.getItem(SHELL_KEY);
+    return stored === null ? true : stored === "1";
+  } catch {
+    return true;
+  }
+}
+var store4 = createStore(readStored2());
+function getShellOverride() {
+  return store4.get();
+}
+function setShellOverride(next) {
+  if (next === store4.get()) return;
+  store4.set(next);
+  try {
+    localStorage.setItem(SHELL_KEY, next ? "1" : "0");
+  } catch {
+  }
+}
+function subscribeShell(listener) {
+  return store4.subscribe(listener);
+}
+
+// src/client/logo-toggle.js
+var BUTTON_ATTR = "data-session-admin-logo-toggle";
+var ROW_MIN_WIDTH = 120;
+var TOGGLE_LABELS = /* @__PURE__ */ new Set(["\u6536\u8D77\u4FA7\u8FB9\u680F", "\u6253\u5F00\u4FA7\u8FB9\u680F", "Collapse sidebar", "Open sidebar"]);
+var HAMBURGER = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 3.5h11M2.5 8h11M2.5 12.5h11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>';
+var FOLDER = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1.50439 3.11059C1.50439 2.55831 1.95211 2.1106 2.50439 2.1106H5.43389C5.67773 2.1106 5.91318 2.19969 6.09593 2.36113L7.71649 3.79265C7.89924 3.95409 8.1347 4.04319 8.3785 4.04319H13.4958C14.0481 4.04319 14.4958 4.4909 14.4958 5.04319V12.8894C14.4958 13.4417 14.0481 13.8894 13.4958 13.8894H2.50439C1.95211 13.8894 1.50439 13.4417 1.50439 12.8894V4.04319V3.11059Z" stroke="currentColor" stroke-width="1"/><path d="M3.63501 7.66614H12.3647" stroke="currentColor" stroke-width="1"/></svg>';
+function findToggle() {
+  for (const button of document.querySelectorAll("button[aria-label]")) {
+    if (TOGGLE_LABELS.has(button.getAttribute("aria-label"))) return button;
+  }
+  return null;
+}
+function ensureButton() {
+  const toggle = findToggle();
+  if (toggle === null) return null;
+  const row = toggle.parentElement;
+  let button = document.querySelector(`button[${BUTTON_ATTR}]`);
+  if (button === null) {
+    button = document.createElement("button");
+    button.type = "button";
+    button.className = "sa-logo-toggle";
+    button.setAttribute(BUTTON_ATTR, "");
+    button.addEventListener("click", () => setShellOverride(!getShellOverride()));
+  }
+  if (button.parentElement !== row || button.nextElementSibling !== toggle) {
+    row.insertBefore(button, toggle);
+  }
+  return button;
+}
+function sync(labels) {
+  const button = ensureButton();
+  if (button === null) return null;
+  button.hidden = button.parentElement.getBoundingClientRect().width < ROW_MIN_WIDTH;
+  const custom = getShellOverride();
+  const mode = custom ? "custom" : "native";
+  if (button.dataset.mode !== mode) {
+    button.dataset.mode = mode;
+    button.innerHTML = custom ? FOLDER : HAMBURGER;
+  }
+  const label = custom ? labels.toNativeSidebar : labels.toSessionList;
+  if (button.title !== label) {
+    button.title = label;
+    button.setAttribute("aria-label", label);
+  }
+  return button;
+}
+function installLogoToggle(ctx, resolveLabels) {
+  ctx.effect(() => {
+    let frame = 0;
+    let observer = null;
+    let resizer = null;
+    let row = null;
+    const watch = (nextRow) => {
+      if (row === nextRow) return;
+      observer?.disconnect();
+      resizer?.disconnect();
+      observer = null;
+      resizer = null;
+      row = nextRow;
+      if (row === null) return;
+      observer = new MutationObserver(() => schedule());
+      observer.observe(row, { childList: true });
+      resizer = new ResizeObserver(() => schedule());
+      resizer.observe(row);
+    };
+    const run = () => {
+      frame = 0;
+      const button = sync(resolveLabels());
+      watch(button === null ? null : button.parentElement);
+    };
+    const schedule = () => {
+      if (frame === 0) frame = requestAnimationFrame(run);
+    };
+    schedule();
+    const unsubscribe = subscribeShell(schedule);
+    const timer = setInterval(run, 2e3);
+    window.addEventListener("resize", schedule);
+    return () => {
+      unsubscribe();
+      clearInterval(timer);
+      window.removeEventListener("resize", schedule);
+      observer?.disconnect();
+      resizer?.disconnect();
+      if (frame !== 0) cancelAnimationFrame(frame);
+      document.querySelector(`button[${BUTTON_ATTR}]`)?.remove();
+    };
+  }, "session-admin: logo toggle");
+}
+
 // src/client/nav-icon.js
 var NAV_ICON_MARKER = "data-session-admin-nav-icon";
 var NAV_ROW_SELECTOR = '[role="dialog"] nav button';
@@ -1975,7 +1983,7 @@ function installSettingsNavIcon(ctx, resolveLabel) {
       document.head.appendChild(tag);
       let disposed = false;
       let scheduled = false;
-      const sync = () => {
+      const sync2 = () => {
         scheduled = false;
         if (disposed) return;
         const wanted = resolveLabel();
@@ -1987,9 +1995,9 @@ function installSettingsNavIcon(ctx, resolveLabel) {
       const schedule = () => {
         if (scheduled || disposed) return;
         scheduled = true;
-        queueMicrotask(sync);
+        queueMicrotask(sync2);
       };
-      sync();
+      sync2();
       const observer = new MutationObserver(schedule);
       observer.observe(document.body, { childList: true, subtree: true, characterData: true });
       return () => {
@@ -2008,16 +2016,11 @@ var CSS = `
 .sa-root { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 14px; color: var(--dsw-alias-label-primary); }
 .sa-head h2 { margin: 0 0 4px; font-size: 15px; line-height: 22px; font-weight: 600; }
 .sa-desc { margin: 0; color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 20px; }
-.sa-pref { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border: 0.5px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-layer-1); }
-.sa-pref-text { flex: 1; min-width: 0; }
-.sa-pref-label { font-size: 13px; line-height: 18px; font-weight: 500; }
-.sa-pref-desc { margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--dsw-alias-label-secondary); }
-.sa-switch { position: relative; flex: none; width: 34px; height: 20px; margin-top: 1px; padding: 0; border: none; border-radius: 999px; background: var(--dsw-alias-border-l3); cursor: pointer; transition: background 0.12s ease; }
-.sa-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: var(--dsw-alias-switch-thumb, #fff); transition: transform 0.12s ease; }
-.sa-switch[aria-checked="true"] { background: var(--dsw-alias-state-business-primary); }
-.sa-switch[aria-checked="true"]::after { transform: translateX(14px); }
-.sa-switch:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { .sa-switch, .sa-switch::after { transition: none; } }
+.sa-logo-toggle { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 28px; height: 28px; padding: 0; border: none; border-radius: var(--dsw-radius-sm, 6px); background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.sa-logo-toggle[hidden] { display: none; }
+.sa-logo-toggle:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.sa-logo-toggle:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: -2px; }
+.sa-logo-toggle svg { display: block; width: 16px; height: 16px; }
 .sa-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .sa-search { flex: 1 1 220px; min-width: 160px; height: 30px; padding: 0 10px; border-radius: 6px; border: 0.5px solid var(--dsw-alias-border-l2); background: var(--dsw-alias-bg-layer-1); color: inherit; font: inherit; font-size: 13px; }
 .sa-search::placeholder { color: var(--dsw-alias-label-secondary); }
@@ -2093,7 +2096,7 @@ var CSS = `
 .sa-sidebar-tree .sa-bulk-btn:hover { background: var(--dsw-alias-interactive-bg-active, var(--dsw-alias-interactive-bg-hover)); }
 .sa-sidebar-tree .sa-bulk-btn:disabled { opacity: 0.45; cursor: default; }
 [data-session-admin-sidebar][data-session-admin-selecting] [data-session-admin-new-session] { display: none; }
-[data-session-admin-sidebar]:not([data-session-admin-panels]) > nav { display: none; }
+[data-session-admin-sidebar] > nav { display: none; }
 .sa-btn-primary { border-color: transparent; background: var(--dsw-alias-state-business-primary); color: var(--dsw-alias-bg-base); }
 .sa-btn-primary:hover:not(:disabled) { background: var(--dsw-alias-state-business-primary); opacity: 0.9; }
 .sa-empty { padding: 24px 12px; text-align: center; font-size: 13px; line-height: 18px; color: var(--dsw-alias-label-secondary); }
@@ -2152,6 +2155,10 @@ function apply(ctx) {
   }, "session-admin: styles");
   const t = ctx.locale.bind(NS);
   installSettingsNavIcon(ctx, () => t("nav"));
+  installLogoToggle(ctx, () => ({
+    toSessionList: t("toSessionList"),
+    toNativeSidebar: t("toNativeSidebar")
+  }));
   bindAutomation(ctx);
   const archiveSession = (id, options) => {
     const workspace = ctx.get("uiWorkspace");
