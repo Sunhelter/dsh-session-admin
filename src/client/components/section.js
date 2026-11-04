@@ -11,6 +11,7 @@ import { postDelete } from '../api.js';
 import { orderedUnique } from '../format.js';
 import { markVanished, useVanished } from '../stores/vanished.js';
 import { togglePin, usePinned } from '../stores/pins.js';
+import { useAutomationActivity } from '../stores/automation.js';
 import { buildCardList, selectRows } from '../tree-model.js';
 import { SessionTree } from './session-tree.js';
 
@@ -38,6 +39,7 @@ export function SessionAdminSection(props) {
 	const archivedIds = workspaces.archivedSessionIds;
 	const goneIds = useVanished();
 	const pinnedIds = usePinned();
+	const activityAt = useAutomationActivity();
 
 	const [query, setQuery] = React.useState('');
 	const [selected, setSelected] = React.useState([]);
@@ -52,8 +54,8 @@ export function SessionAdminSection(props) {
 
 	/** Catalog rows worth showing, newest first; blank sessions hidden like the shipped tree. */
 	const { rows, currentId } = React.useMemo(
-		() => selectRows({ catalog, archivedIds, goneIds, showArchived }),
-		[catalog, archivedIds, goneIds, showArchived],
+		() => selectRows({ catalog, archivedIds, goneIds, showArchived, activityAt }),
+		[catalog, archivedIds, goneIds, showArchived, activityAt],
 	);
 
 	/** Session id to its Workspace name, for the second line of every card. */

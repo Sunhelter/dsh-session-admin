@@ -293,11 +293,84 @@ function usePinned() {
   return store2.useValue();
 }
 
+// src/client/stores/automation.js
+var EMPTY_IDS = /* @__PURE__ */ new Set();
+var EMPTY_AT = /* @__PURE__ */ new Map();
+var sessions = createStore(EMPTY_IDS);
+var activity = createStore(EMPTY_AT);
+var bound = false;
+function sameIds(left, right) {
+  if (left.size !== right.size) return false;
+  for (const id of left) if (!right.has(id)) return false;
+  return true;
+}
+function sameTimes(left, right) {
+  if (left.size !== right.size) return false;
+  for (const [id, at] of left) if (right.get(id) !== at) return false;
+  return true;
+}
+function bindAutomation(ctx) {
+  if (bound) return;
+  bound = true;
+  ctx.inject(["remote", "remote.schedule"], (sctx) => {
+    const load = async () => {
+      try {
+        const result = await sctx.remote.schedule.catalog();
+        if (result === null || typeof result !== "object" || result.ok !== true || !Array.isArray(result.value)) return;
+        const ids = /* @__PURE__ */ new Set();
+        const at = /* @__PURE__ */ new Map();
+        for (const record of result.value) {
+          if (record === null || typeof record !== "object" || typeof record.sessionId !== "string") {
+            continue;
+          }
+          if (record.status === "active") ids.add(record.sessionId);
+          const deliveredAt = record.lastDelivery?.deliveredAt;
+          if (typeof deliveredAt !== "string") continue;
+          const delivered = Date.parse(deliveredAt);
+          if (!Number.isFinite(delivered)) continue;
+          const previous = at.get(record.sessionId);
+          if (previous === void 0 || delivered > previous) at.set(record.sessionId, delivered);
+        }
+        if (!sameIds(ids, sessions.get())) sessions.set(ids);
+        if (!sameTimes(at, activity.get())) activity.set(at);
+      } catch {
+      }
+    };
+    sctx.effect(() => {
+      let offChanged = () => {
+      };
+      try {
+        offChanged = sctx.remote.$on("schedule/changed", () => void load());
+      } catch {
+      }
+      const offReset = sctx.on("connection/reset", () => void load());
+      void load();
+      return () => {
+        offChanged();
+        offReset();
+        if (sessions.get().size > 0) sessions.set(EMPTY_IDS);
+        if (activity.get().size > 0) activity.set(EMPTY_AT);
+      };
+    }, "session-admin: automation marks");
+  });
+}
+function useAutomationSessionIds() {
+  return sessions.useValue();
+}
+function useAutomationActivity() {
+  return activity.useValue();
+}
+
 // src/client/tree-model.js
 var BUCKETS = ["today", "yesterday", "week", "month", "older"];
 var DAY = 24 * 60 * 60 * 1e3;
+function withActivity(row, activityAt) {
+  const delivered = activityAt instanceof Map ? activityAt.get(row.id) : void 0;
+  if (typeof delivered !== "number" || !(delivered > (row.updatedAt ?? 0))) return row;
+  return { ...row, updatedAt: delivered };
+}
 function selectRows(options) {
-  const { catalog, archivedIds, goneIds, showArchived } = options;
+  const { catalog, archivedIds, goneIds, showArchived, activityAt } = options;
   const archived = new Set(archivedIds);
   const gone = new Set(goneIds);
   let currentId;
@@ -315,7 +388,7 @@ function selectRows(options) {
     if (row.blank === true && id !== currentId) continue;
     if (gone.has(id)) continue;
     if (archived.has(id) && showArchived !== true) continue;
-    rows.push(row);
+    rows.push(withActivity(row, activityAt));
   }
   rows.sort((left, right) => right.updatedAt - left.updatedAt);
   return { rows, archived, gone, currentId };
@@ -698,6 +771,7 @@ function SessionAdminSection(props) {
   const archivedIds = workspaces.archivedSessionIds;
   const goneIds = useVanished();
   const pinnedIds = usePinned();
+  const activityAt = useAutomationActivity();
   const [query, setQuery] = react_default.useState("");
   const [selected, setSelected] = react_default.useState([]);
   const [confirming, setConfirming] = react_default.useState(null);
@@ -708,8 +782,8 @@ function SessionAdminSection(props) {
   const archived = react_default.useMemo(() => new Set(archivedIds), [archivedIds]);
   const gone = react_default.useMemo(() => new Set(goneIds), [goneIds]);
   const { rows, currentId } = react_default.useMemo(
-    () => selectRows({ catalog, archivedIds, goneIds, showArchived }),
-    [catalog, archivedIds, goneIds, showArchived]
+    () => selectRows({ catalog, archivedIds, goneIds, showArchived, activityAt }),
+    [catalog, archivedIds, goneIds, showArchived, activityAt]
   );
   const workspaceLabels = react_default.useMemo(() => {
     const map = /* @__PURE__ */ new Map();
@@ -1215,56 +1289,6 @@ function SessionAdminOverlay(props) {
 
 // src/client/components/sidebar-workspaces.js
 var import_dsh_client_ui_primitives3 = require("@deepseek-ai/dsh-client-ui-primitives");
-
-// src/client/stores/automation.js
-var EMPTY = /* @__PURE__ */ new Set();
-var sessions = createStore(EMPTY);
-var bound = false;
-function sameIds(left, right) {
-  if (left.size !== right.size) return false;
-  for (const id of left) if (!right.has(id)) return false;
-  return true;
-}
-function bindAutomation(ctx) {
-  if (bound) return;
-  bound = true;
-  ctx.inject(["remote", "remote.schedule"], (sctx) => {
-    const load = async () => {
-      try {
-        const result = await sctx.remote.schedule.catalog();
-        if (result === null || typeof result !== "object" || result.ok !== true || !Array.isArray(result.value)) return;
-        const ids = /* @__PURE__ */ new Set();
-        for (const record of result.value) {
-          if (record !== null && typeof record === "object" && record.status === "active" && typeof record.sessionId === "string") {
-            ids.add(record.sessionId);
-          }
-        }
-        if (!sameIds(ids, sessions.get())) sessions.set(ids);
-      } catch {
-      }
-    };
-    sctx.effect(() => {
-      let offChanged = () => {
-      };
-      try {
-        offChanged = sctx.remote.$on("schedule/changed", () => void load());
-      } catch {
-      }
-      const offReset = sctx.on("connection/reset", () => void load());
-      void load();
-      return () => {
-        offChanged();
-        offReset();
-        if (sessions.get().size > 0) sessions.set(EMPTY);
-      };
-    }, "session-admin: automation marks");
-  });
-}
-function useAutomationSessionIds() {
-  return sessions.useValue();
-}
-
-// src/client/components/sidebar-workspaces.js
 function SidebarWorkspaces(props) {
   const t = props.t;
   const wide = props.wide !== false;
@@ -1286,6 +1310,7 @@ function SidebarWorkspaces(props) {
   const shellRef = react_default.useRef(null);
   const searchRef = react_default.useRef(null);
   const automation = useAutomationSessionIds();
+  const activityAt = useAutomationActivity();
   react_default.useEffect(() => {
     let current = treeRef.current;
     let shell = null;
@@ -1346,9 +1371,10 @@ function SidebarWorkspaces(props) {
       catalog,
       archivedIds: workspaces.archivedSessionIds,
       goneIds,
-      showArchived: false
+      showArchived: false,
+      activityAt
     }),
-    [catalog, workspaces.archivedSessionIds, goneIds]
+    [catalog, workspaces.archivedSessionIds, goneIds, activityAt]
   );
   const workspaceLabels = react_default.useMemo(() => {
     const map = /* @__PURE__ */ new Map();

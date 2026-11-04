@@ -18,7 +18,7 @@ import { postDelete } from '../api.js';
 import { buildCardList, selectRows } from '../tree-model.js';
 import { togglePin, usePinned } from '../stores/pins.js';
 import { markVanished, useVanished } from '../stores/vanished.js';
-import { useAutomationSessionIds } from '../stores/automation.js';
+import { useAutomationActivity, useAutomationSessionIds } from '../stores/automation.js';
 import { SessionTree } from './session-tree.js';
 
 /**
@@ -50,6 +50,7 @@ export function SidebarWorkspaces(props) {
 	const shellRef = React.useRef(null);
 	const searchRef = React.useRef(null);
 	const automation = useAutomationSessionIds();
+	const activityAt = useAutomationActivity();
 
 	React.useEffect(() => {
 		// The panel entries are a direct `nav` of the sidebar shell; our own node
@@ -129,8 +130,9 @@ export function SidebarWorkspaces(props) {
 				archivedIds: workspaces.archivedSessionIds,
 				goneIds,
 				showArchived: false,
+				activityAt,
 			}),
-		[catalog, workspaces.archivedSessionIds, goneIds],
+		[catalog, workspaces.archivedSessionIds, goneIds, activityAt],
 	);
 
 	/** Session id to its Workspace name, for the second line of every card. */

@@ -13,12 +13,28 @@ const BUCKETS = ['today', 'yesterday', 'week', 'month', 'older'];
 const DAY = 24 * 60 * 60 * 1000;
 
 /**
+ * Fold a reminder delivery into a row's sort time. The shipped catalog stamps
+ * `updatedAt` from user-sourced prompts only, so a Session woken by a scheduled
+ * task keeps the time of its last human message and sinks under every newer
+ * Session; the delivery time is that Session's real activity time. A copy keeps
+ * the catalog object itself untouched for the shipped tree.
+ * @param row - catalog summary.
+ * @param activityAt - Session id to latest reminder delivery in milliseconds.
+ * @returns the row, or a copy carrying the later time.
+ */
+function withActivity(row, activityAt) {
+	const delivered = activityAt instanceof Map ? activityAt.get(row.id) : undefined;
+	if (typeof delivered !== 'number' || !(delivered > (row.updatedAt ?? 0))) return row;
+	return { ...row, updatedAt: delivered };
+}
+
+/**
  * Catalog rows worth drawing, newest first.
- * @param options - `{ catalog, archivedIds, goneIds, showArchived }`.
+ * @param options - `{ catalog, archivedIds, goneIds, showArchived, activityAt }`.
  * @returns the rows, the archived and gone Sets, and the current Session id.
  */
 export function selectRows(options) {
-	const { catalog, archivedIds, goneIds, showArchived } = options;
+	const { catalog, archivedIds, goneIds, showArchived, activityAt } = options;
 	const archived = new Set(archivedIds);
 	const gone = new Set(goneIds);
 	// The Session the main view retains is the current one; its card keeps a
@@ -41,7 +57,7 @@ export function selectRows(options) {
 		if (row.blank === true && id !== currentId) continue;
 		if (gone.has(id)) continue;
 		if (archived.has(id) && showArchived !== true) continue;
-		rows.push(row);
+		rows.push(withActivity(row, activityAt));
 	}
 	rows.sort((left, right) => right.updatedAt - left.updatedAt);
 	return { rows, archived, gone, currentId };
