@@ -17,7 +17,7 @@ import {
 import { postDelete } from '../api.js';
 import { buildCardList, selectRows } from '../tree-model.js';
 import { togglePin, usePinned } from '../stores/pins.js';
-import { markVanished, useVanished } from '../stores/vanished.js';
+import { markVanished, pruneVanished, useVanished } from '../stores/vanished.js';
 import { useAutomationActivity, useAutomationSessionIds } from '../stores/automation.js';
 import { SessionTree } from './session-tree.js';
 
@@ -37,6 +37,14 @@ export function SidebarWorkspaces(props) {
 	const statusHook = typeof props.useSessionStatus === 'function' ? props.useSessionStatus : () => undefined;
 	const statuses = statusHook((state) => state);
 	const pinnedIds = usePinned();
+
+	// Once a restarted Host stops listing a deleted id, its tombstone is dead
+	// weight; drop it instead of hiding the id forever. Pending catalogs are
+	// empty, so only a settled list may prune.
+	React.useEffect(() => {
+		if (catalog.phase !== 'ready') return;
+		pruneVanished(catalog.ids);
+	}, [catalog.phase, catalog.ids]);
 
 	const [query, setQuery] = React.useState('');
 	const [searchExpanded, setSearchExpanded] = React.useState(false);

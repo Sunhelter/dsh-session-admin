@@ -3,8 +3,10 @@
  *
  * DSH ships no Session deletion API: this plugin removes a cold Session's
  * session-owned directory under the JSONL persistence root, plus its
- * projection-cache checkpoint. Live Sessions are refused, because the running
- * Agent still owns the log. The Workspace registry keeps its launch-time
+ * projection-cache checkpoint. A Session whose directory is already gone
+ * counts as deleted: its row can only be a live catalog entry the Host still
+ * remembers, and the browser drops it by id. Running Sessions are refused,
+ * because the running Agent still owns the log. The Workspace registry keeps its launch-time
  * header index in memory, so the sidebar drops a deleted row only after the
  * host restarts; this plugin's own settings page refreshes immediately.
  * `workspace.json` still lists the id until the next workspace mutation —
@@ -195,7 +197,9 @@ export function apply(ctx) {
       }
       const directory = index.get(id);
       if (directory === undefined) {
-        skipped.push({ id, reason: '磁盘上找不到会话文件' });
+        // Already gone from disk. The row is a live catalog entry that only a
+        // Host restart forgets, so report it deleted and let the browser drop it.
+        deleted.push(id);
         continue;
       }
       try {
@@ -262,7 +266,7 @@ export function apply(ctx) {
       ctx.tools.register({
         name: 'session_admin',
         description:
-          'List or permanently delete stored Harness Sessions. `list` returns id, title, working directory, creation time, size, and whether the Session is live. `delete` removes the session-owned files of every listed id and permanently discards its history; a live Session is skipped. Ask the user before deleting, and never delete the Session you are running in.',
+          'List or permanently delete stored Harness Sessions. `list` returns id, title, working directory, creation time, size, and whether the Session is live. `delete` removes the session-owned files of every listed id and permanently discards its history; a Session with a running turn is skipped. Ask the user before deleting, and never delete the Session you are running in.',
         parameters: {
           type: 'object',
           additionalProperties: false,

@@ -9,7 +9,7 @@
 import React, { h } from '../react.js';
 import { postDelete } from '../api.js';
 import { orderedUnique } from '../format.js';
-import { markVanished, useVanished } from '../stores/vanished.js';
+import { markVanished, pruneVanished, useVanished } from '../stores/vanished.js';
 import { togglePin, usePinned } from '../stores/pins.js';
 import { useAutomationActivity } from '../stores/automation.js';
 import { buildCardList, selectRows } from '../tree-model.js';
@@ -40,6 +40,14 @@ export function SessionAdminSection(props) {
 	const goneIds = useVanished();
 	const pinnedIds = usePinned();
 	const activityAt = useAutomationActivity();
+
+	// Once a restarted Host stops listing a deleted id, its tombstone is dead
+	// weight; drop it instead of hiding the id forever. Pending catalogs are
+	// empty, so only a settled list may prune.
+	React.useEffect(() => {
+		if (catalog.phase !== 'ready') return;
+		pruneVanished(catalog.ids);
+	}, [catalog.phase, catalog.ids]);
 
 	const [query, setQuery] = React.useState('');
 	const [selected, setSelected] = React.useState([]);

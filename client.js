@@ -253,21 +253,11 @@ function createStore(initial) {
 }
 
 // src/client/stores/vanished.js
-var store = createStore([]);
-function markVanished(ids) {
-  if (ids.length === 0) return;
-  store.set(orderedUnique([...store.get(), ...ids]));
-}
-function useVanished() {
-  return store.useValue();
-}
-
-// src/client/stores/pins.js
-var PINS_KEY = "session-admin.pinned";
+var VANISHED_KEY = "session-admin.vanished";
 var SESSION_ID = /^session-[0-9a-fA-F-]{8,64}$/;
 function readStored() {
   try {
-    const raw = JSON.parse(localStorage.getItem(PINS_KEY) ?? "[]");
+    const raw = JSON.parse(localStorage.getItem(VANISHED_KEY) ?? "[]");
     if (!Array.isArray(raw)) return [];
     const list = [];
     for (const value of raw) {
@@ -279,7 +269,52 @@ function readStored() {
     return [];
   }
 }
-var store2 = createStore(readStored());
+var store = createStore(readStored());
+function writeStored(ids) {
+  try {
+    localStorage.setItem(VANISHED_KEY, JSON.stringify(ids));
+  } catch {
+  }
+}
+function markVanished(ids) {
+  const valid = ids.filter((id) => SESSION_ID.test(id));
+  if (valid.length === 0) return;
+  const current = store.get();
+  const next = orderedUnique([...current, ...valid]);
+  if (next.length === current.length) return;
+  store.set(next);
+  writeStored(next);
+}
+function pruneVanished(presentIds) {
+  const present = new Set(presentIds);
+  const current = store.get();
+  const next = current.filter((id) => present.has(id));
+  if (next.length === current.length) return;
+  store.set(next);
+  writeStored(next);
+}
+function useVanished() {
+  return store.useValue();
+}
+
+// src/client/stores/pins.js
+var PINS_KEY = "session-admin.pinned";
+var SESSION_ID2 = /^session-[0-9a-fA-F-]{8,64}$/;
+function readStored2() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PINS_KEY) ?? "[]");
+    if (!Array.isArray(raw)) return [];
+    const list = [];
+    for (const value of raw) {
+      if (typeof value !== "string" || !SESSION_ID2.test(value) || list.includes(value)) continue;
+      list.push(value);
+    }
+    return list;
+  } catch {
+    return [];
+  }
+}
+var store2 = createStore(readStored2());
 function togglePin(id) {
   const current = store2.get();
   const next = current.includes(id) ? current.filter((value) => value !== id) : [id, ...current];
@@ -772,6 +807,10 @@ function SessionAdminSection(props) {
   const goneIds = useVanished();
   const pinnedIds = usePinned();
   const activityAt = useAutomationActivity();
+  react_default.useEffect(() => {
+    if (catalog.phase !== "ready") return;
+    pruneVanished(catalog.ids);
+  }, [catalog.phase, catalog.ids]);
   const [query, setQuery] = react_default.useState("");
   const [selected, setSelected] = react_default.useState([]);
   const [confirming, setConfirming] = react_default.useState(null);
@@ -1298,6 +1337,10 @@ function SidebarWorkspaces(props) {
   const statusHook = typeof props.useSessionStatus === "function" ? props.useSessionStatus : () => void 0;
   const statuses = statusHook((state) => state);
   const pinnedIds = usePinned();
+  react_default.useEffect(() => {
+    if (catalog.phase !== "ready") return;
+    pruneVanished(catalog.ids);
+  }, [catalog.phase, catalog.ids]);
   const [query, setQuery] = react_default.useState("");
   const [searchExpanded, setSearchExpanded] = react_default.useState(false);
   const [selectMode, setSelectMode] = react_default.useState(false);
@@ -1780,7 +1823,7 @@ function SidebarWorkspaces(props) {
 
 // src/client/stores/shell.js
 var SHELL_KEY = "session-admin.shell-override";
-function readStored2() {
+function readStored3() {
   try {
     const stored = localStorage.getItem(SHELL_KEY);
     return stored === null ? true : stored === "1";
@@ -1788,7 +1831,7 @@ function readStored2() {
     return true;
   }
 }
-var store4 = createStore(readStored2());
+var store4 = createStore(readStored3());
 function getShellOverride() {
   return store4.get();
 }
