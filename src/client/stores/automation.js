@@ -45,6 +45,25 @@ function sameTimes(left, right) {
 }
 
 /**
+ * The Session a catalog record names as its destination. Current records keep
+ * it in `target`; a `new` target creates a fresh Session per delivery, so only
+ * the latest delivery receipt names one. Older Hosts answer the former
+ * top-level `sessionId` instead.
+ * @param record - catalog entry.
+ * @returns the Session id, or undefined when the record names none.
+ */
+function destinationOf(record) {
+	const target = record.target;
+	if (target !== null && typeof target === 'object') {
+		if (typeof target.sessionId === 'string') return target.sessionId;
+		if (target.kind !== 'new') return undefined;
+		const deliveredTo = record.lastDelivery?.targetSessionId;
+		return typeof deliveredTo === 'string' ? deliveredTo : undefined;
+	}
+	return typeof record.sessionId === 'string' ? record.sessionId : undefined;
+}
+
+/**
  * Follow the schedule catalog and republish the scheduled Session ids and their
  * latest reminder deliveries. Must run inside the plugin fiber so the remote
  * face's lifetime is tied to it.
@@ -65,22 +84,23 @@ export function bindAutomation(ctx) {
 				const ids = new Set();
 				const at = new Map();
 				for (const record of result.value) {
-					if (
-						record === null ||
-						typeof record !== 'object' ||
-						typeof record.sessionId !== 'string'
-					) {
-						continue;
-					}
-					if (record.status === 'active') ids.add(record.sessionId);
+					if (record === null || typeof record !== 'object') continue;
+					const sessionId = destinationOf(record);
+					if (record.status === 'active' && typeof sessionId === 'string') ids.add(sessionId);
 					// A one-shot task turns inactive after its delivery, but that delivery
-					// is still the Session's latest activity; read every record.
+					// is still the Session's latest activity; read every record. The receipt
+					// names the Session that accepted it, which a `new` target names only there.
 					const deliveredAt = record.lastDelivery?.deliveredAt;
 					if (typeof deliveredAt !== 'string') continue;
 					const delivered = Date.parse(deliveredAt);
 					if (!Number.isFinite(delivered)) continue;
-					const previous = at.get(record.sessionId);
-					if (previous === undefined || delivered > previous) at.set(record.sessionId, delivered);
+					const recipient =
+						typeof record.lastDelivery?.targetSessionId === 'string'
+							? record.lastDelivery.targetSessionId
+							: sessionId;
+					if (typeof recipient !== 'string') continue;
+					const previous = at.get(recipient);
+					if (previous === undefined || delivered > previous) at.set(recipient, delivered);
 				}
 				if (!sameIds(ids, sessions.get())) sessions.set(ids);
 				if (!sameTimes(at, activity.get())) activity.set(at);

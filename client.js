@@ -344,6 +344,16 @@ function sameTimes(left, right) {
   for (const [id, at] of left) if (right.get(id) !== at) return false;
   return true;
 }
+function destinationOf(record) {
+  const target = record.target;
+  if (target !== null && typeof target === "object") {
+    if (typeof target.sessionId === "string") return target.sessionId;
+    if (target.kind !== "new") return void 0;
+    const deliveredTo = record.lastDelivery?.targetSessionId;
+    return typeof deliveredTo === "string" ? deliveredTo : void 0;
+  }
+  return typeof record.sessionId === "string" ? record.sessionId : void 0;
+}
 function bindAutomation(ctx) {
   if (bound) return;
   bound = true;
@@ -355,16 +365,17 @@ function bindAutomation(ctx) {
         const ids = /* @__PURE__ */ new Set();
         const at = /* @__PURE__ */ new Map();
         for (const record of result.value) {
-          if (record === null || typeof record !== "object" || typeof record.sessionId !== "string") {
-            continue;
-          }
-          if (record.status === "active") ids.add(record.sessionId);
+          if (record === null || typeof record !== "object") continue;
+          const sessionId = destinationOf(record);
+          if (record.status === "active" && typeof sessionId === "string") ids.add(sessionId);
           const deliveredAt = record.lastDelivery?.deliveredAt;
           if (typeof deliveredAt !== "string") continue;
           const delivered = Date.parse(deliveredAt);
           if (!Number.isFinite(delivered)) continue;
-          const previous = at.get(record.sessionId);
-          if (previous === void 0 || delivered > previous) at.set(record.sessionId, delivered);
+          const recipient = typeof record.lastDelivery?.targetSessionId === "string" ? record.lastDelivery.targetSessionId : sessionId;
+          if (typeof recipient !== "string") continue;
+          const previous = at.get(recipient);
+          if (previous === void 0 || delivered > previous) at.set(recipient, delivered);
         }
         if (!sameIds(ids, sessions.get())) sessions.set(ids);
         if (!sameTimes(at, activity.get())) activity.set(at);
